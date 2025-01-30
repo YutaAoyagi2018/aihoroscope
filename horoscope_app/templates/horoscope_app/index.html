@@ -217,10 +217,19 @@
         }
 
         /* セレクトボックスやインプットのスタイル */
-        #horoscope-form input[type="date"],
         #horoscope-form input[type="time"],
         #horoscope-form select {
             width: 100%;
+            padding: 8px 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        /* セレクトボックスやインプットのスタイル */
+        #horoscope-form select[name="year"],
+        #horoscope-form select[name="month"],
+        #horoscope-form select[name="day"] {
+            width: 30%;
             padding: 8px 10px;
             margin-top: 5px;
             border: 1px solid #ccc;
@@ -450,7 +459,27 @@
                                     <tr>
                                         <th>日付</th>
                                         <td>
-                                            <input type="date" id="date-input" name="date" required min="1900-01-01" max="2100-12-31">
+                                            <!-- <input type="date" id="date-input" name="date" required min="1900-01-01" max="2100-12-31"> -->
+                                            <!-- <input type="number" id="year-input" name="year" required > -->
+                                            <select name="year" id="year-select">
+                                                {% for year in years %}
+                                                    <option value="{{ year }}">{{ year }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            
+                                            <select name="month" id="month-select">
+                                                {% for month in months %}
+                                                    <option value="{{ month }}">{{ month }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            
+                                            <select name="day" id="day-select">
+                                                {% for day in days %}
+                                                    <option value="{{ day }}">{{ day }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <!-- <input type="number" id="month-input" name="month" required >
+                                            <input type="number" id="day-input" name="day" required > -->
                                         </td>
                                     </tr>
                                     <tr>
@@ -538,17 +567,17 @@
                                 <!-- 解析するボタン -->
                                 <tr>
                                     <td style="text-align: center;">
-                                        <button type="submit" id="submit-button1" style="font-size: small;">性格・人生の課題を占う</button>
+                                        <button type="submit" id="submit-button1">性格・人生の課題を占う</button>
                                         <div id="spinner1" class="spinner" style="display: none;"></div>
                                     </td>
                                 
                                     <td style="text-align: center;">
-                                        <button type="submit" id="submit-button2" style="font-size: small;">恋愛運を占う</button>
+                                        <button type="submit" id="submit-button2">恋愛運を占う</button>
                                         <div id="spinner2" class="spinner" style="display: none;"></div>
                                     </td>
                                 
                                     <td style="text-align: center;">
-                                        <button type="submit" id="submit-button3" style="font-size: small;">仕事運・金運を占う</button>
+                                        <button type="submit" id="submit-button3">仕事運・金運を占う</button>
                                         <div id="spinner3" class="spinner" style="display: none;"></div>
                                     </td>
                                 </tr>
@@ -633,21 +662,31 @@
     <!-- 既存のスクリプトにクッキー保存機能を統合 -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const dateInput = document.querySelector('input[name="date"]');
+            const yearSelect = document.getElementById('year-select');
+            const monthSelect = document.getElementById('month-select');
+            const daySelect = document.getElementById('day-select');
             const timeInput = document.querySelector('input[name="time"]');
             const prefectureSelect = document.getElementById('prefecture');
 
             // クッキーから値を取得
-            const savedDate = getCookie('horoscope_date');
+            const savedYear = getCookie('horoscope_year');
+            const savedMonth = getCookie('horoscope_month');
+            const savedDay = getCookie('horoscope_day');
             const savedTime = getCookie('horoscope_time');
             const savedPrefecture = getCookie('horoscope_prefecture');
 
-            console.log("クッキーから取得した値:", savedDate, savedTime, savedPrefecture); // デバッグ用
+            console.log("クッキーから取得した値:", savedYear , savedMonth , savedDay, savedTime, savedPrefecture); // デバッグ用
 
-            if (savedDate && savedTime && savedPrefecture) {
-                // 日付を設定（フォーマット: YYYY-MM-DD）
-                if (dateInput) {
-                    dateInput.value = savedDate;
+            if (savedYear && savedMonth && savedDay && savedTime && savedPrefecture) {
+                // 日付を設定
+                if (yearSelect) {
+                    yearSelect.value = savedYear;
+                }
+                if (monthSelect) {
+                    monthSelect.value = savedMonth;
+                }
+                if (daySelect) {
+                    daySelect.value = savedDay;
                 }
 
                 // 時刻を設定（フォーマット: HH:MM）
@@ -680,8 +719,15 @@
                 const year = now.getFullYear();
                 const month = String(now.getMonth() + 1).padStart(2, '0');
                 const day = String(now.getDate()).padStart(2, '0');
-                if (dateInput) {
-                    dateInput.value = `${year}-${month}-${day}`;
+                // 日付を設定
+                if (yearSelect) {
+                    yearSelect.value = savedYear;
+                }
+                if (monthSelect) {
+                    monthSelect.value = savedMonth;
+                }
+                if (daySelect) {
+                    daySelect.value = savedDay;
                 }
 
                 // 時刻を HH:MM 形式で設定
@@ -711,20 +757,6 @@
         });
     
         // CSRF トークン取得関数
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
         const csrftoken = getCookie('csrftoken');
     
         // 1) 「性格」ボタン (フォーム送信) の処理
@@ -746,7 +778,9 @@
         // クッキーに保存する関数
         function saveFormDataToCookies(formData) {
             const data = formDataToObject(formData);
-            setCookie('horoscope_date', data.date, 30); // 30日間有効
+            setCookie('horoscope_year', data.year, 30); // 30日間有効
+            setCookie('horoscope_month', data.month, 30); // 30日間有効
+            setCookie('horoscope_day', data.day, 30); // 30日間有効
             setCookie('horoscope_time', data.time, 30);
             setCookie('horoscope_prefecture', data.prefecture, 30);
         }
@@ -764,7 +798,10 @@
                 const data = formDataToObject(formData);
                 
                 // 日付と時刻の分解
-                const [year, month, day] = data.date.split('-');
+                // const [year, month, day] = data.date.split('-');
+                const year = data.year;
+                const month = data.month;
+                const day = data.day;
                 const [hour, minute] = data.time.split(':');
 
                 // 送信データの組み立て
@@ -843,7 +880,10 @@
             });
     
             // date と time を分解
-            const [year, month, day] = data.date.split('-');
+            // const [year, month, day] = data.date.split('-');
+            const year = data.year;
+            const month = data.month;
+            const day = data.day;
             const [hour, minute] = data.time.split(':');
     
             // 必要なパラメータを新たに作成
@@ -876,59 +916,6 @@
                 alert(err.message);
             }
         });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('horoscope-form');
-        const dateInput = document.getElementById('date-input');
-        const errorMessage = document.getElementById('error-message');
-        
-        // 最小・最大日付を設定
-        const minDate = new Date('1900-01-01');
-        const maxDate = new Date('2100-12-31');
-        
-        form.addEventListener('submit', function(event) {
-            const inputDate = new Date(dateInput.value);
-            
-            // 日付が有効かどうかチェック
-            if (isNaN(inputDate.getTime())) {
-                event.preventDefault();
-                errorMessage.textContent = '有効な日付を入力してください。';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            // 範囲内かチェック
-            if (inputDate < minDate || inputDate > maxDate) {
-                event.preventDefault();
-                errorMessage.textContent = '日付は1900年1月1日から2100年12月31日までの範囲で選択してください。';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            // エラーメッセージを非表示に
-            errorMessage.style.display = 'none';
-        });
-        
-        // リアルタイムでのバリデーション（オプション）
-        dateInput.addEventListener('input', function() {
-            const inputDate = new Date(dateInput.value);
-            
-            if (isNaN(inputDate.getTime())) {
-                errorMessage.textContent = '有効な日付を入力してください。';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            if (inputDate < minDate || inputDate > maxDate) {
-                errorMessage.textContent = '日付は1900年1月1日から2100年12月31日までの範囲で選択してください。';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            errorMessage.style.display = 'none';
-        });
-    });
     </script>
     <script>
         /**

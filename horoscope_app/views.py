@@ -20,7 +20,10 @@ def index(request):
     トップページ(index.html)を返すビュー。
     ユーザがここでフォームに出生データを入力する。
     """
-    return render(request, 'horoscope_app/index.html')
+    years = range(1900, 2100)
+    months = range(1, 13)
+    days = range(1, 32)
+    return render(request, 'horoscope_app/index.html', {'years': years, 'months': months, 'days': days})
 
 
 
