@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ホロスコープ解析</title>
+    <!-- Marked.jsのUMDビルドを読み込む -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- DOMPurifyを読み込む（セキュリティ対策） -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.10/purify.min.js"></script>
+    
+    <style>
+        /* スタイリングの例 */
+        #result {
+        font-family: 'Helvetica, Arial, sans-serif';
+        line-height: 1.6;
+        color: #333;
+        padding: 20px;
+        background-color: #f9f9f9;
+        }
+
+        #result h3 {
+        border-bottom: 2px solid #e2e2e2;
+        padding-bottom: 10px;
+        }
+
+        #result ul {
+        list-style-type: disc;
+        margin-left: 20px;
+        }
+
+        #result hr {
+        border: none;
+        border-top: 1px solid #e2e2e2;
+        margin: 20px 0;
+        }
+        /* スピナーのスタイル */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #4CAF50; /* ボタンの色に合わせる */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            background-color:#99bbff;
+        }
+        form {
+            max-width: 500px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
+        }
+        /* Canvas 用のラッパ */
+        #chart-container {
+            display: none; /* 最初は非表示 */
+            position: relative; /* 相対配置 */
+            width: 600px;
+            height: 600px;
+            margin-bottom: 20px; /* 下の要素との間隔 */
+            display: none;
+        }
+        #horoscope-canvas {
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+        #horoscope-canvas {
+        background: #99bbff;
+        border: 1px solid #99bbff;
+        }
+        .planet-label {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        background: rgba(255,255,255,0);
+        border: none;
+        padding: 2px 4px;
+        font-size: 40px;
+        pointer-events: none; /* マウスイベントを透過 */
+        }
+
+        .planet-label.Sun {
+        z-index: 10; /* 一番上にしたいなら数字を大きく */
+        background-color: transparent;
+        
+        }
+        .planet-label.Moon {
+        z-index: 9;
+        background-color: transparent;
+        
+        }
+        .planet-label.Mercury {
+        z-index: 8;
+        background-color: transparent;
+        
+        }
+        .planet-label.Venus{
+        z-index: 7; /* 一番上にしたいなら数字を大きく */
+        background-color: transparent;
+        
+        }
+        .planet-label.Mars {
+        z-index: 6;
+        background-color: transparent;
+        
+        }
+        .planet-label.Jupiter {
+        z-index: 5;
+        background-color: transparent;
+        
+        }
+        .planet-label.Saturn {
+        z-index: 4; /* 一番上にしたいなら数字を大きく */
+        background-color: transparent;
+        
+        }
+        .planet-label.Uranus {
+        z-index: 3;
+        background-color: transparent;
+        
+        }
+        .planet-label.Neptune {
+        z-index: 2;
+        background-color: transparent;
+        
+        }
+        .planet-label.Pluto {
+        z-index: 1; /* 一番下 */
+        background-color: transparent;
+        
+        }
+        /* 全体のボックスサイズをリセット */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* h1のスタイル */
+        h1 {
+            background-color: #000;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            margin: 0;
+            width: 100%;
+        }
+
+        /* コンテンツを横並びにするコンテナ */
+        .content-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            gap: 20px;
+            max-width: 100%;
+
+        }
+
+        /* フォームのスタイル */
+        #horoscope-form {
+            flex: 1;
+            max-width: 100%;
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* テーブルのスタイル */
+        #horoscope-form table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #horoscope-form th, #horoscope-form td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        #horoscope-form th {
+            background-color: #4CAF50;
+            color: white;
+            width: 30%;
+        }
+
+        #horoscope-form td {
+            background-color: #fff;
+        }
+
+        /* セレクトボックスやインプットのスタイル */
+        #horoscope-form input[type="date"],
+        #horoscope-form input[type="time"],
+        #horoscope-form select {
+            width: 100%;
+            padding: 8px 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* ボタンのスタイル */
+        #horoscope-form button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #horoscope-form button:hover {
+            background-color: #45a049;
+        }
+
+        
+
+        /* キャンバスのスタイル */
+        #horoscope-canvas {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        /* 結果表示のスタイル */
+        #result {
+            background-color: #fff;
+            padding: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            color: #333;
+        }
+
+        /* エラーメッセージのスタイル */
+        #error-message {
+            color: red;
+            margin-top: 10px;
+        }
+
+        /* 小さなテキストのスタイル */
+        small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .content-container {
+                flex-direction: column;
+            }
+
+            #horoscope-form, #chart-container {
+                max-width: 100%;
+            }
+        }
+        #submit-button1:disabled {
+            background-color: #ccc; /* 灰色の背景 */
+            color: #666;           /* テキスト色を暗めの灰色に */
+            cursor: not-allowed;   /* カーソルを禁止マークに */
+            border: 1px solid #bbb;/* 境界線も少し暗めに */
+        }
+        #submit-button2:disabled {
+            background-color: #ccc; /* 灰色の背景 */
+            color: #666;           /* テキスト色を暗めの灰色に */
+            cursor: not-allowed;   /* カーソルを禁止マークに */
+            border: 1px solid #bbb;/* 境界線も少し暗めに */
+        }
+        #submit-button3:disabled {
+            background-color: #ccc; /* 灰色の背景 */
+            color: #666;           /* テキスト色を暗めの灰色に */
+            cursor: not-allowed;   /* カーソルを禁止マークに */
+            border: 1px solid #bbb;/* 境界線も少し暗めに */
+        }
+
+        /* 既存のスタイルは変更せず、最後に追加 */
+
+        /* 性格・人生の課題ボタン (青系) */
+        #submit-button1 {
+            background-color: #2196F3 !important;  /* マテリアルデザインの青 */
+            border: 1px solid #1976D2 !important;
+        }
+        #submit-button1:hover {
+            background-color: #1976D2 !important;  /* 濃い青 */
+        }
+
+        /* 恋愛運ボタン (ピンク系) */
+        #submit-button2 {
+            background-color: #E91E63 !important;  /* マテリアルデザインのピンク */
+            border: 1px solid #C2185B !important;
+        }
+        #submit-button2:hover {
+            background-color: #C2185B !important;  /* 濃いピンク */
+        }
+
+        /* 仕事運・金運ボタン (黄色系) */
+        #submit-button3 {
+            background-color: #FFC107 !important;  /* マテリアルデザインの琥珀色 */
+            border: 1px solid #FFA000 !important;
+            color: #333; /* 文字色をダークに */
+        }
+        #submit-button3:hover {
+            background-color: #FFA000 !important;  /* 濃い琥珀色 */
+        }
+        #premium-info {
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            background: #f8fff8;
+        }
+
+        #subscribe-button {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border: none;
+            padding: 12px 24px;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #subscribe-button:hover {
+            transform: scale(1.05);
+        }
+
+        #payment-modal {
+            z-index: 1000;
+        }
+
+        #payment-modal > div {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        #container-table {
+            width: 1000px;
+        }
+        /* モーダルのスタイル */
+        .modal {
+            display: none; /* 初期状態では非表示 */
+            position: fixed; /* 固定表示 */
+            z-index: 1000; /* 他の要素より前面に表示 */
+            left: 0;
+            top: 0;
+            width: 100%; /* 全幅 */
+            height: 100%; /* 全高 */
+            overflow: auto; /* スクロール可能に */
+            background-color: rgba(0, 0, 0, 0.5); /* 半透明の背景 */
+        }
+
+        /* モーダルコンテンツのスタイル */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; /* 上下の余白と中央配置 */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* 幅調整 */
+            max-width: 700px; /* 最大幅 */
+            position: relative;
+        }
+
+        /* 閉じるボタンのスタイル */
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        /* トリガーボタンのスタイル（任意） */
+        #open-modal-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        #open-modal-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI占星術師アオポンのホロスコープ解析</h1>
+    <div class="content-container">
+        
+        <table id="container-table" style="margin:auto">
+            <tr>
+                <td  style="text-align: center;">
+                    
+                
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div id="data" style="width: 100%;">
+                        <form id="horoscope-form" method="POST" action="{% url 'horoscope_app:analyze' %}">
+                            {% csrf_token %}
+            
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <th>日付</th>
+                                        <td>
+                                            <input type="date" id="date-input" name="date" required min="1900-01-01" max="2100-12-31">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>時刻</th>
+                                        <td>
+                                            <input type="time" name="time" required>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>都道府県</th>
+                                        <td>
+                                            <select name="prefecture" id="prefecture">
+                                                <!-- 以下、県庁所在地の緯度・経度を data 属性に入れています -->
+                                                <!-- 必要に応じて微調整してください -->
+                                                <option value="Hokkaido" data-lat="43.06417" data-lon="141.34694">北海道</option>
+                                                <option value="Aomori" data-lat="40.82444" data-lon="140.74">青森県</option>
+                                                <option value="Iwate" data-lat="39.70361" data-lon="141.1525">岩手県</option>
+                                                <option value="Miyagi" data-lat="38.26889" data-lon="140.87194">宮城県</option>
+                                                <option value="Akita" data-lat="39.71861" data-lon="140.1025">秋田県</option>
+                                                <option value="Yamagata" data-lat="38.24056" data-lon="140.36333">山形県</option>
+                                                <option value="Fukushima" data-lat="37.75" data-lon="140.46778">福島県</option>
+                                                <option value="Ibaraki" data-lat="36.34139" data-lon="140.44667">茨城県</option>
+                                                <option value="Tochigi" data-lat="36.56583" data-lon="139.88361">栃木県</option>
+                                                <option value="Gunma" data-lat="36.39111" data-lon="139.06083">群馬県</option>
+                                                <option value="Saitama" data-lat="35.85694" data-lon="139.64889">埼玉県</option>
+                                                <option value="Tokyo" data-lat="35.6895" data-lon="139.6917" selected>東京都</option>
+                                                <option value="Chiba" data-lat="35.60506" data-lon="140.12333">千葉県</option>
+                                                <option value="Kanagawa" data-lat="35.44778" data-lon="139.6425">神奈川県</option>
+                                                <option value="Niigata" data-lat="37.90222" data-lon="139.02361">新潟県</option>
+                                                <option value="Toyama" data-lat="36.69529" data-lon="137.21134">富山県</option>
+                                                <option value="Ishikawa" data-lat="36.59444" data-lon="136.62556">石川県</option>
+                                                <option value="Fukui" data-lat="36.06528" data-lon="136.22194">福井県</option>
+                                                <option value="Yamanashi" data-lat="35.66389" data-lon="138.56833">山梨県</option>
+                                                <option value="Nagano" data-lat="36.65139" data-lon="138.18111">長野県</option>
+                                                <option value="Gifu" data-lat="35.39111" data-lon="136.72222">岐阜県</option>
+                                                <option value="Shizuoka" data-lat="34.97694" data-lon="138.38306">静岡県</option>
+                                                <option value="Aichi" data-lat="35.18028" data-lon="136.90667">愛知県</option>
+                                                <option value="Mie" data-lat="34.73028" data-lon="136.50859">三重県</option>
+                                                <option value="Shiga" data-lat="35.00444" data-lon="135.86833">滋賀県</option>
+                                                <option value="Kyoto" data-lat="35.02139" data-lon="135.75556">京都府</option>
+                                                <option value="Osaka" data-lat="34.68639" data-lon="135.52">大阪府</option>
+                                                <option value="Hyogo" data-lat="34.69139" data-lon="135.18306">兵庫県</option>
+                                                <option value="Nara" data-lat="34.68528" data-lon="135.83278">奈良県</option>
+                                                <option value="Wakayama" data-lat="34.22611" data-lon="135.1675">和歌山県</option>
+                                                <option value="Tottori" data-lat="35.50361" data-lon="134.23833">鳥取県</option>
+                                                <option value="Shimane" data-lat="35.47222" data-lon="133.05056">島根県</option>
+                                                <option value="Okayama" data-lat="34.66167" data-lon="133.935">岡山県</option>
+                                                <option value="Hiroshima" data-lat="34.39639" data-lon="132.45962">広島県</option>
+                                                <option value="Yamaguchi" data-lat="34.18583" data-lon="131.47139">山口県</option>
+                                                <option value="Tokushima" data-lat="34.06583" data-lon="134.55944">徳島県</option>
+                                                <option value="Kagawa" data-lat="34.34028" data-lon="134.04333">香川県</option>
+                                                <option value="Ehime" data-lat="33.84167" data-lon="132.76556">愛媛県</option>
+                                                <option value="Kochi" data-lat="33.55972" data-lon="133.53108">高知県</option>
+                                                <option value="Fukuoka" data-lat="33.60639" data-lon="130.41806">福岡県</option>
+                                                <option value="Saga" data-lat="33.24944" data-lon="130.29889">佐賀県</option>
+                                                <option value="Nagasaki" data-lat="32.74472" data-lon="129.87361">長崎県</option>
+                                                <option value="Kumamoto" data-lat="32.78972" data-lon="130.74167">熊本県</option>
+                                                <option value="Oita" data-lat="33.23806" data-lon="131.6125">大分県</option>
+                                                <option value="Miyazaki" data-lat="31.91111" data-lon="131.42389">宮崎県</option>
+                                                <option value="Kagoshima" data-lat="31.56028" data-lon="130.55806">鹿児島県</option>
+                                                <option value="Okinawa" data-lat="26.2125" data-lon="127.68111">沖縄県</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <!-- 緯度/経度入力（readonlyにして自動セット） -->
+                            <input type="hidden" step="0.0001" name="lat" id="lat" required readonly>
+                            <input type="hidden" step="0.0001" name="lon" id="lon" required readonly>
+                            <input type="hidden" step="0.1" name="tz" required value="9.0">
+                            <input type="hidden" step="0.1" name="dst" required value="0.0">
+                    
+                            <!-- エラーメッセージ表示用 -->
+                            <div id="error-message"></div>
+            
+                            
+                            <table>
+                                <tr>
+                                    <td colspan="3" style="text-align: center;">
+                                        <!-- ホロスコープ作成ボタン -->
+                                        <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button>
+                                    </td>
+                                </tr>
+                                <!-- 解析するボタン -->
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <button type="submit" id="submit-button1" style="font-size: small;">性格・人生の課題を占う</button>
+                                        <div id="spinner1" class="spinner" style="display: none;"></div>
+                                    </td>
+                                
+                                    <td style="text-align: center;">
+                                        <button type="submit" id="submit-button2" style="font-size: small;">恋愛運を占う</button>
+                                        <div id="spinner2" class="spinner" style="display: none;"></div>
+                                    </td>
+                                
+                                    <td style="text-align: center;">
+                                        <button type="submit" id="submit-button3" style="font-size: small;">仕事運・金運を占う</button>
+                                        <div id="spinner3" class="spinner" style="display: none;"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <small style="font-size: smaller;">1~3分ほどかかります。</small>
+                            <!-- テキスト解析結果を表示する領域 -->
+                            <div>
+                                <div id="result">回答がここに表示されます</div>
+                            </div>
+                        </form>
+                    </div>
+                </td>
+                
+            </tr>
+
+
+        </table>
+        <!-- モーダルの構造 -->
+        <div id="chart-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="chart-container">
+                    <!-- ホロスコープを描画する領域 -->
+                    <canvas id="horoscope-canvas" width="600" height="600"></canvas>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <script>
+        // モーダル要素の取得
+        var modal = document.getElementById("chart-modal");
+
+        // ボタン要素の取得
+        var btn = document.getElementById("draw-button");
+
+        // 閉じるボタンの取得
+        var span = document.getElementsByClassName("close")[0];
+
+        // ボタンがクリックされたときにモーダルを表示
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // 閉じるボタンがクリックされたときにモーダルを非表示
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // モーダルの外側がクリックされたときにモーダルを非表示
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+    <script>
+    
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days*24*60*60*1000));
+            const expires = "expires="+ d.toUTCString();
+            document.cookie = `${name}=${value};${expires};path=/`;
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+
+    <!-- 既存のスクリプトにクッキー保存機能を統合 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.querySelector('input[name="date"]');
+            const timeInput = document.querySelector('input[name="time"]');
+            const prefectureSelect = document.getElementById('prefecture');
+
+            // クッキーから値を取得
+            const savedDate = getCookie('horoscope_date');
+            const savedTime = getCookie('horoscope_time');
+            const savedPrefecture = getCookie('horoscope_prefecture');
+
+            console.log("クッキーから取得した値:", savedDate, savedTime, savedPrefecture); // デバッグ用
+
+            if (savedDate && savedTime && savedPrefecture) {
+                // 日付を設定（フォーマット: YYYY-MM-DD）
+                if (dateInput) {
+                    dateInput.value = savedDate;
+                }
+
+                // 時刻を設定（フォーマット: HH:MM）
+                if (timeInput) {
+                    timeInput.value = savedTime;
+                }
+
+                // 都道府県を設定
+                if (prefectureSelect) {
+                    const options = prefectureSelect.options;
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].value === savedPrefecture) {
+                            prefectureSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                // 緯度経度を更新
+                const selectedOption = prefectureSelect.selectedOptions[0];
+                if (selectedOption) {
+                    document.getElementById('lat').value = selectedOption.getAttribute('data-lat');
+                    document.getElementById('lon').value = selectedOption.getAttribute('data-lon');
+                }
+            } else {
+                // クッキーが存在しない場合、現在の日付と時刻をセット
+                const now = new Date();
+
+                // 日付を YYYY-MM-DD 形式で設定
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                if (dateInput) {
+                    dateInput.value = `${year}-${month}-${day}`;
+                }
+
+                // 時刻を HH:MM 形式で設定
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                if (timeInput) {
+                    timeInput.value = `${hours}:${minutes}`;
+                }
+
+                // 都道府県セレクトのデフォルト(東京)に合わせて緯度経度をセット
+                if (prefectureSelect) {
+                    const selectedOption = prefectureSelect.selectedOptions[0];
+                    if (selectedOption) {
+                        document.getElementById('lat').value = selectedOption.getAttribute('data-lat');
+                        document.getElementById('lon').value = selectedOption.getAttribute('data-lon');
+                    }
+                }
+            }
+        });
+        
+    
+        // 都道府県が変更されたら緯度経度を更新
+        document.getElementById('prefecture').addEventListener('change', (e) => {
+            const selected = e.target.selectedOptions[0];
+            document.getElementById('lat').value = selected.getAttribute('data-lat');
+            document.getElementById('lon').value = selected.getAttribute('data-lon');
+        });
+    
+        // CSRF トークン取得関数
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+    
+        // 1) 「性格」ボタン (フォーム送信) の処理
+        // 共通要素の事前取得
+        const submitButtons = [
+        document.getElementById('submit-button1'),
+        document.getElementById('submit-button2'),
+        document.getElementById('submit-button3')
+        ];
+        const resultDiv = document.getElementById('result');
+
+        // フォームデータをオブジェクトに変換するヘルパー関数
+        const formDataToObject = formData => {
+        const data = {};
+        formData.forEach((value, key) => data[key] = value);
+        return data;
+        };
+        
+        // クッキーに保存する関数
+        function saveFormDataToCookies(formData) {
+            const data = formDataToObject(formData);
+            setCookie('horoscope_date', data.date, 30); // 30日間有効
+            setCookie('horoscope_time', data.time, 30);
+            setCookie('horoscope_prefecture', data.prefecture, 30);
+        }
+        
+        // 送信ハンドラー生成関数
+        const createSubmitHandler = (sbValue, spinnerId) => async e => {
+            e.preventDefault();
+            
+            const form = e.target.form;
+            if (!form) return;
+
+            try {
+                // フォームデータ処理
+                const formData = new FormData(form);
+                const data = formDataToObject(formData);
+                
+                // 日付と時刻の分解
+                const [year, month, day] = data.date.split('-');
+                const [hour, minute] = data.time.split(':');
+
+                // 送信データの組み立て
+                const sendData = {
+                    year: year,
+                    month: month,
+                    day: day,
+                    hour: hour,
+                    minute: minute,
+                    lat: data.lat,
+                    lon: data.lon,
+                    tz: data.tz,
+                    dst: data.dst,
+                    sb: sbValue
+                };
+
+                // UI状態更新
+                submitButtons.forEach(btn => btn.disabled = true);
+                const spinner = document.getElementById(spinnerId);
+                if (spinner) spinner.style.display = 'inline-block';
+
+                // APIリクエスト
+                const response = await fetch("{% url 'horoscope_app:analyze' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
+                },
+                body: new URLSearchParams(sendData)
+                });
+
+                // レスポンス処理
+                const content = await response.json();
+                if (!response.ok) throw new Error(content.error || 'Unknown error');
+
+                // Markdown処理とサニタイズ
+                const cleanHtml = DOMPurify.sanitize(marked.parse(content.result));
+                resultDiv.innerHTML = cleanHtml;
+
+                // クッキーに保存
+                saveFormDataToCookies(formData);
+
+            } catch (error) {
+                const errorMessage = error.name === 'SyntaxError' 
+                ? 'Invalid server response'
+                : error.message;
+                resultDiv.textContent = error.response ? `エラー: ${error.message}` : `通信エラー: ${errorMessage}`;
+            } finally {
+                submitButtons.forEach(btn => btn.disabled = false);
+                const spinner = document.getElementById(spinnerId);
+                if (spinner) spinner.style.display = 'none';
+            }
+        };
+
+        // ボタン設定とイベントリスナーの登録
+        const buttonConfigs = [
+        { id: 'submit-button1', spinner: 'spinner1', sb: 1 },
+        { id: 'submit-button2', spinner: 'spinner2', sb: 2 },
+        { id: 'submit-button3', spinner: 'spinner3', sb: 3 }
+        ];
+
+        buttonConfigs.forEach(({ id, spinner, sb }) => {
+        const button = document.getElementById(id);
+        if (button) {
+            button.addEventListener('click', createSubmitHandler(sb, spinner));
+        }
+        });
+        // 2) 「ホロスコープを作成」ボタンの処理
+        document.getElementById('draw-button').addEventListener('click', async function() {
+            // フォーム入力値を取得
+            const form = document.getElementById('horoscope-form');
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+    
+            // date と time を分解
+            const [year, month, day] = data.date.split('-');
+            const [hour, minute] = data.time.split(':');
+    
+            // 必要なパラメータを新たに作成
+            const params = new URLSearchParams({
+                year: year,
+                month: month,
+                day: day,
+                hour: hour,
+                minute: minute,
+                lat: data.lat,
+                lon: data.lon,
+                tz: data.tz,
+                dst: data.dst
+            });
+    
+            // 正しいURLを使用する
+            const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
+    
+            try {
+                const response = await fetch(horoscopeUrl);
+                if (!response.ok) {
+                    throw new Error("ホロスコープデータの取得に失敗しました");
+                }
+                const horoscopeData = await response.json();
+                // 取得したデータを使って描画
+                drawHoroscopeWheel(horoscopeData);
+                // クッキーに保存
+                saveFormDataToCookies(formData);
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('horoscope-form');
+        const dateInput = document.getElementById('date-input');
+        const errorMessage = document.getElementById('error-message');
+        
+        // 最小・最大日付を設定
+        const minDate = new Date('1900-01-01');
+        const maxDate = new Date('2100-12-31');
+        
+        form.addEventListener('submit', function(event) {
+            const inputDate = new Date(dateInput.value);
+            
+            // 日付が有効かどうかチェック
+            if (isNaN(inputDate.getTime())) {
+                event.preventDefault();
+                errorMessage.textContent = '有効な日付を入力してください。';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // 範囲内かチェック
+            if (inputDate < minDate || inputDate > maxDate) {
+                event.preventDefault();
+                errorMessage.textContent = '日付は1900年1月1日から2100年12月31日までの範囲で選択してください。';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // エラーメッセージを非表示に
+            errorMessage.style.display = 'none';
+        });
+        
+        // リアルタイムでのバリデーション（オプション）
+        dateInput.addEventListener('input', function() {
+            const inputDate = new Date(dateInput.value);
+            
+            if (isNaN(inputDate.getTime())) {
+                errorMessage.textContent = '有効な日付を入力してください。';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            if (inputDate < minDate || inputDate > maxDate) {
+                errorMessage.textContent = '日付は1900年1月1日から2100年12月31日までの範囲で選択してください。';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            errorMessage.style.display = 'none';
+        });
+    });
+    </script>
+    <script>
+        /**
+         * 惑星英名 => 惑星和名
+         */
+        const planetNameMap = {
+        "Sun"     : "太陽",
+        "Moon"    : "月",
+        "Mercury" : "水星",
+        "Venus"   : "金星",
+        "Mars"    : "火星",
+        "Jupiter" : "木星",
+        "Saturn"  : "土星",
+        "Uranus"  : "天王星",
+        "Neptune" : "海王星",
+        "Pluto"   : "冥王星",
+        // "True Node": "北ノード",
+        // "Mean Node": "Mean Node",
+        // その他必要に応じて追加
+        };
+
+        /**
+         * 惑星英名 => 惑星シンボル (Unicode文字) の対応表
+         * ここでは参考までに代表的な記号を設定していますが、
+         * フォントによって表示できない場合もあるので注意してください。
+         */
+        const planetSymbolMap = {
+        "Sun"     : "☉",
+        "Moon"    : "☾", // "☽" などフォントによって微妙に異なります
+        "Mercury" : "☿",
+        "Venus"   : "♀",
+        "Mars"    : "♂",
+        "Jupiter" : "♃",
+        "Saturn"  : "♄",
+        "Uranus"  : "♅",
+        "Neptune" : "♆",
+        "Pluto"   : "♇"
+        };
+
+        /**
+         * アスペクトの種類ごとの線の色やスタイルを決めるための表
+         */
+        const aspectColorMap = {
+        "コンジャンクション" : "#ff0000", // 0°
+        "オポジション"      : "#0000ff", // 180°
+        "スクエア"         : "#ff00ff", // 90°
+        "トライン"         : "#008000", // 120°
+        "セクスタイル"     : "#ffa500", // 60°
+
+        // 英語表記の場合の例
+        "Conjunction" : "#ff0000",
+        "Opposition"  : "#0000ff",
+        "Square"      : "#ff00ff",
+        "Trine"       : "#008000",
+        "Sextile"     : "#ffa500",
+        };
+
+
+        /**
+         * ホロスコープをキャンバスに描画するメイン関数
+         */
+        function drawHoroscopeWheel(horoscopeData) {
+
+            // Canvas とコンテキスト
+            const canvas = document.getElementById('horoscope-canvas');
+            document.getElementById('chart-container').style.display = 'block';
+            const ctx = canvas.getContext('2d');
+
+            // キャンバスをクリア
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // すでに生成されているラベル要素があれば削除
+            const chartContainer = document.getElementById('chart-container');
+            const oldLabels = chartContainer.querySelectorAll('.planet-label');
+            oldLabels.forEach(label => label.remove());
+
+            // 中心座標 & 半径
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius  = 200;  // 惑星を配置する円の半径
+
+            // -----------------------------------------------------------
+            // 0) 背景を装飾（グラデーション例）
+            //    画像を使うならここで ctx.drawImage(...) など
+            // -----------------------------------------------------------
+            // グラデーションを作成（円形グラデーション）
+            const bgGradient = ctx.createRadialGradient(
+            centerX, centerY, 0,
+            centerX, centerY, radius * 1.5
+            );
+            bgGradient.addColorStop(0,   "#f0f8ff"); // 薄い色
+            bgGradient.addColorStop(0.7, "#cceeff");
+            bgGradient.addColorStop(1,   "#99bbff"); // 濃い色
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // -----------------------------------------------------------
+            // 1) ホロスコープの外円を描画（ベースの輪郭）を少し豪華に
+            // -----------------------------------------------------------
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius + 10, 0, 2 * Math.PI);
+
+            // 外枠にグラデーションやシャドウを付けてみる
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 10;
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.restore();
+
+            // -----------------------------------------------------------
+            // 2) ハウス分割線を描画
+            // -----------------------------------------------------------
+            const houseData = horoscopeData.raw_data && horoscopeData.raw_data.houses;
+            if (houseData && houseData.cusp) {
+            for (let i = 0; i < houseData.cusp.length; i++) {
+                const cuspAngleDeg = houseData.cusp[i];
+                // 0°=右→(−90)補正してラジアンへ変換
+                //const angleRad = (cuspAngleDeg - 90) * Math.PI / 180;
+                const angleRad = (360 - cuspAngleDeg - 90) * Math.PI / 180;
+
+                // ライン先端座標
+                const x2 = centerX + (radius + 10) * Math.cos(angleRad);
+                const y2 = centerY + (radius + 10) * Math.sin(angleRad);
+
+                // 放射状のライン
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x2, y2);
+
+                // 線スタイルを少し装飾
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1.2;
+                ctx.setLineDash([4, 3]); // 破線にしてみる例
+                ctx.stroke();
+                ctx.restore();
+
+                // ハウス番号ラベル
+                const labelRadius = radius + 25;
+                const labelX = centerX + labelRadius * Math.cos(angleRad);
+                const labelY = centerY + labelRadius * Math.sin(angleRad);
+
+                ctx.save();
+                ctx.font = "14px sans-serif";
+                ctx.fillStyle = "#222";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText((i+1).toString(), labelX, labelY);
+                ctx.restore();
+            }
+            }
+
+            // -----------------------------------------------------------
+            // 3) 惑星の配置 (円周上)
+            // -----------------------------------------------------------
+            const planets = horoscopeData.raw_data?.planets;
+            if (!planets) {
+                alert("惑星データが見つかりませんでした。");
+                return;
+            }
+
+            // アスペクト描画用に座標を保持
+            const planetPositions = {};
+
+            // 惑星のハウス情報
+            const planetHouseData = horoscopeData.analysis?.["2.惑星のハウス"] || {};
+            // 惑星のサイン情報
+            const planetSignData  = horoscopeData.analysis?.["1.惑星の星座"] || {};
+
+            // 惑星ごとに描画
+            for (const planetName of Object.keys(planets)) {
+                const planetObj = planets[planetName];
+
+                // longitude が無い場合はスキップ
+                if (planetObj.longitude === undefined) continue;
+
+                let lonDeg;
+                if (Array.isArray(planetObj.longitude)) {
+                lonDeg = planetObj.longitude[0];
+                } else {
+                lonDeg = parseFloat(planetObj.longitude);
+                }
+                if (isNaN(lonDeg)) continue;
+
+                // ラジアン (0°を右→ -90度補正)
+                //const angleRad = (lonDeg - 90) * Math.PI / 180;
+                const angleRad = (360 - lonDeg - 90) * Math.PI / 180;
+
+                // 惑星配置座標
+                const x = centerX + radius * Math.cos(angleRad);
+                const y = centerY + radius * Math.sin(angleRad);
+
+                // 惑星の丸を描画
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, 2 * Math.PI);
+
+                // 惑星によって色を変える例（適当です）
+                // 好みの色分けロジックを入れてもOK
+                let fillColor = '#dd3333';
+                switch(planetName) {
+                case 'Sun':     fillColor = '#ffcc00'; break; // 太陽ぽい色
+                case 'Moon':    fillColor = '#dddddd'; break; // 月ぽい色
+                case 'Mercury': fillColor = '#aaaaff'; break;
+                case 'Venus':   fillColor = '#ff99cc'; break;
+                case 'Mars':    fillColor = '#ff4444'; break;
+                case 'Jupiter': fillColor = '#ffee33'; break;
+                case 'Saturn':  fillColor = '#ffcc99'; break;
+                case 'Uranus':  fillColor = '#99ccff'; break;
+                case 'Neptune': fillColor = '#6666cc'; break;
+                case 'Pluto':   fillColor = '#cc66cc'; break;
+                default:        fillColor = '#dd3333'; break;
+                }
+                ctx.fillStyle = fillColor;
+                ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                ctx.shadowBlur = 4;
+                ctx.fill();
+                ctx.restore();
+
+                // アスペクト用座標を保存
+                planetPositions[planetName] = { x, y };
+
+                // ----------------------------
+                // 惑星ラベル (HTML要素) を生成
+                // ----------------------------
+                const labelEl = document.createElement('div');
+                labelEl.className = 'planet-label';
+                labelEl.classList.add(planetName); // たとえば "Sun" など
+
+                // 惑星名（和名）
+                const jpName = planetNameMap[planetName] || planetName;
+                // 惑星シンボル
+                const symbol = planetSymbolMap[planetName] || '';
+
+                // サイン情報
+                let signInfoText = '';
+                if (planetSignData[jpName]) {
+                signInfoText = planetSignData[jpName].formatted || '';
+                }
+
+                // ハウス情報
+                let houseInfoText = '';
+                if (planetHouseData[jpName] !== undefined) {
+                const houseNum = planetHouseData[jpName];
+                if (houseNum !== "-" && houseNum !== undefined) {
+                    houseInfoText = `(H${houseNum})`;
+                }
+                }
+
+                // 惑星シンボル + 日本語名 + (度数+サイン) + ハウス番号
+                // 例: 「☉ 太陽 (9°54' 山羊座) (H3)」
+                labelEl.textContent =
+                 `${symbol}`;
+                //`${symbol} ${jpName} ${signInfoText ? `(${signInfoText})` : ''} ${houseInfoText}`;
+
+                // 絶対配置で重ねる
+                // （位置が重ならないようオフセット調整など適宜）
+                labelEl.style.left = (x + 5) + 'px';
+                labelEl.style.top  = (y + 5) + 'px';
+
+                chartContainer.appendChild(labelEl);
+            }
+
+            // -----------------------------------------------------------
+            // 4) アスペクト描画 (惑星同士を結ぶ線)
+            // -----------------------------------------------------------
+            const aspects = horoscopeData.analysis?.["4.アスペクトの結果"] || [];
+            aspects.forEach(aspectData => {
+            const planet1Ja = aspectData.planet1;
+            const planet2Ja = aspectData.planet2;
+            const aspectName = aspectData.aspect; // "スクエア"など
+
+            // 和名 => 英名 に逆引き
+            let p1En = null;
+            let p2En = null;
+            for (const [en, ja] of Object.entries(planetNameMap)) {
+                if (ja === planet1Ja) p1En = en;
+                if (ja === planet2Ja) p2En = en;
+            }
+            if (!p1En || !p2En) return;
+
+            // 座標を取得
+            const pos1 = planetPositions[p1En];
+            const pos2 = planetPositions[p2En];
+            if (!pos1 || !pos2) return;
+
+            // アスペクトに応じて色を切り替え
+            let lineColor = aspectColorMap[aspectName] || "#888";
+
+            // 線を描画
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(pos1.x, pos1.y);
+            ctx.lineTo(pos2.x, pos2.y);
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth   = 2;
+            // アスペクトの種類に応じて破線など指定しても面白い
+            if (aspectName === 'スクエア' || aspectName === 'Square') {
+                ctx.setLineDash([5, 3]);
+            }
+            ctx.stroke();
+            ctx.restore();
+            });
+
+            // 星座のシンボルマップ（Unicode文字）
+            const zodiacSymbols = {
+                0: "♈", // 牡羊座
+                1: "♉", // 牡牛座
+                2: "♊", // 双子座
+                3: "♋", // 蟹座
+                4: "♌", // 獅子座
+                5: "♍", // 乙女座
+                6: "♎", // 天秤座
+                7: "♏", // 蠍座
+                8: "♐", // 射手座
+                9: "♑", // 山羊座
+                10: "♒", // 水瓶座
+                11: "♓"  // 魚座
+            };
+
+            // -----------------------------------------------------------
+            // 星座の区分線とシンボルを描画
+            // -----------------------------------------------------------
+            ctx.save();
+            const zodiacRadius = radius + 40; // 星座シンボルの表示位置
+            const zodiacLineRadius = radius + 20; // 区分線の長さ
+
+            // for (let i = 0; i < 12; i++) {
+            //     const angle = i * 30; // 各星座の開始角度
+            //     const midAngle = angle + 15; // 星座の中央角度
+            for (let i = 0; i < 12; i++) {
+                const angle = 360 - i * 30; // 逆回り
+                const midAngle = angle - 15; // 中央位置調整
+                
+                // 星座の区分線を描画
+                const lineAngle = (angle - 90) * Math.PI / 180;
+                ctx.beginPath();
+                ctx.moveTo(
+                    centerX + radius * Math.cos(lineAngle),
+                    centerY + radius * Math.sin(lineAngle)
+                );
+                ctx.lineTo(
+                    centerX + zodiacLineRadius * Math.cos(lineAngle),
+                    centerY + zodiacLineRadius * Math.sin(lineAngle)
+                );
+                ctx.strokeStyle = "rgba(0,0,0,0.3)";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // 星座シンボルを描画
+                const symbolAngle = (midAngle - 90) * Math.PI / 180;
+                const textX = centerX + zodiacRadius * Math.cos(symbolAngle);
+                const textY = centerY + zodiacRadius * Math.sin(symbolAngle);
+                
+                ctx.save();
+                ctx.translate(textX, textY);
+                ctx.rotate(symbolAngle + Math.PI/2); // テキストを円周に沿って回転
+                ctx.font = "20px Arial";
+                ctx.fillStyle = "#333";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(zodiacSymbols[i], 0, 0);
+                ctx.restore();
+            }
+            ctx.restore();
+        }
+
+    </script>
+    
+
+</body>
+</html>
