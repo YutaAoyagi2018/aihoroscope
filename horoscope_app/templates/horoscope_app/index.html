@@ -457,10 +457,8 @@
                             <table>
                                 <tbody>
                                     <tr>
-                                        <th>日付</th>
+                                        <th>生年月日</th>
                                         <td>
-                                            <!-- <input type="date" id="date-input" name="date" required min="1900-01-01" max="2100-12-31"> -->
-                                            <!-- <input type="number" id="year-input" name="year" required > -->
                                             <select name="year" id="year-select">
                                                 {% for year in years %}
                                                     <option value="{{ year }}">{{ year }}</option>
@@ -478,18 +476,16 @@
                                                     <option value="{{ day }}">{{ day }}</option>
                                                 {% endfor %}
                                             </select>
-                                            <!-- <input type="number" id="month-input" name="month" required >
-                                            <input type="number" id="day-input" name="day" required > -->
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th>時刻</th>
+                                        <th>出生時刻</th>
                                         <td>
                                             <input type="time" name="time" required>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th>都道府県</th>
+                                        <th>出生地</th>
                                         <td>
                                             <select name="prefecture" id="prefecture">
                                                 <!-- 以下、県庁所在地の緯度・経度を data 属性に入れています -->
@@ -717,17 +713,17 @@
 
                 // 日付を YYYY-MM-DD 形式で設定
                 const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1);
+                const day = String(now.getDate());
                 // 日付を設定
                 if (yearSelect) {
-                    yearSelect.value = savedYear;
+                    yearSelect.value = year;
                 }
                 if (monthSelect) {
-                    monthSelect.value = savedMonth;
+                    monthSelect.value = month;
                 }
                 if (daySelect) {
-                    daySelect.value = savedDay;
+                    daySelect.value = day;
                 }
 
                 // 時刻を HH:MM 形式で設定
