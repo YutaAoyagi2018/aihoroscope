@@ -481,7 +481,7 @@
             
                 unknownCheckbox.addEventListener('change', function () {
                     if (this.checked) {
-                        timeInput.value = '12:00';
+                        timeInput.value = '';
                     } else {
                         timeInput.value = '';
                     }
@@ -654,7 +654,8 @@
                     const year = data.year;
                     const month = data.month;
                     const day = data.day;
-                    const [hour, minute] = data.time.split(':');
+                    const time  = data.time || "12:00";
+                    const [hour, minute] = time.split(':');
                     const unknown = data.unknown;
                     console.log("送信する値:", unknown); // デバッグ用
 
