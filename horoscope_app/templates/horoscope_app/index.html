@@ -975,64 +975,81 @@
          */
         function drawHoroscopeWheel(horoscopeData) {
 
-            // Canvas とコンテキスト
-            const canvas = document.getElementById('horoscope-canvas');
-            document.getElementById('chart-container').style.display = 'block';
-            const ctx = canvas.getContext('2d');
+        // Canvas とコンテキスト
+        const canvas = document.getElementById('horoscope-canvas');
+        document.getElementById('chart-container').style.display = 'block';
+        const ctx = canvas.getContext('2d');
 
-            // キャンバスをクリア
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // キャンバスをクリア
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // すでに生成されているラベル要素があれば削除
-            const chartContainer = document.getElementById('chart-container');
-            const oldLabels = chartContainer.querySelectorAll('.planet-label');
-            oldLabels.forEach(label => label.remove());
+        // すでに生成されているラベル要素があれば削除
+        const chartContainer = document.getElementById('chart-container');
+        const oldLabels = chartContainer.querySelectorAll('.planet-label');
+        oldLabels.forEach(label => label.remove());
 
-            // 中心座標 & 半径
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const radius  = 200;  // 惑星を配置する円の半径
+        // 中心座標 & 半径
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius  = 200;  // 惑星を配置する円の半径
 
-            // -----------------------------------------------------------
-            // 0) 背景を装飾（グラデーション例）
-            //    画像を使うならここで ctx.drawImage(...) など
-            // -----------------------------------------------------------
-            // グラデーションを作成（円形グラデーション）
-            const bgGradient = ctx.createRadialGradient(
+        // -----------------------------------------------------------
+        // 回転オフセットの計算（1ハウスのカスプを左端に配置）
+        // -----------------------------------------------------------
+        let rotationOffset = 0; // デフォルトは回転なし
+
+        const houseData = horoscopeData.raw_data && horoscopeData.raw_data.houses;
+        if (houseData && houseData.cusp && houseData.cusp.length > 0) {
+            const firstCuspDeg = houseData.cusp[0]; // 1ハウスのカスプ角度
+            // 1ハウスを左端（90度）に配置するためのオフセット
+            rotationOffset = (90 - firstCuspDeg) % 360;
+        }
+
+        /**
+         * 度数をラジアンに変換し、回転オフセットを適用するヘルパー関数
+         */
+        function degToRad(degrees) {
+            return (360 - (degrees + rotationOffset) - 90) * Math.PI / 180;
+        }
+
+        // -----------------------------------------------------------
+        // 0) 背景を装飾（グラデーション例）
+        //    画像を使うならここで ctx.drawImage(...) など
+        // -----------------------------------------------------------
+        // グラデーションを作成（円形グラデーション）
+        const bgGradient = ctx.createRadialGradient(
             centerX, centerY, 0,
             centerX, centerY, radius * 1.5
-            );
-            bgGradient.addColorStop(0,   "#f0f8ff"); // 薄い色
-            bgGradient.addColorStop(0.7, "#cceeff");
-            bgGradient.addColorStop(1,   "#99bbff"); // 濃い色
-            ctx.fillStyle = bgGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        );
+        bgGradient.addColorStop(0,   "#f0f8ff"); // 薄い色
+        bgGradient.addColorStop(0.7, "#cceeff");
+        bgGradient.addColorStop(1,   "#99bbff"); // 濃い色
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // -----------------------------------------------------------
-            // 1) ホロスコープの外円を描画（ベースの輪郭）を少し豪華に
-            // -----------------------------------------------------------
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius + 10, 0, 2 * Math.PI);
+        // -----------------------------------------------------------
+        // 1) ホロスコープの外円を描画（ベースの輪郭）を少し豪華に
+        // -----------------------------------------------------------
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius + 10, 0, 2 * Math.PI);
 
-            // 外枠にグラデーションやシャドウを付けてみる
-            ctx.shadowColor = 'rgba(0,0,0,0.3)';
-            ctx.shadowBlur = 10;
-            ctx.strokeStyle = '#666';
-            ctx.lineWidth = 4;
-            ctx.stroke();
-            ctx.restore();
+        // 外枠にグラデーションやシャドウを付けてみる
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = 10;
+        ctx.strokeStyle = '#666';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.restore();
 
-            // -----------------------------------------------------------
-            // 2) ハウス分割線を描画
-            // -----------------------------------------------------------
-            const houseData = horoscopeData.raw_data && horoscopeData.raw_data.houses;
-            if (houseData && houseData.cusp) {
+        // -----------------------------------------------------------
+        // 2) ハウス分割線を描画
+        // -----------------------------------------------------------
+        if (houseData && houseData.cusp) {
             for (let i = 0; i < houseData.cusp.length; i++) {
                 const cuspAngleDeg = houseData.cusp[i];
-                // 0°=右→(−90)補正してラジアンへ変換
-                //const angleRad = (cuspAngleDeg - 90) * Math.PI / 180;
-                const angleRad = (360 - cuspAngleDeg - 90) * Math.PI / 180;
+                // 度数をラジアンに変換し、回転オフセットを適用
+                const angleRad = degToRad(cuspAngleDeg);
 
                 // ライン先端座標
                 const x2 = centerX + (radius + 10) * Math.cos(angleRad);
@@ -1064,57 +1081,56 @@
                 ctx.fillText((i+1).toString(), labelX, labelY);
                 ctx.restore();
             }
-            }
+        }
 
-            // -----------------------------------------------------------
-            // 3) 惑星の配置 (円周上)
-            // -----------------------------------------------------------
-            const planets = horoscopeData.raw_data?.planets;
-            if (!planets) {
-                alert("惑星データが見つかりませんでした。");
-                return;
-            }
+        // -----------------------------------------------------------
+        // 3) 惑星の配置 (円周上)
+        // -----------------------------------------------------------
+        const planets = horoscopeData.raw_data?.planets;
+        if (!planets) {
+            alert("惑星データが見つかりませんでした。");
+            return;
+        }
 
-            // アスペクト描画用に座標を保持
-            const planetPositions = {};
+        // アスペクト描画用に座標を保持
+        const planetPositions = {};
 
-            // 惑星のハウス情報
-            const planetHouseData = horoscopeData.analysis?.["2.惑星のハウス"] || {};
-            // 惑星のサイン情報
-            const planetSignData  = horoscopeData.analysis?.["1.惑星の星座"] || {};
+        // 惑星のハウス情報
+        const planetHouseData = horoscopeData.analysis?.["2.惑星のハウス"] || {};
+        // 惑星のサイン情報
+        const planetSignData  = horoscopeData.analysis?.["1.惑星の星座"] || {};
 
-            // 惑星ごとに描画
-            for (const planetName of Object.keys(planets)) {
-                const planetObj = planets[planetName];
+        // 惑星ごとに描画
+        for (const planetName of Object.keys(planets)) {
+            const planetObj = planets[planetName];
 
-                // longitude が無い場合はスキップ
-                if (planetObj.longitude === undefined) continue;
+            // longitude が無い場合はスキップ
+            if (planetObj.longitude === undefined) continue;
 
-                let lonDeg;
-                if (Array.isArray(planetObj.longitude)) {
+            let lonDeg;
+            if (Array.isArray(planetObj.longitude)) {
                 lonDeg = planetObj.longitude[0];
-                } else {
+            } else {
                 lonDeg = parseFloat(planetObj.longitude);
-                }
-                if (isNaN(lonDeg)) continue;
+            }
+            if (isNaN(lonDeg)) continue;
 
-                // ラジアン (0°を右→ -90度補正)
-                //const angleRad = (lonDeg - 90) * Math.PI / 180;
-                const angleRad = (360 - lonDeg - 90) * Math.PI / 180;
+            // ラジアン (0°を右→ -90度補正) に回転オフセットを適用
+            const angleRad = degToRad(lonDeg);
 
-                // 惑星配置座標
-                const x = centerX + radius * Math.cos(angleRad);
-                const y = centerY + radius * Math.sin(angleRad);
+            // 惑星配置座標
+            const x = centerX + radius * Math.cos(angleRad);
+            const y = centerY + radius * Math.sin(angleRad);
 
-                // 惑星の丸を描画
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(x, y, 6, 0, 2 * Math.PI);
+            // 惑星の丸を描画
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, 2 * Math.PI);
 
-                // 惑星によって色を変える例（適当です）
-                // 好みの色分けロジックを入れてもOK
-                let fillColor = '#dd3333';
-                switch(planetName) {
+            // 惑星によって色を変える例（適当です）
+            // 好みの色分けロジックを入れてもOK
+            let fillColor = '#dd3333';
+            switch(planetName) {
                 case 'Sun':     fillColor = '#ffcc00'; break; // 太陽ぽい色
                 case 'Moon':    fillColor = '#dddddd'; break; // 月ぽい色
                 case 'Mercury': fillColor = '#aaaaff'; break;
@@ -1126,62 +1142,62 @@
                 case 'Neptune': fillColor = '#6666cc'; break;
                 case 'Pluto':   fillColor = '#cc66cc'; break;
                 default:        fillColor = '#dd3333'; break;
-                }
-                ctx.fillStyle = fillColor;
-                ctx.shadowColor = 'rgba(0,0,0,0.2)';
-                ctx.shadowBlur = 4;
-                ctx.fill();
-                ctx.restore();
+            }
+            ctx.fillStyle = fillColor;
+            ctx.shadowColor = 'rgba(0,0,0,0.2)';
+            ctx.shadowBlur = 4;
+            ctx.fill();
+            ctx.restore();
 
-                // アスペクト用座標を保存
-                planetPositions[planetName] = { x, y };
+            // アスペクト用座標を保存
+            planetPositions[planetName] = { x, y };
 
-                // ----------------------------
-                // 惑星ラベル (HTML要素) を生成
-                // ----------------------------
-                const labelEl = document.createElement('div');
-                labelEl.className = 'planet-label';
-                labelEl.classList.add(planetName); // たとえば "Sun" など
+            // ----------------------------
+            // 惑星ラベル (HTML要素) を生成
+            // ----------------------------
+            const labelEl = document.createElement('div');
+            labelEl.className = 'planet-label';
+            labelEl.classList.add(planetName); // たとえば "Sun" など
 
-                // 惑星名（和名）
-                const jpName = planetNameMap[planetName] || planetName;
-                // 惑星シンボル
-                const symbol = planetSymbolMap[planetName] || '';
+            // 惑星名（和名）
+            const jpName = planetNameMap[planetName] || planetName;
+            // 惑星シンボル
+            const symbol = planetSymbolMap[planetName] || '';
 
-                // サイン情報
-                let signInfoText = '';
-                if (planetSignData[jpName]) {
+            // サイン情報
+            let signInfoText = '';
+            if (planetSignData[jpName]) {
                 signInfoText = planetSignData[jpName].formatted || '';
-                }
+            }
 
-                // ハウス情報
-                let houseInfoText = '';
-                if (planetHouseData[jpName] !== undefined) {
+            // ハウス情報
+            let houseInfoText = '';
+            if (planetHouseData[jpName] !== undefined) {
                 const houseNum = planetHouseData[jpName];
                 if (houseNum !== "-" && houseNum !== undefined) {
                     houseInfoText = `(H${houseNum})`;
                 }
-                }
-
-                // 惑星シンボル + 日本語名 + (度数+サイン) + ハウス番号
-                // 例: 「☉ 太陽 (9°54' 山羊座) (H3)」
-                labelEl.textContent =
-                 `${symbol}`;
-                //`${symbol} ${jpName} ${signInfoText ? `(${signInfoText})` : ''} ${houseInfoText}`;
-
-                // 絶対配置で重ねる
-                // （位置が重ならないようオフセット調整など適宜）
-                labelEl.style.left = (x + 5) + 'px';
-                labelEl.style.top  = (y + 5) + 'px';
-
-                chartContainer.appendChild(labelEl);
             }
 
-            // -----------------------------------------------------------
-            // 4) アスペクト描画 (惑星同士を結ぶ線)
-            // -----------------------------------------------------------
-            const aspects = horoscopeData.analysis?.["4.アスペクトの結果"] || [];
-            aspects.forEach(aspectData => {
+            // 惑星シンボル + 日本語名 + (度数+サイン) + ハウス番号
+            // 例: 「☉ 太陽 (9°54' 山羊座) (H3)」
+            labelEl.textContent =
+                `${symbol}`;
+            //`${symbol} ${jpName} ${signInfoText ? `(${signInfoText})` : ''} ${houseInfoText}`;
+
+            // 絶対配置で重ねる
+            // （位置が重ならないようオフセット調整など適宜）
+            labelEl.style.left = (x + 5) + 'px';
+            labelEl.style.top  = (y + 5) + 'px';
+
+            chartContainer.appendChild(labelEl);
+        }
+
+        // -----------------------------------------------------------
+        // 4) アスペクト描画 (惑星同士を結ぶ線)
+        // -----------------------------------------------------------
+        const aspects = horoscopeData.analysis?.["4.アスペクトの結果"] || [];
+        aspects.forEach(aspectData => {
             const planet1Ja = aspectData.planet1;
             const planet2Ja = aspectData.planet2;
             const aspectName = aspectData.aspect; // "スクエア"など
@@ -1216,70 +1232,68 @@
             }
             ctx.stroke();
             ctx.restore();
-            });
+        });
 
-            // 星座のシンボルマップ（Unicode文字）
-            const zodiacSymbols = {
-                0: "♈", // 牡羊座
-                1: "♉", // 牡牛座
-                2: "♊", // 双子座
-                3: "♋", // 蟹座
-                4: "♌", // 獅子座
-                5: "♍", // 乙女座
-                6: "♎", // 天秤座
-                7: "♏", // 蠍座
-                8: "♐", // 射手座
-                9: "♑", // 山羊座
-                10: "♒", // 水瓶座
-                11: "♓"  // 魚座
-            };
+        // 星座のシンボルマップ（Unicode文字）
+        const zodiacSymbols = {
+            0: "♈", // 牡羊座
+            1: "♉", // 牡牛座
+            2: "♊", // 双子座
+            3: "♋", // 蟹座
+            4: "♌", // 獅子座
+            5: "♍", // 乙女座
+            6: "♎", // 天秤座
+            7: "♏", // 蠍座
+            8: "♐", // 射手座
+            9: "♑", // 山羊座
+            10: "♒", // 水瓶座
+            11: "♓"  // 魚座
+        };
 
-            // -----------------------------------------------------------
-            // 星座の区分線とシンボルを描画
-            // -----------------------------------------------------------
+        // -----------------------------------------------------------
+        // 星座の区分線とシンボルを描画
+        // -----------------------------------------------------------
+        ctx.save();
+        const zodiacRadius = radius + 40; // 星座シンボルの表示位置
+        const zodiacLineRadius = radius + 20; // 区分線の長さ
+
+        for (let i = 0; i < 12; i++) {
+            const angle = 360 - i * 30; // 逆回り
+            const midAngle = angle - 15; // 中央位置調整
+
+            // 星座の区分線を描画
+            const lineAngle = degToRad(i * 30);
+            ctx.beginPath();
+            ctx.moveTo(
+                centerX + radius * Math.cos(lineAngle),
+                centerY + radius * Math.sin(lineAngle)
+            );
+            ctx.lineTo(
+                centerX + zodiacLineRadius * Math.cos(lineAngle),
+                centerY + zodiacLineRadius * Math.sin(lineAngle)
+            );
+            ctx.strokeStyle = "rgba(0,0,0,0.3)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // 星座シンボルを描画
+            const symbolAngle = degToRad(midAngle);
+            const textX = centerX + zodiacRadius * Math.cos(symbolAngle);
+            const textY = centerY + zodiacRadius * Math.sin(symbolAngle);
+            
             ctx.save();
-            const zodiacRadius = radius + 40; // 星座シンボルの表示位置
-            const zodiacLineRadius = radius + 20; // 区分線の長さ
-
-            // for (let i = 0; i < 12; i++) {
-            //     const angle = i * 30; // 各星座の開始角度
-            //     const midAngle = angle + 15; // 星座の中央角度
-            for (let i = 0; i < 12; i++) {
-                const angle = 360 - i * 30; // 逆回り
-                const midAngle = angle - 15; // 中央位置調整
-                
-                // 星座の区分線を描画
-                const lineAngle = (angle - 90) * Math.PI / 180;
-                ctx.beginPath();
-                ctx.moveTo(
-                    centerX + radius * Math.cos(lineAngle),
-                    centerY + radius * Math.sin(lineAngle)
-                );
-                ctx.lineTo(
-                    centerX + zodiacLineRadius * Math.cos(lineAngle),
-                    centerY + zodiacLineRadius * Math.sin(lineAngle)
-                );
-                ctx.strokeStyle = "rgba(0,0,0,0.3)";
-                ctx.lineWidth = 1;
-                ctx.stroke();
-
-                // 星座シンボルを描画
-                const symbolAngle = (midAngle - 90) * Math.PI / 180;
-                const textX = centerX + zodiacRadius * Math.cos(symbolAngle);
-                const textY = centerY + zodiacRadius * Math.sin(symbolAngle);
-                
-                ctx.save();
-                ctx.translate(textX, textY);
-                ctx.rotate(symbolAngle + Math.PI/2); // テキストを円周に沿って回転
-                ctx.font = "20px Arial";
-                ctx.fillStyle = "#333";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.fillText(zodiacSymbols[i], 0, 0);
-                ctx.restore();
-            }
+            ctx.translate(textX, textY);
+            ctx.rotate(symbolAngle + Math.PI/2); // テキストを円周に沿って回転
+            ctx.font = "20px Arial";
+            ctx.fillStyle = "#333";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(zodiacSymbols[i], 0, 0);
             ctx.restore();
         }
+        ctx.restore();
+        }
+
 
     </script>
     
