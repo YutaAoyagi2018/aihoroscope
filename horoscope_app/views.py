@@ -90,6 +90,8 @@ def analyze(request):
         tz = float(request.POST.get("tz", "9.0"))
         dst = float(request.POST.get("dst", "0.0"))
         sb = int(request.POST.get("sb", "1"))
+        unknown_str = request.POST.get("unknown", "false").lower()
+        unknown = unknown_str == "on"
     except (ValueError, TypeError):
         return JsonResponse({"error": "入力データに誤りがあります。"}, status=400)
     
@@ -109,43 +111,43 @@ def analyze(request):
 
     # (2) ChatGPTへ送るプロンプト作成
     horoscope_str = json.dumps(horoscope_data, ensure_ascii=False, indent=2)
+    user_message = "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。\n"
     if sb == 1:
-        user_message = (
-            "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。\n"
+        user_message += (
             "以下のホロスコープ解析データを参考に、性格や人生における課題について\n"
             "特徴とアドバイスを回答してください。\n"
             "結果はマークダウンで見栄えよく表示されるようにしてください。\n"
-            "2000文字を目安にしてください。\n"
+            "1000～2000文字を目安にしてください。\n"
             "なるべく占星術の専門用語は使わずに解釈を分かりやすく伝えてください。\n"
             "【ホロスコープデータ】\n"
             f"{horoscope_str}\n\n"
             "この人の性格や人生における課題はどのようなものが考えられますか？\n"
         )
     elif sb == 2:
-        user_message = (
-            "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。\n"
+        user_message += (
             "以下のホロスコープ解析データを参考に、全体の恋愛運と今年の恋愛運について\n"
             "特徴とアドバイスを回答してください。\n"
             "結果はマークダウンで見栄えよく表示されるようにしてください。\n"
-            "2000文字を目安にしてください。\n"
+            "1000～2000文字を目安にしてください。\n"
             "なるべく占星術の専門用語は使わずに解釈を分かりやすく伝えてください。\n"
             "【ホロスコープデータ】\n"
             f"{horoscope_str}\n\n"
             "この人の恋愛運と今年の恋愛運はどのようになっていると考えられますか？\n"
         )
     elif sb == 3:
-        user_message = (
-            "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。\n"
+        user_message += (
             "以下のホロスコープ解析データを参考に、全体の仕事・金運と今年の仕事・金運について\n"
             "特徴とアドバイスを回答してください。\n"
             "結果はマークダウンで見栄えよく表示されるようにしてください。\n"
-            "2000文字を目安にしてください。\n"
+            "1000～2000文字を目安にしてください。\n"
             "なるべく占星術の専門用語は使わずに解釈を分かりやすく伝えてください。\n"
             "【ホロスコープデータ】\n"
             f"{horoscope_str}\n\n"
             "この人の全体の仕事・金運と今年の仕事・金運はどのようになっていると考えられますか？\n"
         )
 
+    if unknown:
+        user_message += "出生時刻が不明なので、アセンダント、MC、ハウスのデータは使わないでください。"
 
     # (3) OpenAI APIキーを取得し、ChatCompletionを呼び出し
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")

@@ -28,6 +28,7 @@ SECRET_KEY = 'django-insecure-7*+2g^2tr48q6fl!z8&6%)gwq90usyk#t@#0isz=t*9jpez^(z
 DEBUG = True
 
 ALLOWED_HOSTS = ["aihoroscope.onrender.com"]
+# ALLOWED_HOSTS = []
 
 
 # Application definition

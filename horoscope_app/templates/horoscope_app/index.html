@@ -217,7 +217,13 @@
         }
 
         /* セレクトボックスやインプットのスタイル */
-        #horoscope-form input[type="time"],
+        #horoscope-form input[type="time"] {
+            width: 70%;
+            padding: 8px 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
         #horoscope-form select {
             width: 100%;
             padding: 8px 10px;
@@ -435,6 +441,16 @@
         #open-modal-btn:hover {
             background-color: #45a049;
         }
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* 要素間のスペース */
+        }
+        .checkbox-label {
+            display: flex;
+            /* align-items: center; */
+            gap: 4px; /* チェックボックスとテキスト間のスペース */
+        }
     </style>
 </head>
 <body>
@@ -481,7 +497,14 @@
                                     <tr>
                                         <th>出生時刻</th>
                                         <td>
-                                            <input type="time" name="time" required>
+                                            <div class="input-group">
+                                                <input type="time" id="time" name="time" required>
+
+                                                <label for="unknown" class="checkbox-label">
+                                                    <input type="checkbox" id="unknown" name="unknown" />
+                                                    不明の場合はチェック
+                                                </label>
+                                            </div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -604,6 +627,28 @@
         
     </div>
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 時刻入力フィールドとチェックボックスの要素を取得
+            const timeInput = document.getElementById('time');
+            const unknownCheckbox = document.getElementById('unknown');
+        
+            // チェックボックスの状態が変わったときのイベントリスナーを追加
+            unknownCheckbox.addEventListener('change', function () {
+                if (this.checked) {
+                    // チェックされたら時刻を12:00に設定
+                    timeInput.value = '12:00';
+                    // 必要に応じて時刻入力を無効化
+                    // timeInput.disabled = true;
+                } else {
+                    // チェックが外れたら時刻入力をクリア
+                    timeInput.value = '';
+                    // 必要に応じて時刻入力を有効化
+                    // timeInput.disabled = false;
+                }
+            });
+        });
+        </script>
+    <script>
         // モーダル要素の取得
         var modal = document.getElementById("chart-modal");
 
@@ -663,6 +708,7 @@
             const daySelect = document.getElementById('day-select');
             const timeInput = document.querySelector('input[name="time"]');
             const prefectureSelect = document.getElementById('prefecture');
+            const checkboxSelect = document.getElementById('unknown');
 
             // クッキーから値を取得
             const savedYear = getCookie('horoscope_year');
@@ -670,6 +716,7 @@
             const savedDay = getCookie('horoscope_day');
             const savedTime = getCookie('horoscope_time');
             const savedPrefecture = getCookie('horoscope_prefecture');
+            const savedCheckbox = getCookie('horoscope_checkbox');
 
             console.log("クッキーから取得した値:", savedYear , savedMonth , savedDay, savedTime, savedPrefecture); // デバッグ用
 
@@ -688,6 +735,10 @@
                 // 時刻を設定（フォーマット: HH:MM）
                 if (timeInput) {
                     timeInput.value = savedTime;
+                }
+                
+                if (checkboxSelect) {
+                    checkboxSelect.checked = (savedCheckbox === 'true');
                 }
 
                 // 都道府県を設定
@@ -766,9 +817,9 @@
 
         // フォームデータをオブジェクトに変換するヘルパー関数
         const formDataToObject = formData => {
-        const data = {};
-        formData.forEach((value, key) => data[key] = value);
-        return data;
+            const data = {};
+            formData.forEach((value, key) => data[key] = value);
+            return data;
         };
         
         // クッキーに保存する関数
@@ -779,6 +830,10 @@
             setCookie('horoscope_day', data.day, 30); // 30日間有効
             setCookie('horoscope_time', data.time, 30);
             setCookie('horoscope_prefecture', data.prefecture, 30);
+            
+            // チェックボックスの状態を 'true' または 'false' で保存
+            const isChecked = formData.has('unknown') ? 'true' : 'false';
+            setCookie('horoscope_checkbox', isChecked, 30);
         }
         
         // 送信ハンドラー生成関数
@@ -799,6 +854,8 @@
                 const month = data.month;
                 const day = data.day;
                 const [hour, minute] = data.time.split(':');
+                const unknown = data.unknown;
+                console.log("送信する値:", unknown); // デバッグ用
 
                 // 送信データの組み立て
                 const sendData = {
@@ -811,7 +868,8 @@
                     lon: data.lon,
                     tz: data.tz,
                     dst: data.dst,
-                    sb: sbValue
+                    sb: sbValue,
+                    unknown: unknown
                 };
 
                 // UI状態更新
