@@ -161,7 +161,7 @@ def analyze(request):
             messages=[
                 {"role": "user", "content": user_message},
             ],
-            model="o1-mini",  # 必要に応じてモデル名を修正
+            model="o1-preview",  # 必要に応じてモデル名を修正
             # temperature=0.7,
             # max_tokens=1500
         )

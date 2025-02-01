@@ -272,6 +272,6 @@ def compute_horoscope(year: int, month: int, day: int,
 
     # (3) 返却
     return {
-        "raw_data": raw_data,
-        "analysis": analysis_result
+        "analysis": analysis_result,
+        "raw_data": raw_data
     }

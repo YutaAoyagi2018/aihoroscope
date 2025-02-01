@@ -314,6 +314,44 @@
                     width: 90%;
                 }
             }
+            /* 全体コンテナ */
+            .horoscope-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 10px;
+            }
+
+            /* ホロスコープ作成ボタン */
+            .horoscope-create {
+            text-align: center;
+            }
+
+            /* 解析ボタン群 */
+            .analysis-buttons {
+            display: flex;
+            justify-content: space-around;
+            }
+
+            .analysis-button {
+            text-align: center;
+            }
+
+            /* 初期状態で非表示のスピナー */
+            .spinner {
+            display: none;
+            }
+
+            /* レスポンシブ対応：画面幅が600px以下の場合 */
+            @media (max-width: 768px) {
+            .analysis-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .analysis-button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            }
         </style>
     </head>
     <body>
@@ -428,29 +466,29 @@
                         
                                 <div id="error-message"></div>
                                 
-                                <table>
-                                    <tr>
-                                        <td colspan="3" style="text-align: center;">
-                                            <!-- ホロスコープ作成ボタン -->
-                                            <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button>
-                                        </td>
-                                    </tr>
+                                <div class="horoscope-container">
+                                    <!-- ホロスコープ作成ボタン -->
+                                    <div class="horoscope-create">
+                                      <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button>
+                                      <button type="button" id="view-button" class="open-modal-btn">ホロスコープの詳細</button>
+                                    </div>
+                                
                                     <!-- 解析ボタン群 -->
-                                    <tr>
-                                        <td style="text-align: center;">
-                                            <button type="submit" id="submit-button1">性格・人生の課題を占う</button>
-                                            <div id="spinner1" class="spinner" style="display: none;"></div>
-                                        </td>
-                                        <td style="text-align: center;">
-                                            <button type="submit" id="submit-button2">恋愛運を占う</button>
-                                            <div id="spinner2" class="spinner" style="display: none;"></div>
-                                        </td>
-                                        <td style="text-align: center;">
-                                            <button type="submit" id="submit-button3">仕事運・金運を占う</button>
-                                            <div id="spinner3" class="spinner" style="display: none;"></div>
-                                        </td>
-                                    </tr>
-                                </table>
+                                    <div class="analysis-buttons">
+                                      <div class="analysis-button">
+                                        <button type="submit" id="submit-button1">性格・人生の課題を占う</button>
+                                        <div id="spinner1" class="spinner"></div>
+                                      </div>
+                                      <div class="analysis-button">
+                                        <button type="submit" id="submit-button2">恋愛運を占う</button>
+                                        <div id="spinner2" class="spinner"></div>
+                                      </div>
+                                      <div class="analysis-button">
+                                        <button type="submit" id="submit-button3">仕事運・金運を占う</button>
+                                        <div id="spinner3" class="spinner"></div>
+                                      </div>
+                                    </div>
+                                  </div>
                                 <small>1~3分ほどかかります。</small>
                                 
                                 <!-- 解析結果表示 -->
@@ -1053,5 +1091,35 @@
                 }
             });
         </script>
+
+        <script>
+            document.getElementById('view-button').addEventListener('click', function() {
+            const form = document.getElementById('horoscope-form');
+            const formData = new FormData(form);
+            const year  = formData.get('year');
+            const month = formData.get('month');
+            const day   = formData.get('day');
+            const time  = formData.get('time') || "12:00";
+            const lat   = formData.get('lat');
+            const lon   = formData.get('lon');
+            const tz    = formData.get('tz');
+            const dst   = formData.get('dst');
+        
+            const [hour, minute] = time.split(':');
+        
+            const params = new URLSearchParams({
+                year, month, day,
+                hour, minute,
+                lat, lon,
+                tz, dst
+            });
+            
+            saveFormDataToCookies(formData);
+            
+            const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
+            window.location.href = horoscopeUrl;
+            });
+        </script>
+  
     </body>
 </html>
