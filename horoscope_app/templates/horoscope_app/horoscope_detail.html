@@ -1,0 +1,157 @@
+<!-- templates/horoscope_detail.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ホロスコープ詳細</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+    
+        /* 見出しのスタイルを追加 */
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            color: #444;
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+    
+        table, th, td { border: 1px solid #eee; }
+    
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+    
+        h2 {
+            margin-top: 50px;
+            color: #555;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+    
+        /* テーブルヘッダーを豪華に */
+        th {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+    
+        /* 偶数行の背景色とホバー効果 */
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <h1>ホロスコープ詳細</h1>
+
+    <!-- 1. 惑星の星座 -->
+    <h2>1. 惑星の星座</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>惑星</th>
+                <th>度数</th>
+                <!-- <th>星座</th>
+                <th>星座内の度数</th> -->
+                <th>星座内度数</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for planet, info in zodiac_info.items %}
+            <tr>
+                <td>{{ planet }}</td>
+                <td>{{ info.degree }}</td>
+                <!-- <td>{{ info.sign }}</td>
+                <td>{{ info.deg_in_sign }}</td> -->
+                <td>{{ info.formatted }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- 2. 惑星のハウス -->
+    <h2>2. 惑星のハウス</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>惑星</th>
+                <th>ハウス</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for planet, house in house_info.items %}
+            <tr>
+                <td>{{ planet }}</td>
+                <td>{{ house }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- 3. ハウスの支配星 -->
+    <h2>3. ハウスの支配星</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ハウス</th>
+                <th>支配星</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for house, ruler in house_ruler.items %}
+            <tr>
+                <td>{{ house }}</td>
+                <td>{{ ruler }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- 4. アスペクトの結果 -->
+    <h2>4. アスペクトの結果</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>アスペクト</th>
+                <th>惑星1</th>
+                <th>惑星2</th>
+                <th>角度</th>
+                <th>オーブ</th>
+                <th>オーブ符号</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for aspect in aspects %}
+            <tr>
+                <td>{{ aspect.aspect }}</td>
+                <td>{{ aspect.planet1 }}</td>
+                <td>{{ aspect.planet2 }}</td>
+                <td>{{ aspect.angle }}</td>
+                <td>{{ aspect.orb }}</td>
+                <td>{{ aspect.orb_sign }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

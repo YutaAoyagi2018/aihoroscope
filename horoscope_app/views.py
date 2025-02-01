@@ -171,3 +171,47 @@ def analyze(request):
 
     # (4) 結果を返す
     return JsonResponse({"result": answer})
+
+def horoscope_detail(request):
+
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method. GETのみ対応しています。"}, status=400)
+
+    # GETから各値を取得
+    try:
+        year   = int(request.GET.get("year",   "2023"))
+        month  = int(request.GET.get("month",  "1"))
+        day    = int(request.GET.get("day",    "1"))
+        hour   = int(request.GET.get("hour",   "0"))
+        minute = int(request.GET.get("minute", "0"))
+        lat    = float(request.GET.get("lat",  "35.6895"))
+        lon    = float(request.GET.get("lon",  "139.6917"))
+        tz     = float(request.GET.get("tz",   "9.0"))
+        dst    = float(request.GET.get("dst",  "0.0"))
+    except ValueError as ve:
+        return JsonResponse({"error": "Invalid input parameters", "details": str(ve)}, status=400)
+
+    try:
+        input_date = datetime.datetime(year, month, day)
+        if input_date < datetime.datetime(1900, 1, 1) or input_date > datetime.datetime(2100, 12, 31):
+            raise ValidationError("日付は1900年1月1日から2100年12月31日までの範囲で入力してください。")
+    except ValidationError as ve:
+        return JsonResponse({"error": str(ve)}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": "日付の解析に失敗しました。"}, status=400)
+    
+
+    # ユーティリティ関数で計算
+    result_dict = compute_horoscope(year, month, day, hour, minute, lat, lon, tz, dst)
+
+    # JSONとして返す
+    data = result_dict
+    
+    # テンプレートに渡すコンテキストを作成
+    context = {
+        'zodiac_info': data["analysis"]["1.惑星の星座"],
+        'house_info': data["analysis"]["2.惑星のハウス"],
+        'house_ruler': data["analysis"]["3.ハウスの支配星"],
+        'aspects': data["analysis"]["4.アスペクトの結果"],
+    }
+    return render(request, 'horoscope_app/horoscope_detail.html', context)

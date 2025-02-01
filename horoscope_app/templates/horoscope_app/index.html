@@ -1115,8 +1115,8 @@
             });
             
             saveFormDataToCookies(formData);
-            
-            const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
+
+            const horoscopeUrl = "{% url 'horoscope_app:horoscope_detail' %}?" + params.toString();
             window.location.href = horoscopeUrl;
             });
         </script>
