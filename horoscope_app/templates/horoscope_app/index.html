@@ -852,20 +852,16 @@
                 4: "♌", 5: "♍", 6: "♎", 7: "♏",
                 8: "♐", 9: "♑", 10: "♒", 11: "♓"
             };
-    
+
             /**
-             * ホロスコープを描画する関数 (実際のcanvasサイズに合わせて配置)
+             * ホロスコープを描画する関数
              * @param {Object} horoscopeData サーバー等から取得したホロスコープ情報
              */
-             function drawHoroscopeWheel(horoscopeData) {
+            function drawHoroscopeWheel(horoscopeData) {
                 const chartContainer = document.getElementById('chart-container');
                 const canvas = document.getElementById('horoscope-canvas');
 
-                // ★ 既存のHTMLラベル削除は不要になるため削除してOKです
-                // const oldLabels = chartContainer.querySelectorAll('.planet-label');
-                // oldLabels.forEach(label => label.remove());
-
-                // 中心や半径などの準備はそのまま
+                // canvas のサイズ調整
                 let containerWidth = chartContainer.offsetWidth; 
                 if (containerWidth > 1000) {
                     containerWidth = 1000; 
@@ -881,7 +877,7 @@
                 const centerY = canvas.height / 2;
                 const radius  = canvas.width * 0.33;
 
-                // ハウスデータまわり（rotationOffsetなど）はそのまま
+                // ハウスデータの処理（rotationOffset 等）
                 const houseData = horoscopeData?.raw_data?.houses;
                 let rotationOffset = 0;
                 if (houseData && houseData.cusp && houseData.cusp.length > 0) {
@@ -892,7 +888,7 @@
                     return (360 - (deg + rotationOffset) - 90) * Math.PI / 180;
                 }
 
-                // 背景グラデーションはそのまま
+                // 背景グラデーション
                 const bgGradient = ctx.createRadialGradient(
                     centerX, centerY, 0,
                     centerX, centerY, radius * 1.5
@@ -903,7 +899,7 @@
                 ctx.fillStyle = bgGradient;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // 外円やハウス線などの描画もそのまま
+                // 外円描画
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius + 10, 0, 2 * Math.PI);
@@ -914,7 +910,7 @@
                 ctx.stroke();
                 ctx.restore();
 
-                // ハウス線
+                // ハウス線とハウス番号
                 if (houseData && houseData.cusp) {
                     for (let i = 0; i < houseData.cusp.length; i++) {
                         const cuspAngleDeg = houseData.cusp[i];
@@ -955,21 +951,81 @@
                     return;
                 }
                 const planetPositions = {};
+                // drawnSymbols 配列は adjust 関数用（シンボル位置の調整用）
+                const drawnSymbols = [];
+                // planetSymbolsToDraw 配列にシンボル描画情報を保存し、後で最前面に描画する
+                const planetSymbolsToDraw = [];
 
+                /**
+                 * adjust 関数
+                 * 惑星シンボル同士が重なっている場合、元の位置から offset ずらした位置を返し、
+                 * その位置と元の位置を線分で結びます。
+                 *
+                 * @param {CanvasRenderingContext2D} ctx - canvas のコンテキスト
+                 * @param {number} x - 元の x 座標
+                 * @param {number} y - 元の y 座標
+                 * @param {number} angle - 惑星配置の角度 (ラジアン)
+                 * @param {Array} drawnSymbols - 既に描画済みのシンボルの位置リスト
+                 * @returns {Object} 調整後の {x, y} 座標
+                 */
+                function adjust(ctx, x, y, angle, drawnSymbols) {
+                    const offsetStep = 10;         // 10px ずつずらす
+                    let offset = 0;
+                    let newX = x;
+                    let newY = y;
+                    const collisionThreshold = 15; // 中心間距離が15px未満なら重なっていると判定
+
+                    while (true) {
+                        let collision = false;
+                        for (let pos of drawnSymbols) {
+                            const dx = pos.x - newX;
+                            const dy = pos.y - newY;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            if (distance < collisionThreshold) {
+                                collision = true;
+                                break;
+                            }
+                        }
+                        if (!collision) {
+                            break;
+                        }
+                        offset += offsetStep;
+                        newX = x + offset * Math.cos(angle);
+                        newY = y + offset * Math.sin(angle);
+                        // 無限ループ防止のための上限
+                        if (offset > 100) break;
+                    }
+
+                    // ずらしが発生していた場合、元の位置と調整後の位置を線分で結ぶ
+                    if (offset > 0) {
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(newX, newY);
+                        ctx.strokeStyle = "#000";
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                    drawnSymbols.push({ x: newX, y: newY });
+                    return { x: newX, y: newY };
+                }
+
+                // 各惑星の描画（円はそのまま描く）
                 for (const planetName of Object.keys(planets)) {
                     const planetObj = planets[planetName];
                     if (planetObj.longitude === undefined) continue;
                     
                     let lonDeg = Array.isArray(planetObj.longitude)
-                            ? planetObj.longitude[0]
-                            : parseFloat(planetObj.longitude);
+                        ? planetObj.longitude[0]
+                        : parseFloat(planetObj.longitude);
                     if (isNaN(lonDeg)) continue;
-
+                    
                     const angleRad = degToRad(lonDeg);
                     const x = centerX + radius * Math.cos(angleRad);
                     const y = centerY + radius * Math.sin(angleRad);
 
-                    // 惑星の丸
+                    // 惑星の円を描画
                     ctx.save();
                     ctx.beginPath();
                     ctx.arc(x, y, canvas.width * 0.01, 0, 2 * Math.PI);
@@ -992,16 +1048,17 @@
                     ctx.fill();
                     ctx.restore();
 
-                    // ★ ここをHTML要素ではなく、canvasにテキスト描画
+                    // adjust 関数でシンボルの位置を調整（重なりがあれば線分も描画）
                     const symbol = planetSymbolMap[planetName] || planetName;
-                    ctx.save();
-                    ctx.font = Math.floor(canvas.width * 0.03) + "px sans-serif";
-                    ctx.fillStyle = "#000";
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-                    // 惑星の丸に重ならないように少し上に描くなら y - (canvas.width*0.02) などでもOK
-                    ctx.fillText(symbol, x, y);
-                    ctx.restore();
+                    const adjustedPos = adjust(ctx, x, y, angleRad, drawnSymbols);
+                    // シンボル自体は後で最前面に描画するため、情報を保存しておく
+                    planetSymbolsToDraw.push({
+                        symbol: symbol,
+                        x: adjustedPos.x,
+                        y: adjustedPos.y,
+                        font: Math.floor(canvas.width * 0.03) + "px sans-serif",
+                        fillStyle: "#000"
+                    });
 
                     planetPositions[planetName] = { x, y };
                 }
@@ -1038,7 +1095,7 @@
                     ctx.restore();
                 });
 
-                // 星座の区分線 + シンボル
+                // 星座の区分線およびシンボル描画
                 ctx.save();
                 const zodiacLineRadius   = radius + (canvas.width * 0.03);
                 const zodiacSymbolRadius = radius + (canvas.width * 0.06);
@@ -1073,8 +1130,18 @@
                     ctx.restore();
                 }
                 ctx.restore();
-            }
 
+                // ★ 最後に、保存しておいた惑星シンボルを再描画して最前面に表示
+                planetSymbolsToDraw.forEach(item => {
+                    ctx.save();
+                    ctx.font = item.font;
+                    ctx.fillStyle = item.fillStyle;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(item.symbol, item.x, item.y);
+                    ctx.restore();
+                });
+            }
         </script>
     
         <!-- (G) 「ホロスコープを作成」ボタンの処理 (本番データで描画) -->
