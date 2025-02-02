@@ -881,6 +881,7 @@
                     // APIリクエスト
                     const response = await fetch("{% url 'horoscope_app:analyze' %}", {
                     method: 'POST',
+                    credentials: 'same-origin',  // これを追加
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'X-CSRFToken': csrftoken
