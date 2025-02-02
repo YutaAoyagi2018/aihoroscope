@@ -5,15 +5,15 @@
         <!-- ★レスポンシブ対応の viewport 指定 -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- SEO用 meta タグ -->
-        <meta name="description" content="AI占星術師アオポンによる無料ホロスコープ解析サービス。生年月日、出生時刻、出生地からあなたのホロスコープを作成し、性格、恋愛運、仕事運、金運などを占います。">
-        <meta name="keywords" content="ホロスコープ, ホロスコープ作成, 占星術, AI占星術, 性格, 恋愛運, 仕事運, 金運">
+        <meta name="description" content="AI占星術師アオポンによる無料ホロスコープ作成・占いサービス。生年月日、出生時刻、出生地からあなたのホロスコープを作成し、性格、恋愛運、仕事運、金運などを占います。">
+        <meta name="keywords" content="ホロスコープ, ホロスコープ作成, 占星術, AI占星術, 性格, 恋愛運, 仕事運, 金運,健康運,学業運">
         <meta name="robots" content="index, follow">
         
         <!-- Canonical タグ（URLが確定している場合） -->
         <link rel="canonical" href="https://aihoroscope.onrender.com/">
 
         <!-- OGPタグ（SNS等でのシェア用） -->
-        <meta property="og:title" content="AI占星術師アオポンの無料ホロスコープ解析">
+        <meta property="og:title" content="AI占星術師アオポンの無料ホロスコープ作成・占い">
         <meta property="og:description" content="生年月日、出生時刻、出生地からあなたのホロスコープを作成し、性格・恋愛運・仕事運・金運を占います。">
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://aihoroscope.onrender.com/">
@@ -24,13 +24,13 @@
         {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        "name": "AI占星術師アオポンの無料ホロスコープ解析",
-        "description": "生年月日、出生時刻、出生地からあなたのホロスコープを無料で作成し、性格・総合運・恋愛運・仕事運・金運・健康運・学業運を占うAI占星術師アオポンのサービスです。",
+        "name": "AI占星術師アオポンの無料ホロスコープ作成・占い",
+        "description": "生年月日、出生時刻、出生地からあなたのホロスコープを無料で作成し、性格・恋愛運・仕事運・金運・健康運・学業運を占うAI占星術師アオポンのサービスです。",
         "url": "https://aihoroscope.onrender.com/"
         }
         </script>
 
-        <title>無料ホロスコープ解析 - AI占星術師アオポン</title>
+        <title>無料ホロスコープ作成・占い - AI占星術師アオポン</title>
         
         <!-- Marked.jsのUMDビルドを読み込む -->
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -409,7 +409,7 @@
     </head>
     
     <body>
-        <h1>AI占星術師アオポンの無料ホロスコープ解析</h1>
+        <h1>AI占星術師アオポンの無料ホロスコープ作成・占い</h1>
         <div class="content-container">
             <table id="container-table">
                 <tr>
@@ -419,7 +419,6 @@
                     <td>
                         <div id="data" style="width: 100%;">
                             <form id="horoscope-form" method="POST" action="#">
-                                <!-- Django想定であれば {% csrf_token %} -->
                                 
                                 <table>
                                     <tbody>
@@ -526,13 +525,15 @@
                                       <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button>
                                       <button type="button" id="view-button" class="open-modal-btn">ホロスコープの詳細</button>
                                     </div>
-                                    <br>
+                                    <div style="text-align: right;">
+                                        <span style="font-size: x-small;">（プラシーダス方式で描きます。）</span>
+                                    </div>
                                     <hr>
                                     <div style="text-align: center;">
                                         <span>以下から占いたい項目を選んでください。</span>
                                     </div>
                                     <hr>
-                                    <!-- 解析ボタン群 -->
+                                    <!-- 占いボタン群 -->
                                     <div class="analysis-buttons">
                                       <div class="analysis-button">
                                         <button type="submit" id="submit-button1">性格</button>
@@ -562,7 +563,7 @@
                                   </div>
                                 <small>※1~3分ほどかかります。</small>
                                 
-                                <!-- 解析結果表示 -->
+                                <!-- 占い結果表示 -->
                                 <div id="result">回答がここに表示されます</div>
                             </form>
                         </div>
