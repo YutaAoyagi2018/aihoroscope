@@ -267,7 +267,7 @@
             .modal-content {
                 background-color: #fff;
                 margin: 10% auto;
-                padding: 30px;
+                padding: 5px;
                 border: none;
                 width: 80%;
                 max-width: 700px;
@@ -632,6 +632,8 @@
                             <div id="chart-container">
                                 <!-- ホロスコープ描画領域 (JSで width/height を可変に) -->
                                 <canvas id="horoscope-canvas"></canvas>
+                                <!-- 保存ボタン -->
+                                <button onclick="saveCanvasAsImage()">保存</button>
                             </div>
                         </div>
                     </div>
@@ -797,11 +799,9 @@
                 }
             });
         </script>
-
+        
+        <!-- (E) フォーム送信（ボタンクリック）本番運用 -->
         <script>
-            // ------------------------------------------
-            // (E) フォーム送信（ボタンクリック）本番運用サンプル
-            // ------------------------------------------
             
             // Django等でCSRFトークンがセットされている想定
             const csrftoken = getCookie('csrftoken');
@@ -1005,7 +1005,7 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 const centerX = canvas.width / 2;
                 const centerY = canvas.height / 2;
-                const radius  = canvas.width * 0.33;
+                const radius  = canvas.width * 0.4;
 
                 // ハウスデータの処理（rotationOffset 等）
                 const houseData = horoscopeData?.raw_data?.houses;
@@ -1099,7 +1099,7 @@
                  * @returns {Object} 調整後の {x, y} 座標
                  */
                 function adjust(ctx, x, y, angle, drawnSymbols) {
-                    const offsetStep = 10;         // 10px ずつずらす
+                    const offsetStep = 30;         // 10px ずつずらす
                     let offset = 0;
                     let newX = x;
                     let newY = y;
@@ -1133,7 +1133,7 @@
                         ctx.moveTo(x, y);
                         ctx.lineTo(newX, newY);
                         ctx.strokeStyle = "#000";
-                        ctx.lineWidth = 1;
+                        ctx.lineWidth = 0.5;
                         ctx.stroke();
                         ctx.restore();
                     }
@@ -1186,7 +1186,7 @@
                         symbol: symbol,
                         x: adjustedPos.x,
                         y: adjustedPos.y,
-                        font: Math.floor(canvas.width * 0.03) + "px sans-serif",
+                        font: Math.floor(canvas.width * 0.06) + "px sans-serif",
                         fillStyle: "#000"
                     });
 
@@ -1217,7 +1217,7 @@
                     ctx.moveTo(pos1.x, pos1.y);
                     ctx.lineTo(pos2.x, pos2.y);
                     ctx.strokeStyle = lineColor;
-                    ctx.lineWidth = canvas.width * 0.003;
+                    ctx.lineWidth = canvas.width * 0.001;
                     if (aspectName === "スクエア" || aspectName === "Square") {
                         ctx.setLineDash([5, 3]);
                     }
@@ -1252,7 +1252,7 @@
 
                     ctx.save();
                     ctx.translate(textX, textY);
-                    ctx.font = Math.floor(canvas.width * 0.03) + "px Arial";
+                    ctx.font = Math.floor(canvas.width * 0.06) + "px Arial";
                     ctx.fillStyle = "#333";
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
@@ -1325,7 +1325,7 @@
                 }
             });
         </script>
-
+        <!-- 詳細画面へリンク -->
         <script>
             document.getElementById('view-button').addEventListener('click', function() {
             const form = document.getElementById('horoscope-form');
@@ -1353,6 +1353,16 @@
             const horoscopeUrl = "{% url 'horoscope_app:horoscope_detail' %}?" + params.toString();
             window.location.href = horoscopeUrl;
             });
+        </script>
+        <!-- 保存ボタン -->
+        <script>
+            function saveCanvasAsImage() {
+            const canvas = document.getElementById('horoscope-canvas');
+            const link = document.createElement('a');
+            link.download = 'horoscope.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            }
         </script>
   
     </body>
