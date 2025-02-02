@@ -25,7 +25,7 @@
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "AI占星術師アオポンのホロスコープ解析",
-        "description": "生年月日、出生時刻、出生地からあなたのホロスコープを作成し、性格・恋愛運・仕事運・金運を占うAI占星術師アオポンのサービスです。",
+        "description": "生年月日、出生時刻、出生地からあなたのホロスコープを作成し、性格・総合運・恋愛運・仕事運・金運・健康運・学業運を占うAI占星術師アオポンのサービスです。",
         "url": "https://aihoroscope.onrender.com/"
         }
         </script>
@@ -135,46 +135,6 @@
             /* ボタンホバー */
             #horoscope-form button:hover {
                 opacity: 0.9;
-            }
-
-            /* 性格・人生の課題ボタン (青系) */
-            #submit-button1 {
-                background-color: #2196F3 !important;  /* マテリアルデザインの青 */
-                border: 1px solid #1976D2 !important;
-                color: #fff;
-            }
-            #submit-button1:hover {
-                background-color: #1976D2 !important;  /* 濃い青 */
-            }
-
-            /* 恋愛運ボタン (ピンク系) */
-            #submit-button2 {
-                background-color: #E91E63 !important;  /* マテリアルデザインのピンク */
-                border: 1px solid #C2185B !important;
-                color: #fff;
-            }
-            #submit-button2:hover {
-                background-color: #C2185B !important;  /* 濃いピンク */
-            }
-
-            /* 仕事運・金運ボタン (黄色系) */
-            #submit-button3 {
-                background-color: #FFC107 !important;  /* マテリアルデザインの琥珀色 */
-                border: 1px solid #FFA000 !important;
-                color: #333; /* 文字色をダークに */
-            }
-            #submit-button3:hover {
-                background-color: #FFA000 !important;  /* 濃い琥珀色 */
-            }
-
-            /* ボタンが無効化されたとき */
-            #submit-button1:disabled,
-            #submit-button2:disabled,
-            #submit-button3:disabled {
-                background-color: #ccc;
-                color: #666;
-                cursor: not-allowed;
-                border: 1px solid #bbb;
             }
 
             /* スピナーのスタイル */
@@ -305,11 +265,11 @@
             }
             /* モーダル開閉ボタン */
             .open-modal-btn {
-                background-color: #666;
+                background-color: #0000ff;
                 color: #fff;
             }
             .open-modal-btn:hover {
-                background-color: #555;
+                filter: brightness(90%);
             }
 
             /* インプットやチェックボックスを横並びにする簡易レイアウト */
@@ -352,7 +312,7 @@
             }
             /* 全体コンテナ */
             .horoscope-container {
-            max-width: 600px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 0 10px;
             }
@@ -362,15 +322,70 @@
             text-align: center;
             }
 
-            /* 解析ボタン群 */
+            /* コンテナのスタイル */
+            .analysis-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            /* 各ボタン共通のスタイル */
+            .analysis-button button {
+                padding: 10px 20px;
+                font-size: 16px;
+                border: none;
+                border-radius: 5px;
+                color: #fff;
+                cursor: pointer;
+                transition: background-color 0.3s ease, filter 0.3s ease;
+            }
             .analysis-buttons {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-evenly; /* 均等にスペースを空ける */
+            align-items: center; /* 垂直方向の中央揃え */
             }
 
+            /* 各ボタンを同じ幅にしたい場合 */
             .analysis-button {
-            text-align: center;
+            flex: 1;                   /* 各要素の幅を均等に */
+            display: flex;
+            justify-content: center;   /* 内部のボタンを中央寄せ */
             }
+            
+            /* 各ボタンのデフォルト色 */
+            #submit-button1 { /* 性格 */
+                background-color: #9C27B0;
+            }
+            #submit-button2 { /* 恋愛運 */
+                background-color: #E91E63;
+            }
+            #submit-button3 { /* 仕事運 */
+                background-color: #4CAF50;
+            }
+            #submit-button4 { /* 金運 */
+                background-color: #FFC107;
+                color: #000; /* 背景が明るいためテキストを黒に */
+            }
+            #submit-button5 { /* 健康運 */
+                background-color: #009688;
+            }
+            #submit-button6 { /* 学業運 */
+                background-color: #FF9800;
+                color: #000; /* 背景が明るいためテキストを黒に */
+            }
+            
+            /* ホバー時：少し暗めに */
+            .analysis-button button:hover:not(:disabled) {
+                filter: brightness(90%);
+            }
+            
+            /* disabled状態のスタイル */
+            .analysis-button button:disabled {
+                background-color: #ddd;
+                color: #aaa;
+                cursor: not-allowed;
+            }
+            
 
             /* 初期状態で非表示のスピナー */
             .spinner {
@@ -509,20 +524,37 @@
                                       <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button>
                                       <button type="button" id="view-button" class="open-modal-btn">ホロスコープの詳細</button>
                                     </div>
-                                
+                                    <br>
+                                    <hr>
+                                    <div style="text-align: center;">
+                                        <span>以下から占いたい項目を選んでください。</span>
+                                    </div>
+                                    <hr>
                                     <!-- 解析ボタン群 -->
                                     <div class="analysis-buttons">
                                       <div class="analysis-button">
-                                        <button type="submit" id="submit-button1">性格・人生の課題を占う</button>
+                                        <button type="submit" id="submit-button1">性格</button>
                                         <div id="spinner1" class="spinner"></div>
                                       </div>
                                       <div class="analysis-button">
-                                        <button type="submit" id="submit-button2">恋愛運を占う</button>
+                                        <button type="submit" id="submit-button2">恋愛運</button>
                                         <div id="spinner2" class="spinner"></div>
                                       </div>
                                       <div class="analysis-button">
-                                        <button type="submit" id="submit-button3">仕事運・金運を占う</button>
+                                        <button type="submit" id="submit-button3">仕事運</button>
                                         <div id="spinner3" class="spinner"></div>
+                                      </div>
+                                      <div class="analysis-button">
+                                        <button type="submit" id="submit-button4">金運</button>
+                                        <div id="spinner4" class="spinner"></div>
+                                      </div>
+                                      <div class="analysis-button">
+                                        <button type="submit" id="submit-button5">健康運</button>
+                                        <div id="spinner5" class="spinner"></div>
+                                      </div>
+                                      <div class="analysis-button">
+                                        <button type="submit" id="submit-button6">学業運</button>
+                                        <div id="spinner6" class="spinner"></div>
                                       </div>
                                     </div>
                                   </div>
@@ -692,7 +724,10 @@
             const submitButtons = [
             document.getElementById('submit-button1'),
             document.getElementById('submit-button2'),
-            document.getElementById('submit-button3')
+            document.getElementById('submit-button3'),
+            document.getElementById('submit-button4'),
+            document.getElementById('submit-button5'),
+            document.getElementById('submit-button6')
             ];
             const resultDiv = document.getElementById('result');
 
@@ -798,7 +833,10 @@
             const buttonConfigs = [
             { id: 'submit-button1', spinner: 'spinner1', sb: 1 },
             { id: 'submit-button2', spinner: 'spinner2', sb: 2 },
-            { id: 'submit-button3', spinner: 'spinner3', sb: 3 }
+            { id: 'submit-button3', spinner: 'spinner3', sb: 3 },
+            { id: 'submit-button4', spinner: 'spinner4', sb: 4 },
+            { id: 'submit-button5', spinner: 'spinner5', sb: 5 },
+            { id: 'submit-button6', spinner: 'spinner6', sb: 6 }
             ];
 
             buttonConfigs.forEach(({ id, spinner, sb }) => {
