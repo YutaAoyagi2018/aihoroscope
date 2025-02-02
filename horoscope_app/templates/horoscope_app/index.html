@@ -966,12 +966,12 @@
             // アスペクト色（高級感のある金・銀・深紅・濃緑・ダークゴールド）
             const aspectColorMap = {
                 "コンジャンクション": "#D4AF37",  // ゴールド
-                "オポジション": "#C0C0C0",        // シルバー
+                "オポジション": "#808080",        // 濃いグレー
                 "スクエア": "#8B0000",            // ダークレッド
                 "トライン": "#006400",            // ダークグリーン
                 "セクスタイル": "#B8860B",        // ダークゴールデンロッド
                 "Conjunction": "#D4AF37",
-                "Opposition": "#C0C0C0",
+                "Opposition": "#808080",        
                 "Square": "#8B0000",
                 "Trine": "#006400",
                 "Sextile": "#B8860B"
@@ -1018,14 +1018,15 @@
                     return (360 - (deg + rotationOffset) - 90) * Math.PI / 180;
                 }
 
-                // 背景グラデーション
+                // 背景グラデーション（中心から薄い青がかかるグラデーション）
                 const bgGradient = ctx.createRadialGradient(
                     centerX, centerY, 0,
                     centerX, centerY, radius * 1.5
                 );
-                bgGradient.addColorStop(0, "#2E1A47");  // 中心は濃いパープル
-                bgGradient.addColorStop(0.7, "#472B63");  // 中間はミディアムパープル
-                bgGradient.addColorStop(1, "#5B3C70");    // 外側は柔らかいパープル
+                bgGradient.addColorStop(0, "#0A1F44"); // 深いネイビー（外側）
+                bgGradient.addColorStop(0.4, "#133D73"); // 落ち着いたブルー
+                bgGradient.addColorStop(0.8, "#1E5F9E"); // やや明るめのブルー
+                bgGradient.addColorStop(1, "#2B80C4");   // ラグジュアリーなブルー
                 ctx.fillStyle = bgGradient;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1040,7 +1041,7 @@
                 ctx.stroke();
                 ctx.restore();
 
-                // ハウス線とハウス番号（明るいグレー／白）
+                // ハウス線とハウス番号（ハウス番号の色を黒に変更）
                 if (houseData && houseData.cusp) {
                     for (let i = 0; i < houseData.cusp.length; i++) {
                         const cuspAngleDeg = houseData.cusp[i];
@@ -1059,7 +1060,7 @@
                         ctx.stroke();
                         ctx.restore();
 
-                        // ハウス番号
+                        // ハウス番号を白で描画
                         const labelRadius = radius * 0.5;
                         const labelX = centerX + labelRadius * Math.cos(angleRad - 0.26);
                         const labelY = centerY + labelRadius * Math.sin(angleRad - 0.26);
@@ -1141,7 +1142,7 @@
                     return { x: newX, y: newY };
                 }
 
-                // 各惑星の描画（円はそのまま描く）
+                // 各惑星の描画（惑星の円はそのまま描く）
                 for (const planetName of Object.keys(planets)) {
                     const planetObj = planets[planetName];
                     if (planetObj.longitude === undefined) continue;
@@ -1181,12 +1182,12 @@
                     // adjust 関数でシンボルの位置を調整（重なりがあれば線分も描画）
                     const symbol = planetSymbolMap[planetName] || planetName;
                     const adjustedPos = adjust(ctx, x, y, angleRad, drawnSymbols);
-                    // シンボル自体は後で最前面に描画するため、情報を保存しておく（文字色は白）
+                    // ※ 惑星シンボルは黒で描画（fillStyle を "#000000" に変更）
                     planetSymbolsToDraw.push({
                         symbol: symbol,
                         x: adjustedPos.x,
                         y: adjustedPos.y,
-                        font: Math.floor(canvas.width * 0.06) + "px sans-serif",
+                        font: Math.floor(canvas.width * 0.08) + "px sans-serif",
                         fillStyle: "#FFFFFF"
                     });
 
@@ -1217,7 +1218,7 @@
                     ctx.moveTo(pos1.x, pos1.y);
                     ctx.lineTo(pos2.x, pos2.y);
                     ctx.strokeStyle = lineColor;
-                    ctx.lineWidth = canvas.width * 0.001;
+                    ctx.lineWidth = canvas.width * 0.0025;
                     if (aspectName === "スクエア" || aspectName === "Square") {
                         ctx.setLineDash([5, 3]);
                     }
@@ -1225,23 +1226,23 @@
                     ctx.restore();
                 });
 
-                // ★ 各星座領域を塗りつぶす（扇形の領域） - 高級感のある12色（落ち着いた深みのある色調）
+                // ★ 各星座領域を塗りつぶす（扇形の領域） 
                 const zodiacColors = [
-                    "#5D001E",  // Aries: 深いマルーン
-                    "#0B3D0B",  // Taurus: ダークフォレストグリーン
-                    "#1C1C3C",  // Gemini: 濃紺
-                    "#3B3B3B",  // Cancer: ダークグレー
-                    "#D4AF37",  // Leo: ゴールド
-                    "#5A4E42",  // Virgo: リッチなブラウン
-                    "#7F669D",  // Libra: 落ち着いたプラム
-                    "#4B0082",  // Scorpio: インディゴ
-                    "#2C3539",  // Sagittarius: ガンメタル
-                    "#36454F",  // Capricorn: チャコールブルー
-                    "#003366",  // Aquarius: ネイビー
-                    "#0A2342"   // Pisces: ディープブルー
+                    "#1C1C1C",  // Aries
+                    "#2A2A2A",  // Taurus
+                    "#363636",  // Gemini
+                    "#424242",  // Cancer
+                    "#4E4E4E",  // Leo
+                    "#5A5A5A",  // Virgo
+                    "#666666",  // Libra
+                    "#727272",  // Scorpio
+                    "#7E7E7E",  // Sagittarius
+                    "#8A8A8A",  // Capricorn
+                    "#969696",  // Aquarius
+                    "#A2A2A2"   // Pisces
                 ];
 
-                // ★ 星座の区分線およびシンボル描画（修正版）
+                // ★ 星座の区分線およびシンボルの描画（修正版）
                 ctx.save();
                 // 内側のホロスコープ円（radius）はそのまま利用
                 // 内側の区分線の開始位置（ホロスコープ円から少し外側）
@@ -1299,11 +1300,11 @@
                         centerX + outerCircleRadius * Math.cos(lineAngle),
                         centerY + outerCircleRadius * Math.sin(lineAngle)
                     );
-                    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+                    ctx.strokeStyle = "rgba(0,0,0,0.3)";
                     ctx.lineWidth = 1;
                     ctx.stroke();
 
-                    // 星座シンボルは区分線の中央あたりに配置
+                    // 星座シンボルは区分線の中央あたりに配置（色を黒に変更）
                     const midAngleRad = degToRad(i * 30 + 15);
                     // シンボルを配置する半径は内側と外側の中間
                     const symbolRadius = (innerDividingRadius + outerCircleRadius) / 2;
@@ -1312,7 +1313,7 @@
 
                     ctx.save();
                     ctx.translate(textX, textY);
-                    ctx.font = Math.floor(canvas.width * 0.06) + "px Arial";
+                    ctx.font = Math.floor(canvas.width * 0.04) + "px Arial";
                     ctx.fillStyle = "#FFFFFF";
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
@@ -1321,7 +1322,7 @@
                 }
                 ctx.restore();
 
-                // ★ 最後に、保存しておいた惑星シンボルを再描画して最前面に表示
+                // ★ 最後に、保存しておいた惑星シンボルを再描画して最前面に表示（色を黒に変更）
                 planetSymbolsToDraw.forEach(item => {
                     ctx.save();
                     ctx.font = item.font;
@@ -1333,6 +1334,8 @@
                 });
             }
         </script>
+
+
 
     
         <!-- (G) 「ホロスコープを作成」ボタンの処理 (本番データで描画) -->
