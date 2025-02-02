@@ -104,84 +104,121 @@
 
 <div class="tables-wrapper">
 
-    <!-- 1. 惑星の星座 -->
+    <!-- 惑星ごとに星座内度数とハウスをまとめたテーブル -->
     <div class="section">
-        <h2>1. 惑星の星座</h2>
+        <h2>1.惑星</h2>
         <table>
             <thead>
                 <tr>
                     <th>惑星</th>
                     <th>星座内度数</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for planet, info in zodiac_info.items %}
-                <tr>
-                    <td>{{ planet }}</td>
-                    <td>{{ info.formatted }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- 2. 惑星のハウス -->
-    <div class="section">
-        <h2>2. 惑星のハウス</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>惑星</th>
                     <th>ハウス</th>
                 </tr>
             </thead>
             <tbody>
-                {% for planet, house in house_info.items %}
+                {% for item in marged_planets %}
                 <tr>
-                    <td>{{ planet }}</td>
-                    <td>{{ house }}</td>
+                    <td>{{ item.planet }}</td>
+                    <td>{{ item.zodiac_formatted }}</td>
+                    <td>{{ item.house }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <!-- 3. ハウスカスプ -->
+    <!-- 3・4の情報をまとめたテーブル -->
     <div class="section">
-        <h2>3. ハウスカスプ</h2>
+        <h2>2.ハウスカスプ</h2>
         <table>
             <thead>
                 <tr>
                     <th>ハウス</th>
                     <th>星座内度数</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cusp in house_cusps %}
-                <tr>
-                    <td>{{ cusp.house }}</td>
-                    <td>{{ cusp.formatted }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- 4. ハウスの支配星 -->
-    <div class="section">
-        <h2>4. ハウスの支配星</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ハウス</th>
                     <th>支配星</th>
                 </tr>
             </thead>
             <tbody>
-                {% for house, ruler in house_ruler.items %}
+                {% for cusp in merged_house_data %}
                 <tr>
-                    <td>{{ house }}</td>
-                    <td>{{ ruler }}</td>
+                    <td>{{ cusp.house }}</td>
+                    <td>{{ cusp.cusp_formatted }}</td>
+                    <td>{{ cusp.ruler }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 6. 天体の四区分 -->
+    <div class="section">
+        <h2>3. 四区分</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>区分</th>
+                    <th>天体</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for element, planets in four_elements.items %}
+                <tr>
+                    <td>{{ element }}</td>
+                    <td>
+                        {% for planet in planets %}
+                            {{ planet }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 7. 天体の三区分 -->
+    <div class="section">
+        <h2>4.三区分</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>区分</th>
+                    <th>天体</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mode, planets in three_modes.items %}
+                <tr>
+                    <td>{{ mode }}</td>
+                    <td>
+                        {% for planet in planets %}
+                            {{ planet }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 8. 天体の二区分 -->
+    <div class="section">
+        <h2>5.二区分</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>区分</th>
+                    <th>天体</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for polarity, planets in two_polarities.items %}
+                <tr>
+                    <td>{{ polarity }}</td>
+                    <td>
+                        {% for planet in planets %}
+                            {{ planet }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -190,7 +227,7 @@
 
     <!-- 5. アスペクトの結果 -->
     <div class="section">
-        <h2>5. アスペクトの結果</h2>
+        <h2>6.アスペクト</h2>
         <table>
             <thead>
                 <tr>
@@ -217,80 +254,6 @@
         </table>
     </div>
 
-    <!-- 6. 天体の四区分 -->
-    <div class="section">
-        <h2>6. 天体の四区分</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>区分</th>
-                    <th>天体</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for element, planets in four_elements.items %}
-                <tr>
-                    <td>{{ element }}</td>
-                    <td>
-                        {% for planet in planets %}
-                            {{ planet }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- 7. 天体の三区分 -->
-    <div class="section">
-        <h2>7. 天体の三区分</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>区分</th>
-                    <th>天体</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for mode, planets in three_modes.items %}
-                <tr>
-                    <td>{{ mode }}</td>
-                    <td>
-                        {% for planet in planets %}
-                            {{ planet }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- 8. 天体の二区分 -->
-    <div class="section">
-        <h2>8. 天体の二区分</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>区分</th>
-                    <th>天体</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for polarity, planets in two_polarities.items %}
-                <tr>
-                    <td>{{ polarity }}</td>
-                    <td>
-                        {% for planet in planets %}
-                            {{ planet }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 
 </div><!-- /.tables-wrapper -->
 

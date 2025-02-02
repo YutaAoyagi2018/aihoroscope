@@ -200,7 +200,30 @@ def horoscope_detail(request):
 
     # JSONとして返す
     data = result_dict
+
+    merged_planets = []
+    for planet, z_info in data["analysis"]["1.惑星の星座"].items():
+        clean_planet = planet.strip()
+        h_info = data["analysis"]["2.惑星のハウス"].get(clean_planet, None)
+        merged_planets.append({
+            "planet": clean_planet,
+            "zodiac_formatted": z_info["formatted"],
+            "house": h_info
+        })
     
+    merged_house_data = []
+    for cusp in data["analysis"]["8.ハウスカスプ"]:
+        # 「house」番号を取り出し
+        house_number = cusp["house"]
+        # house_ruler の中から該当の「支配星」を取得（存在しない場合は None）
+        ruler = data["analysis"]["3.ハウスの支配星"].get(house_number, None)
+
+        merged_house_data.append({
+            "house": house_number,
+            "cusp_formatted": cusp["formatted"],
+            "ruler": ruler
+        })
+
     # テンプレートに渡すコンテキストを作成
     context = {
         'zodiac_info': data["analysis"]["1.惑星の星座"],
@@ -211,6 +234,8 @@ def horoscope_detail(request):
         'three_modes': data["analysis"]["6.天体の三区分"],
         'two_polarities': data["analysis"]["7.天体の二区分"],
         'house_cusps': data["analysis"]["8.ハウスカスプ"],
-
+        'marged_planets': merged_planets,
+        'merged_house_data': merged_house_data,
     }
+    print(merged_planets)
     return render(request, 'horoscope_app/horoscope_detail.html', context)
