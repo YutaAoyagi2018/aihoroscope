@@ -965,16 +965,16 @@
             };
             // アスペクト色（高級感のある金・銀・深紅・濃緑・ダークゴールド）
             const aspectColorMap = {
-                "コンジャンクション": "#D4AF37",  // ゴールド
-                "オポジション": "#808080",        // 濃いグレー
-                "スクエア": "#8B0000",            // ダークレッド
-                "トライン": "#006400",            // ダークグリーン
-                "セクスタイル": "#B8860B",        // ダークゴールデンロッド
-                "Conjunction": "#D4AF37",
-                "Opposition": "#808080",        
-                "Square": "#8B0000",
-                "Trine": "#006400",
-                "Sextile": "#B8860B"
+                "コンジャンクション": "#FFD700",  // 明るいゴールド（ゴールド）
+                "オポジション": "#D3D3D3",        // 明るいグレー（ライトグレー）
+                "スクエア": "#FF6347",            // 明るいレッド（トマトレッド）
+                "トライン": "#32CD32",            // 明るいグリーン（ライムグリーン）
+                "セクスタイル": "#FFCC33",        // 明るいゴールデンロッド（ライトゴールデンロッド）
+                "Conjunction": "#FFD700",
+                "Opposition": "#D3D3D3",
+                "Square": "#FF6347",
+                "Trine": "#32CD32",
+                "Sextile": "#FFCC33"
             };
             // 星座のシンボル
             const zodiacSymbols = {
@@ -1218,7 +1218,7 @@
                     ctx.moveTo(pos1.x, pos1.y);
                     ctx.lineTo(pos2.x, pos2.y);
                     ctx.strokeStyle = lineColor;
-                    ctx.lineWidth = canvas.width * 0.004;
+                    ctx.lineWidth = canvas.width * 0.003;
                     if (aspectName === "スクエア" || aspectName === "Square") {
                         ctx.setLineDash([5, 3]);
                     }
