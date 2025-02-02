@@ -625,39 +625,44 @@
                 const savedPrefecture = getCookie('horoscope_prefecture');
                 const savedCheckbox = getCookie('horoscope_checkbox');
 
-                // あればセット
-                if (savedYear && savedMonth && savedDay && savedTime && savedPrefecture) {
-                    if (yearSelect)  yearSelect.value  = savedYear;
-                    if (monthSelect) monthSelect.value = savedMonth;
-                    if (daySelect)   daySelect.value   = savedDay;
-                    if (timeInput)   timeInput.value   = savedTime;
-                    if (checkboxSelect) {
-                        checkboxSelect.checked = (savedCheckbox === 'true');
-                    }
-                    if (prefectureSelect) {
-                        const options = prefectureSelect.options;
-                        for (let i = 0; i < options.length; i++) {
-                            if (options[i].value === savedPrefecture) {
-                                prefectureSelect.selectedIndex = i;
-                                break;
-                            }
+                if (yearSelect && savedYear) {
+                    yearSelect.value = savedYear;
+                }
+                if (monthSelect && savedMonth) {
+                    monthSelect.value = savedMonth;
+                }
+                if (daySelect && savedDay) {
+                    daySelect.value = savedDay;
+                }
+                if (timeInput && savedTime !== null) {
+                    timeInput.value = savedTime;
+                }
+                if (checkboxSelect && savedCheckbox !== null) {
+                    checkboxSelect.checked = (savedCheckbox === 'true');
+                }
+                if (prefectureSelect && savedPrefecture) {
+                    const options = prefectureSelect.options;
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].value === savedPrefecture) {
+                            prefectureSelect.selectedIndex = i;
+                            break;
                         }
                     }
-                } else {
-                    // デフォルト現在時刻など
+                }
+
+                // デフォルト値の設定（Cookieに該当値がない場合のみ）
+                if (!savedYear || !savedMonth || !savedDay) {
                     const now = new Date();
-                    const year   = now.getFullYear();
-                    const month  = String(now.getMonth() + 1);
-                    const day    = String(now.getDate());
-                    if (yearSelect)  yearSelect.value  = year;
-                    if (monthSelect) monthSelect.value = month;
-                    if (daySelect)   daySelect.value   = day;
-                    
+                    if (yearSelect && !savedYear)  yearSelect.value  = now.getFullYear();
+                    if (monthSelect && !savedMonth) monthSelect.value = String(now.getMonth() + 1);
+                    if (daySelect && !savedDay)     daySelect.value   = String(now.getDate());
+                }
+                if (!savedTime && savedCheckbox == null) {
+                    const now = new Date();
                     const hours   = String(now.getHours()).padStart(2, '0');
                     const minutes = String(now.getMinutes()).padStart(2, '0');
                     if (timeInput) timeInput.value = `${hours}:${minutes}`;
                 }
-
                 // 都道府県切り替え
                 if (prefectureSelect) {
                     function updateLatLon(e) {
