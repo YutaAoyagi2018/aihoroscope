@@ -207,5 +207,10 @@ def horoscope_detail(request):
         'house_info': data["analysis"]["2.惑星のハウス"],
         'house_ruler': data["analysis"]["3.ハウスの支配星"],
         'aspects': data["analysis"]["4.アスペクトの結果"],
+        'four_elements': data["analysis"]["5.天体の四区分"],
+        'three_modes': data["analysis"]["6.天体の三区分"],
+        'two_polarities': data["analysis"]["7.天体の二区分"],
+        'house_cusps': data["analysis"]["8.ハウスカスプ"],
+
     }
     return render(request, 'horoscope_app/horoscope_detail.html', context)

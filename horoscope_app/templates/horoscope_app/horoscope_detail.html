@@ -10,157 +10,289 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-V8QL89EXFC');
     </script>
     <style>
+        /* 全体のレイアウト */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            margin: 40px;
+            margin: 20px;
             background-color: #f4f4f9;
             color: #333;
+            font-size: 14px; /* 少しコンパクトに */
+            line-height: 1.4;
         }
-    
-        /* 見出しのスタイルを追加 */
+
         h1 {
             text-align: center;
-            margin-bottom: 40px;
-            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-size: 1.8em;
             color: #444;
         }
-    
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 40px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
+
+        /* テーブル・見出しコンテナを柔軟に配置するためのラッパー */
+        .tables-wrapper {
+            display: flex;
+            flex-wrap: wrap;       /* 幅が足りなくなったら折り返す */
+            justify-content: space-between;
+            gap: 20px;             /* テーブル間の余白 */
         }
-    
-        table, th, td { border: 1px solid #eee; }
-    
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
+
+        /* セクション(テーブル＋見出し)のコンテナ */
+        .section {
+            flex: 1 1 45%;         /* 幅が広い場合は2カラム表示になる目安 */
+            min-width: 300px;      /* 狭すぎないように最小幅を指定 */
+            margin-bottom: 20px;
+            page-break-inside: avoid; /* 印刷時にテーブルの途中で改ページしないように */
         }
-    
-        h2 {
-            margin-top: 50px;
+
+        .section h2 {
+            margin: 0 0 10px 0;
             color: #555;
+            font-size: 1.2em;
             border-bottom: 2px solid #ccc;
             padding-bottom: 5px;
         }
-    
-        /* テーブルヘッダーを豪華に */
+
+        /* テーブルのデザイン */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            margin-bottom: 0; /* 見出し下の余白と合わせて過剰な空白をなくす */
+        }
+
+        table, th, td {
+            border: 1px solid #eee;
+        }
+
+        th, td {
+            padding: 8px 10px; /* コンパクトに */
+            text-align: left;
+            font-size: 0.9em;  /* コンパクトに */
+        }
+
+        /* テーブルヘッダー */
         th {
             background: linear-gradient(to right, #6a11cb, #2575fc);
             color: #fff;
             text-transform: uppercase;
-            font-size: 0.9em;
             letter-spacing: 1px;
+            font-weight: 500;
         }
-    
+
         /* 偶数行の背景色とホバー効果 */
         tbody tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-
         tbody tr:hover {
             background-color: #f1f1f1;
+        }
+
+        /* メディアクエリでモバイル表示時は1カラムに */
+        @media screen and (max-width: 768px) {
+            .section {
+                flex: 1 1 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>ホロスコープ詳細</h1>
+
+<h1>ホロスコープ詳細</h1>
+
+<div class="tables-wrapper">
 
     <!-- 1. 惑星の星座 -->
-    <h2>1. 惑星の星座</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>惑星</th>
-                <th>度数</th>
-                <!-- <th>星座</th>
-                <th>星座内の度数</th> -->
-                <th>星座内度数</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for planet, info in zodiac_info.items %}
-            <tr>
-                <td>{{ planet }}</td>
-                <td>{{ info.degree }}</td>
-                <!-- <td>{{ info.sign }}</td>
-                <td>{{ info.deg_in_sign }}</td> -->
-                <td>{{ info.formatted }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="section">
+        <h2>1. 惑星の星座</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>惑星</th>
+                    <th>星座内度数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for planet, info in zodiac_info.items %}
+                <tr>
+                    <td>{{ planet }}</td>
+                    <td>{{ info.formatted }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <!-- 2. 惑星のハウス -->
-    <h2>2. 惑星のハウス</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>惑星</th>
-                <th>ハウス</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for planet, house in house_info.items %}
-            <tr>
-                <td>{{ planet }}</td>
-                <td>{{ house }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="section">
+        <h2>2. 惑星のハウス</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>惑星</th>
+                    <th>ハウス</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for planet, house in house_info.items %}
+                <tr>
+                    <td>{{ planet }}</td>
+                    <td>{{ house }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <!-- 3. ハウスの支配星 -->
-    <h2>3. ハウスの支配星</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>ハウス</th>
-                <th>支配星</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for house, ruler in house_ruler.items %}
-            <tr>
-                <td>{{ house }}</td>
-                <td>{{ ruler }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- 3. ハウスカスプ -->
+    <div class="section">
+        <h2>3. ハウスカスプ</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ハウス</th>
+                    <th>星座内度数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cusp in house_cusps %}
+                <tr>
+                    <td>{{ cusp.house }}</td>
+                    <td>{{ cusp.formatted }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <!-- 4. アスペクトの結果 -->
-    <h2>4. アスペクトの結果</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>アスペクト</th>
-                <th>惑星1</th>
-                <th>惑星2</th>
-                <th>角度</th>
-                <th>オーブ</th>
-                <th>オーブ符号</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for aspect in aspects %}
-            <tr>
-                <td>{{ aspect.aspect }}</td>
-                <td>{{ aspect.planet1 }}</td>
-                <td>{{ aspect.planet2 }}</td>
-                <td>{{ aspect.angle }}</td>
-                <td>{{ aspect.orb }}</td>
-                <td>{{ aspect.orb_sign }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- 4. ハウスの支配星 -->
+    <div class="section">
+        <h2>4. ハウスの支配星</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ハウス</th>
+                    <th>支配星</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for house, ruler in house_ruler.items %}
+                <tr>
+                    <td>{{ house }}</td>
+                    <td>{{ ruler }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 5. アスペクトの結果 -->
+    <div class="section">
+        <h2>5. アスペクトの結果</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>アスペクト</th>
+                    <th>惑星1</th>
+                    <th>惑星2</th>
+                    <th>角度</th>
+                    <th>オーブ</th>
+                    <th>オーブ符号</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for aspect in aspects %}
+                <tr>
+                    <td>{{ aspect.aspect }}</td>
+                    <td>{{ aspect.planet1 }}</td>
+                    <td>{{ aspect.planet2 }}</td>
+                    <td>{{ aspect.angle }}</td>
+                    <td>{{ aspect.orb }}</td>
+                    <td>{{ aspect.orb_sign }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 6. 天体の四区分 -->
+    <div class="section">
+        <h2>6. 天体の四区分</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>区分</th>
+                    <th>天体</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for element, planets in four_elements.items %}
+                <tr>
+                    <td>{{ element }}</td>
+                    <td>
+                        {% for planet in planets %}
+                            {{ planet }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 7. 天体の三区分 -->
+    <div class="section">
+        <h2>7. 天体の三区分</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>区分</th>
+                    <th>天体</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mode, planets in three_modes.items %}
+                <tr>
+                    <td>{{ mode }}</td>
+                    <td>
+                        {% for planet in planets %}
+                            {{ planet }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 8. 天体の二区分 -->
+    <div class="section">
+        <h2>8. 天体の二区分</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>区分</th>
+                    <th>天体</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for polarity, planets in two_polarities.items %}
+                <tr>
+                    <td>{{ polarity }}</td>
+                    <td>
+                        {% for planet in planets %}
+                            {{ planet }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div><!-- /.tables-wrapper -->
+
 </body>
 </html>
