@@ -69,7 +69,7 @@ def horoscope(request):
     return JsonResponse(result_dict)
 
 
-@csrf_protect
+@csrf_exempt
 def analyze(request):
     """
     POSTで受け取った出生データを使い、ホロスコープを計算→OpenAI で占いコメントを生成→返す。
