@@ -253,5 +253,4 @@ def horoscope_detail(request):
         'marged_planets': merged_planets,
         'merged_house_data': merged_house_data,
     }
-    print(merged_planets)
     return render(request, 'horoscope_app/horoscope_detail.html', context)

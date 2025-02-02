@@ -55,19 +55,22 @@
                 padding: 0;
             }
             body {
-                font-family: Arial, sans-serif;
+                /* 例：Google Fonts 等で 'Merriweather' や 'Playfair Display' を読み込んだ上で */
+                font-family: 'Merriweather', serif;
                 margin: 0;
-                background-color: #99bbff;
+                background: linear-gradient(135deg, #fdfbfb, #ebedee);
             }
 
             /* ヘッダー */
             h1 {
-                background-color: #000;
+                background: linear-gradient(90deg, #2c3e50, #4ca1af);
                 color: #fff;
                 padding: 20px;
                 text-align: center;
                 margin: 0;
                 width: 100%;
+                font-family: 'Playfair Display', serif;  /* 上質な印象のセリフ体 */
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             }
 
             /* メインコンテナー */
@@ -84,10 +87,11 @@
             #horoscope-form {
                 flex: 1;
                 max-width: 100%;
-                background-color: #f5f5f5;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                background-color: #fff;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+                border: 1px solid #e0e0e0;
             }
 
             /* テーブルのスタイル */
@@ -97,15 +101,16 @@
             }
             #horoscope-form th, 
             #horoscope-form td {
-                padding: 12px 15px;
-                border: 1px solid #ddd;
+                padding: 16px 20px;
+                border: none;
+                border-bottom: 1px solid #e0e0e0;
                 text-align: left;
                 vertical-align: middle;
             }
             #horoscope-form th {
-                background-color: #4CAF50;
-                color: white;
-                width: 30%;
+                background-color: transparent;
+                color: #333;
+                font-weight: bold;
             }
             #horoscope-form td {
                 background-color: #fff;
@@ -123,18 +128,48 @@
                 min-width: 100px;
             }
 
-            /* ボタン */
+            /* 共通ボタンスタイルの変更 */
             button {
                 margin-top: 20px;
-                padding: 10px 20px;
+                padding: 12px 24px;
                 cursor: pointer;
-                border-radius: 5px;
+                border-radius: 8px;
                 font-size: 16px;
                 border: none;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             }
-            /* ボタンホバー */
-            #horoscope-form button:hover {
-                opacity: 0.9;
+            button:hover:not(:disabled) {
+                filter: brightness(95%);
+                transform: translateY(-2px);
+            }
+
+            /* 各ボタンのカラー例 */
+            /* 性格 */
+            #submit-button1 {
+                background: linear-gradient(45deg, #8e44ad, #9b59b6);
+            }
+            /* 恋愛運 */
+            #submit-button2 {
+                background: linear-gradient(45deg, #e74c3c, #e67e22);
+            }
+            /* 仕事運 */
+            #submit-button3 {
+                background: linear-gradient(45deg, #27ae60, #2ecc71);
+            }
+            /* 金運 (テキストは暗色) */
+            #submit-button4 {
+                background: linear-gradient(45deg, #f1c40f, #f39c12);
+                color: #000;
+            }
+            /* 健康運 */
+            #submit-button5 {
+                background: linear-gradient(45deg, #16a085, #1abc9c);
+            }
+            /* 学業運 (テキストは暗色) */
+            #submit-button6 {
+                background: linear-gradient(45deg, #d35400, #e67e22);
+                color: #000;
             }
 
             /* スピナーのスタイル */
@@ -206,27 +241,7 @@
                 background: #99bbff;
             }
 
-            /* 惑星ラベル */
-            .planet-label {
-                position: absolute;
-                transform: translate(-50%, -50%);
-                background: rgba(255,255,255,0);
-                border: none;
-                padding: 2px 4px;
-                font-size: 40px;
-                pointer-events: none; /* マウスイベントを透過 */
-            }
-            .planet-label.Sun     { z-index: 10; }
-            .planet-label.Moon    { z-index: 9; }
-            .planet-label.Mercury { z-index: 8; }
-            .planet-label.Venus   { z-index: 7; }
-            .planet-label.Mars    { z-index: 6; }
-            .planet-label.Jupiter { z-index: 5; }
-            .planet-label.Saturn  { z-index: 4; }
-            .planet-label.Uranus  { z-index: 3; }
-            .planet-label.Neptune { z-index: 2; }
-            .planet-label.Pluto   { z-index: 1; }
-
+            
             /* モーダル関連 */
             .modal {
                 display: none;
@@ -240,14 +255,15 @@
                 background-color: rgba(0, 0, 0, 0.5); 
             }
             .modal-content {
-                background-color: #fefefe;
+                background-color: #fff;
                 margin: 10% auto;
-                padding: 20px;
-                border: 1px solid #888;
-                width: 80%; 
-                max-width: 700px; 
+                padding: 30px;
+                border: none;
+                width: 80%;
+                max-width: 700px;
                 position: relative;
-                border-radius: 8px;
+                border-radius: 12px;
+                box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             }
             .close {
                 color: #aaa;
@@ -302,9 +318,6 @@
                     padding: 8px;
                     font-size: 0.9em;
                 }
-                .planet-label {
-                    font-size: 30px;
-                }
                 .modal-content {
                     margin: 30% auto 0;
                     width: 90%;
@@ -352,27 +365,6 @@
             justify-content: center;   /* 内部のボタンを中央寄せ */
             }
             
-            /* 各ボタンのデフォルト色 */
-            #submit-button1 { /* 性格 */
-                background-color: #9C27B0;
-            }
-            #submit-button2 { /* 恋愛運 */
-                background-color: #E91E63;
-            }
-            #submit-button3 { /* 仕事運 */
-                background-color: #4CAF50;
-            }
-            #submit-button4 { /* 金運 */
-                background-color: #FFC107;
-                color: #000; /* 背景が明るいためテキストを黒に */
-            }
-            #submit-button5 { /* 健康運 */
-                background-color: #009688;
-            }
-            #submit-button6 { /* 学業運 */
-                background-color: #FF9800;
-                color: #000; /* 背景が明るいためテキストを黒に */
-            }
             
             /* ホバー時：少し暗めに */
             .analysis-button button:hover:not(:disabled) {
