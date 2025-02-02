@@ -30,6 +30,11 @@ DEBUG = True
 ALLOWED_HOSTS = ["aihoroscope.onrender.com",'aihoroscopeanalysis.com']
 # ALLOWED_HOSTS = []
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://aihoroscope.onrender.com',
+    'https://aihoroscopeanalysis.com',
+    # 他にも運用ドメインがあればここに追加
+]
 
 # Application definition
 
