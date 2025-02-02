@@ -111,8 +111,9 @@ def analyze(request):
 
     # (2) ChatGPTへ送るプロンプト作成
     horoscope_str = json.dumps(horoscope_data, ensure_ascii=False, indent=2)
+    user_message = "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。\n"
     if sb == 1:
-        user_message = (
+        user_message += (
             "以下のホロスコープ解析データを参考に、性格や人生における課題について\n"
             "特徴とアドバイスを回答してください。\n"
             "結果はマークダウンで見栄えよく表示されるようにしてください。\n"
@@ -121,7 +122,7 @@ def analyze(request):
             "この人の性格や人生における課題はどのようなものが考えられますか？\n"
         )
     elif sb == 2:
-        user_message = (
+        user_message += (
             "以下のホロスコープ解析データを参考に、恋愛運について\n"
             "特徴とアドバイスを回答してください。\n"
             "結果はマークダウンで見栄えよく表示されるようにしてください。\n"
@@ -130,7 +131,7 @@ def analyze(request):
             "この人の恋愛運はどのようになっていると考えられますか？\n"
         )
     elif sb == 3:
-        user_message = (
+        user_message += (
             "以下のホロスコープ解析データを参考に、仕事・金運について\n"
             "特徴とアドバイスを回答してください。\n"
             "結果はマークダウンで見栄えよく表示されるようにしてください。\n"
@@ -152,10 +153,10 @@ def analyze(request):
     try:
         chat_completion = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。"},
+                # {"role": "system", "content": "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。"},
                 {"role": "user", "content": user_message},
             ],
-            model="gpt-4o",  # 必要に応じてモデル名を修正
+            model="o1-mini",  # 必要に応じてモデル名を修正
             # temperature=0.7,
             # max_tokens=1500
         )
