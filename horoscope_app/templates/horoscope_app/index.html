@@ -17,7 +17,7 @@
         <meta property="og:description" content="生年月日、出生時刻、出生地からあなたのホロスコープを作成し、性格・恋愛運・仕事運・金運を占います。">
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://aihoroscope.onrender.com/">
-        <meta property="og:image" content="https://aihoroscope.onrender.com/static/path/to/horoscope-demo3.png">
+        <meta property="og:image" content="https://aihoroscope.onrender.com/static/path/to/horoscope-demo4.png">
 
         <!-- JSON-LDによる構造化データ -->
         <script type="application/ld+json">
@@ -1010,9 +1010,9 @@
                     centerX, centerY, 0,
                     centerX, centerY, radius * 1.5
                 );
-                bgGradient.addColorStop(0,   "#f0f8ff");
+                bgGradient.addColorStop(0,   "#f0f8ff");
                 bgGradient.addColorStop(0.7, "#cceeff");
-                bgGradient.addColorStop(1,   "#99bbff");
+                bgGradient.addColorStop(1,   "#99bbff");
                 ctx.fillStyle = bgGradient;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1020,9 +1020,9 @@
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius + 10, 0, 2 * Math.PI);
-                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowColor = 'rgba(30, 144, 255, 0.5)'; // 濃い青色のシャドウ
                 ctx.shadowBlur = 10;
-                ctx.strokeStyle = '#D4AF37';
+                ctx.strokeStyle = '#E0FFFF'; // プラチナシルバー
                 ctx.lineWidth = 4;
                 ctx.stroke();
                 ctx.restore();
@@ -1040,9 +1040,9 @@
                         ctx.beginPath();
                         ctx.moveTo(centerX, centerY);
                         ctx.lineTo(x2, y2);
-                        ctx.strokeStyle = '#CCCCCC';
-                        ctx.lineWidth = 1.2;
-                        ctx.setLineDash([4, 3]);
+                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)'; // 黒
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([6, 4]); // 点線
                         ctx.stroke();
                         ctx.restore();
 
@@ -1052,8 +1052,8 @@
                         const labelY = centerY + labelRadius * Math.sin(angleRad - 0.26);
 
                         ctx.save();
-                        ctx.font = Math.floor(canvas.width * 0.02) + "px sans-serif";
-                        ctx.fillStyle = "#222222";
+                        ctx.font = Math.floor(canvas.width * 0.025) + "px 'Times New Roman'";
+                        ctx.fillStyle = "#000000"; // 黒
                         ctx.textAlign = "center";
                         ctx.textBaseline = "middle";
                         ctx.fillText((i + 1).toString(), labelX, labelY);
@@ -1145,7 +1145,7 @@
                     // 惑星の円を描画（高級感のある色合い）
                     ctx.save();
                     ctx.beginPath();
-                    ctx.arc(x, y, canvas.width * 0.01, 0, 2 * Math.PI);
+                    ctx.arc(x, y, canvas.width * 0.008, 0, 2 * Math.PI);
                     let fillColor = '#dd3333';
                     switch (planetName) {
                         case 'Sun'     : fillColor = '#D4AF37'; break;  // ゴールド
@@ -1160,8 +1160,8 @@
                         case 'Pluto'   : fillColor = '#800080'; break;  // パープル
                     }
                     ctx.fillStyle = fillColor;
-                    ctx.shadowColor = 'rgba(0,0,0,0.2)';
-                    ctx.shadowBlur = 4;
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)'; // 黒色のシャドウ
+                    ctx.shadowBlur = 6;
                     ctx.fill();
                     ctx.restore();
 
@@ -1174,7 +1174,7 @@
                         x: adjustedPos.x,
                         y: adjustedPos.y,
                         font: Math.floor(canvas.width * 0.08) + "px sans-serif",
-                        fillStyle: "#222222"
+                        fillStyle: "#000000" // 黒
                     });
 
                     planetPositions[planetName] = { x, y };
@@ -1197,14 +1197,14 @@
                     const pos2 = planetPositions[p2En];
                     if (!pos1 || !pos2) return;
 
-                    let lineColor = aspectColorMap[aspectName] || "#888";
+                    let lineColor = aspectColorMap[aspectName] || "#AAAAAA"; // パステル調の色
 
                     ctx.save();
                     ctx.beginPath();
                     ctx.moveTo(pos1.x, pos1.y);
                     ctx.lineTo(pos2.x, pos2.y);
                     ctx.strokeStyle = lineColor;
-                    ctx.lineWidth = canvas.width * 0.003;
+                    ctx.lineWidth = canvas.width * 0.002;
                     if (aspectName === "スクエア" || aspectName === "Square") {
                         ctx.setLineDash([5, 3]);
                     }
@@ -1213,18 +1213,18 @@
                 });
 
                 const zodiacColors = [
-                    "#C72C48",  // Aries: ルビーレッド
-                    "#1E824C",  // Taurus: エメラルドグリーン
-                    "#9B59B6",  // Gemini: アメジスト
-                    "#2980B9",  // Cancer: サファイアブルー
-                    "#F1C40F",  // Leo: ブリリアントゴールド
-                    "#E67E22",  // Virgo: リファインドカッパー
-                    "#8E44AD",  // Libra: ロイヤルパープル
-                    "#34495E",  // Scorpio: ミッドナイトブルー
-                    "#16A085",  // Sagittarius: ターコイズ
-                    "#2C3E50",  // Capricorn: ソフィスティケイテッドネイビー
-                    "#27AE60",  // Aquarius: ルミナスジェイド
-                    "#3498DB"   // Pisces: セルリアンブルー
+                    "#FF0000", // Red (牡羊座)
+                    "#008000", // Green (牡牛座)
+                    "#800080", // Purple (双子座)
+                    "#0000FF", // Blue (蟹座)
+                    "#FFA500", // Orange (獅子座)
+                    "#808000", // Dark Yellow (乙女座) // 黄色を暗くした色
+                    "#00FFFF", // Cyan (天秤座)
+                    "#FF0000", // Red (蠍座)
+                    "#008000", // Green (射手座)
+                    "#800080", // Purple (山羊座)
+                    "#0000FF", // Blue (水瓶座)
+                    "#FFA500"  // Orange (魚座)
                 ];
 
                 // ★ 星座の区分線およびシンボルの描画（修正版）
@@ -1285,7 +1285,7 @@
                         centerX + outerCircleRadius * Math.cos(lineAngle),
                         centerY + outerCircleRadius * Math.sin(lineAngle)
                     );
-                    ctx.strokeStyle = "rgba(0,0,0,0.3)";
+                    ctx.strokeStyle = "rgba(50, 50, 50, 0.8)"; // 濃いグレー
                     ctx.lineWidth = 1;
                     ctx.stroke();
 
@@ -1298,7 +1298,7 @@
 
                     ctx.save();
                     ctx.translate(textX, textY);
-                    ctx.font = Math.floor(canvas.width * 0.04) + "px Arial";
+                    ctx.font = Math.floor(canvas.width * 0.05) + "px 'Arial Rounded MT Bold'"; // Arial Rounded MT Bold風フォント
                     ctx.fillStyle = "#FFFFFF";
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
@@ -1321,8 +1321,6 @@
         </script>
 
 
-
-    
         <!-- (G) 「ホロスコープを作成」ボタンの処理 (本番データで描画) -->
         <script>
             document.getElementById('draw-button').addEventListener('click', async function() {
