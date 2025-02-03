@@ -17,7 +17,7 @@
         <meta property="og:description" content="生年月日、出生時刻、出生地からあなたのホロスコープを作成し、性格・恋愛運・仕事運・金運を占います。">
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://aihoroscope.onrender.com/">
-        <meta property="og:image" content="https://aihoroscope.onrender.com/static/path/to/horoscope-demo2.png">
+        <meta property="og:image" content="https://aihoroscope.onrender.com/static/path/to/horoscope-demo3.png">
 
         <!-- JSON-LDによる構造化データ -->
         <script type="application/ld+json">
@@ -275,20 +275,7 @@
                 border-radius: 12px;
                 box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             }
-            .close {
-                color: #aaa;
-                position: absolute;
-                top: 10px;
-                right: 25px;
-                font-size: 28px;
-                font-weight: bold;
-                cursor: pointer;
-            }
-            .close:hover,
-            .close:focus {
-                color: black;
-                text-decoration: none;
-            }
+            
             /* モーダル開閉ボタン */
             .open-modal-btn {
                 background: linear-gradient(45deg, #2c3e50, #4ca1af); /* 高級感あるグラデーション */
@@ -628,12 +615,12 @@
                     <!-- モーダル -->
                     <div id="chart-modal" class="modal">
                         <div class="modal-content">
-                            <span class="close">&times;</span>
                             <div id="chart-container">
                                 <!-- ホロスコープ描画領域 (JSで width/height を可変に) -->
                                 <canvas id="horoscope-canvas"></canvas>
                                 <!-- 保存ボタン -->
                                 <button onclick="saveCanvasAsImage()">保存</button>
+                                <button id="close-button">閉じる</button>
                             </div>
                         </div>
                     </div>
@@ -688,12 +675,12 @@
         <script>
             const modal = document.getElementById("chart-modal");
             const btn = document.getElementById("draw-button");
-            const span = document.getElementsByClassName("close")[0];
+            const closebtn = document.getElementById("close-button");
 
             btn.onclick = function() {
                 modal.style.display = "block";
             };
-            span.onclick = function() {
+            closebtn.onclick = function() {
                 modal.style.display = "none";
             };
             window.onclick = function(event) {
@@ -1023,10 +1010,9 @@
                     centerX, centerY, 0,
                     centerX, centerY, radius * 1.5
                 );
-                bgGradient.addColorStop(0, "#0A1F44"); // 深いネイビー（外側）
-                bgGradient.addColorStop(0.4, "#133D73"); // 落ち着いたブルー
-                bgGradient.addColorStop(0.8, "#1E5F9E"); // やや明るめのブルー
-                bgGradient.addColorStop(1, "#2B80C4");   // ラグジュアリーなブルー
+                bgGradient.addColorStop(0,   "#f0f8ff");
+                bgGradient.addColorStop(0.7, "#cceeff");
+                bgGradient.addColorStop(1,   "#99bbff");
                 ctx.fillStyle = bgGradient;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1067,7 +1053,7 @@
 
                         ctx.save();
                         ctx.font = Math.floor(canvas.width * 0.02) + "px sans-serif";
-                        ctx.fillStyle = "#FFFFFF";
+                        ctx.fillStyle = "#222222";
                         ctx.textAlign = "center";
                         ctx.textBaseline = "middle";
                         ctx.fillText((i + 1).toString(), labelX, labelY);
@@ -1188,7 +1174,7 @@
                         x: adjustedPos.x,
                         y: adjustedPos.y,
                         font: Math.floor(canvas.width * 0.08) + "px sans-serif",
-                        fillStyle: "#FFFFFF"
+                        fillStyle: "#222222"
                     });
 
                     planetPositions[planetName] = { x, y };
