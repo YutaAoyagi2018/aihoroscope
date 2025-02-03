@@ -17,7 +17,7 @@
         <meta property="og:description" content="生年月日、出生時刻、出生地からあなたのホロスコープを作成し、性格・恋愛運・仕事運・金運を占います。">
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://aihoroscope.onrender.com/">
-        <meta property="og:image" content="https://aihoroscope.onrender.com/static/path/to/horoscope-demo5.png">
+        <meta property="og:image" content="https://aihoroscope.onrender.com/static/path/to/horoscope-demo6.png">
 
         <!-- JSON-LDによる構造化データ -->
         <script type="application/ld+json">
@@ -654,7 +654,7 @@
                                                     </div>
                                                     <hr>
                                                     <div style="text-align: center;">
-                                                        <span>以下から占いたい項目を選んでください。</span>
+                                                        <span>以下から占いたい項目を選んでください。<br>AI占星術師アオポンがあなたのホロスコープから占います。</span>
                                                     </div>
                                                     <hr>
                                                     <!-- 占いボタン群 -->
@@ -1048,12 +1048,12 @@
             // アスペクト色（高級感のある金・銀・深紅・濃緑・ダークゴールド）
             const aspectColorMap = {
                 "コンジャンクション": "#FFD700",  // 明るいゴールド（ゴールド）
-                "オポジション": "#D3D3D3",        // 明るいグレー（ライトグレー）
+                "オポジション": "#0000FF",        // ブルー（青）
                 "スクエア": "#FF6347",            // 明るいレッド（トマトレッド）
                 "トライン": "#32CD32",            // 明るいグリーン（ライムグリーン）
                 "セクスタイル": "#FFCC33",        // 明るいゴールデンロッド（ライトゴールデンロッド）
                 "Conjunction": "#FFD700",
-                "Opposition": "#D3D3D3",
+                "Opposition": "#0000FF",
                 "Square": "#FF6347",
                 "Trine": "#32CD32",
                 "Sextile": "#FFCC33"
@@ -1355,7 +1355,7 @@
                     // パスを閉じる（自動的に内側の円弧の終点と外側の円弧の開始点を結ぶ）
                     ctx.closePath();
 
-                    ctx.fillStyle = zodiacColors[i];
+                    // ctx.fillStyle = zodiacColors[i];
                     ctx.fill();
                 }
 
@@ -1394,7 +1394,7 @@
                     ctx.save();
                     ctx.translate(textX, textY);
                     ctx.font = Math.floor(canvas.width * 0.05) + "px 'Arial Rounded MT Bold'"; // Arial Rounded MT Bold風フォント
-                    ctx.fillStyle = "#FFFFFF";
+                    ctx.fillStyle = "#000000";
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
                     ctx.fillText(zodiacSymbols[i], 0, 0);
