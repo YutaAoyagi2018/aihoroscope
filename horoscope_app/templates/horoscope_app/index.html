@@ -443,215 +443,281 @@
                 display: block;
             }
             }
+            /* 3カラムレイアウト用のスタイル */
+            .layout-wrapper {
+            display: flex;
+            justify-content: center; /* 中央寄せ */
+            align-items: flex-start;
+            gap: 20px; /* 広告と中央コンテンツの間の隙間 */
+            max-width: 1400px; /* コンテンツ全体の最大幅 */
+            margin: 0 auto;
+            padding: 20px;
+            }
+
+            /* 広告エリアのスタイル */
+            .side-ad {
+            flex: 0 0 160px; /* 固定幅 160px（必要に応じて調整） */
+            }
+
+            /* 中央コンテンツエリア */
+            .main-content {
+            flex: 1;
+            background-color: #fff;
+            padding: 0px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+            }
+
+            /* レスポンシブ対応：画面幅が768px以下の場合は広告を非表示に */
+            @media (max-width: 768px) {
+            .layout-wrapper {
+                flex-direction: column;
+                padding: 10px;
+            }
+            .side-ad {
+                display: none;
+            }
+            .main-content {
+                width: 100%;
+            }
+            }
         </style>
     </head>
     
     <body>
         <div class="wrapper">
-            <!-- コンテンツエリア -->
-            <div class="content">
-                <h1>AI占星術師アオポンの無料ホロスコープ作成・占い</h1>
-                <div class="content-container">
-                    <table id="container-table">
-                        <tr>
-                            <td style="text-align: center;"></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div id="data" style="width: 100%;">
-                                    <form id="horoscope-form" method="POST" action="#">
-                                        {% csrf_token %}
-                                        <table>
-                                            <tbody>
-                                                <tr>
-                                                    <th>生年月日</th>
-                                                    <td>
-                                                        <select name="year" id="year-select">
-                                                            {% for year in years %}
-                                                                <option value="{{ year }}">{{ year }}</option>
-                                                            {% endfor %}
-                                                        </select>
-                                                        <select name="month" id="month-select">
-                                                            {% for month in months %}
-                                                                <option value="{{ month }}">{{ month }}</option>
-                                                            {% endfor %}
-                                                        </select>
-                                                        <select name="day" id="day-select">
-                                                            {% for day in days %}
-                                                                <option value="{{ day }}">{{ day }}</option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <th>出生時刻</th>
-                                                    <td>
-                                                        <div class="input-group">
-                                                            <input type="time" id="time" name="time" required />
-                                                            <label for="unknown" class="checkbox-label">
-                                                                <input type="checkbox" id="unknown" name="unknown" />
-                                                                不明の場合はチェック
-                                                            </label>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <th>出生地</th>
-                                                    <td>
-                                                        <select name="prefecture" id="prefecture">
-                                                            <option value="Hokkaido" data-lat="43.06417" data-lon="141.34694">北海道</option>
-                                                            <option value="Aomori" data-lat="40.82444" data-lon="140.74">青森県</option>
-                                                            <option value="Iwate" data-lat="39.70361" data-lon="141.1525">岩手県</option>
-                                                            <option value="Miyagi" data-lat="38.26889" data-lon="140.87194">宮城県</option>
-                                                            <option value="Akita" data-lat="39.71861" data-lon="140.1025">秋田県</option>
-                                                            <option value="Yamagata" data-lat="38.24056" data-lon="140.36333">山形県</option>
-                                                            <option value="Fukushima" data-lat="37.75" data-lon="140.46778">福島県</option>
-                                                            <option value="Ibaraki" data-lat="36.34139" data-lon="140.44667">茨城県</option>
-                                                            <option value="Tochigi" data-lat="36.56583" data-lon="139.88361">栃木県</option>
-                                                            <option value="Gunma" data-lat="36.39111" data-lon="139.06083">群馬県</option>
-                                                            <option value="Saitama" data-lat="35.85694" data-lon="139.64889">埼玉県</option>
-                                                            <option value="Tokyo" data-lat="35.6895" data-lon="139.6917" selected>東京都</option>
-                                                            <option value="Chiba" data-lat="35.60506" data-lon="140.12333">千葉県</option>
-                                                            <option value="Kanagawa" data-lat="35.44778" data-lon="139.6425">神奈川県</option>
-                                                            <option value="Niigata" data-lat="37.90222" data-lon="139.02361">新潟県</option>
-                                                            <option value="Toyama" data-lat="36.69529" data-lon="137.21134">富山県</option>
-                                                            <option value="Ishikawa" data-lat="36.59444" data-lon="136.62556">石川県</option>
-                                                            <option value="Fukui" data-lat="36.06528" data-lon="136.22194">福井県</option>
-                                                            <option value="Yamanashi" data-lat="35.66389" data-lon="138.56833">山梨県</option>
-                                                            <option value="Nagano" data-lat="36.65139" data-lon="138.18111">長野県</option>
-                                                            <option value="Gifu" data-lat="35.39111" data-lon="136.72222">岐阜県</option>
-                                                            <option value="Shizuoka" data-lat="34.97694" data-lon="138.38306">静岡県</option>
-                                                            <option value="Aichi" data-lat="35.18028" data-lon="136.90667">愛知県</option>
-                                                            <option value="Mie" data-lat="34.73028" data-lon="136.50859">三重県</option>
-                                                            <option value="Shiga" data-lat="35.00444" data-lon="135.86833">滋賀県</option>
-                                                            <option value="Kyoto" data-lat="35.02139" data-lon="135.75556">京都府</option>
-                                                            <option value="Osaka" data-lat="34.68639" data-lon="135.52">大阪府</option>
-                                                            <option value="Hyogo" data-lat="34.69139" data-lon="135.18306">兵庫県</option>
-                                                            <option value="Nara" data-lat="34.68528" data-lon="135.83278">奈良県</option>
-                                                            <option value="Wakayama" data-lat="34.22611" data-lon="135.1675">和歌山県</option>
-                                                            <option value="Tottori" data-lat="35.50361" data-lon="134.23833">鳥取県</option>
-                                                            <option value="Shimane" data-lat="35.47222" data-lon="133.05056">島根県</option>
-                                                            <option value="Okayama" data-lat="34.66167" data-lon="133.935">岡山県</option>
-                                                            <option value="Hiroshima" data-lat="34.39639" data-lon="132.45962">広島県</option>
-                                                            <option value="Yamaguchi" data-lat="34.18583" data-lon="131.47139">山口県</option>
-                                                            <option value="Tokushima" data-lat="34.06583" data-lon="134.55944">徳島県</option>
-                                                            <option value="Kagawa" data-lat="34.34028" data-lon="134.04333">香川県</option>
-                                                            <option value="Ehime" data-lat="33.84167" data-lon="132.76556">愛媛県</option>
-                                                            <option value="Kochi" data-lat="33.55972" data-lon="133.53108">高知県</option>
-                                                            <option value="Fukuoka" data-lat="33.60639" data-lon="130.41806">福岡県</option>
-                                                            <option value="Saga" data-lat="33.24944" data-lon="130.29889">佐賀県</option>
-                                                            <option value="Nagasaki" data-lat="32.74472" data-lon="129.87361">長崎県</option>
-                                                            <option value="Kumamoto" data-lat="32.78972" data-lon="130.74167">熊本県</option>
-                                                            <option value="Oita" data-lat="33.23806" data-lon="131.6125">大分県</option>
-                                                            <option value="Miyazaki" data-lat="31.91111" data-lon="131.42389">宮崎県</option>
-                                                            <option value="Kagoshima" data-lat="31.56028" data-lon="130.55806">鹿児島県</option>
-                                                            <option value="Okinawa" data-lat="26.2125" data-lon="127.68111">沖縄県</option>
-                                                        </select>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+            <h1>AI占星術師アオポンの無料ホロスコープ作成・占い</h1>
+            <div class="layout-wrapper">
+                <!-- 左側広告エリア -->
+                <aside class="side-ad left-ad">
+                    <!-- 左側用の広告コードをここに挿入 -->
+                    <div class="ad-content">
+                        <a href="https://px.a8.net/svt/ejp?a8mat=44YP7H+8KELOI+2PEO+C4LLD" rel="nofollow">
+                            <img border="0" width="300" height="250" alt="" src="https://www29.a8.net/svt/bgt?aid=250202141518&wid=003&eno=01&mid=s00000012624002037000&mc=1"></a>
+                            <img border="0" width="1" height="1" src="https://www12.a8.net/0.gif?a8mat=44YP7H+8KELOI+2PEO+C4LLD" alt="">
+                        
+                    </div>
+                </aside>
+                <!-- 中央メインコンテンツエリア -->
+                <main class="main-content">
+                    <!-- コンテンツエリア -->
+                    <div class="content">
+                        <div class="content-container">
+                            <table id="container-table">
+                                <tr>
+                                    <td style="text-align: center;"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div id="data" style="width: 100%;">
+                                            <form id="horoscope-form" method="POST" action="#">
+                                                {% csrf_token %}
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>生年月日</th>
+                                                            <td>
+                                                                <select name="year" id="year-select">
+                                                                    {% for year in years %}
+                                                                        <option value="{{ year }}">{{ year }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                                <select name="month" id="month-select">
+                                                                    {% for month in months %}
+                                                                        <option value="{{ month }}">{{ month }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                                <select name="day" id="day-select">
+                                                                    {% for day in days %}
+                                                                        <option value="{{ day }}">{{ day }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>出生時刻</th>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <input type="time" id="time" name="time" required />
+                                                                    <label for="unknown" class="checkbox-label">
+                                                                        <input type="checkbox" id="unknown" name="unknown" />
+                                                                        不明の場合はチェック
+                                                                    </label>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>出生地</th>
+                                                            <td>
+                                                                <select name="prefecture" id="prefecture">
+                                                                    <option value="Hokkaido" data-lat="43.06417" data-lon="141.34694">北海道</option>
+                                                                    <option value="Aomori" data-lat="40.82444" data-lon="140.74">青森県</option>
+                                                                    <option value="Iwate" data-lat="39.70361" data-lon="141.1525">岩手県</option>
+                                                                    <option value="Miyagi" data-lat="38.26889" data-lon="140.87194">宮城県</option>
+                                                                    <option value="Akita" data-lat="39.71861" data-lon="140.1025">秋田県</option>
+                                                                    <option value="Yamagata" data-lat="38.24056" data-lon="140.36333">山形県</option>
+                                                                    <option value="Fukushima" data-lat="37.75" data-lon="140.46778">福島県</option>
+                                                                    <option value="Ibaraki" data-lat="36.34139" data-lon="140.44667">茨城県</option>
+                                                                    <option value="Tochigi" data-lat="36.56583" data-lon="139.88361">栃木県</option>
+                                                                    <option value="Gunma" data-lat="36.39111" data-lon="139.06083">群馬県</option>
+                                                                    <option value="Saitama" data-lat="35.85694" data-lon="139.64889">埼玉県</option>
+                                                                    <option value="Tokyo" data-lat="35.6895" data-lon="139.6917" selected>東京都</option>
+                                                                    <option value="Chiba" data-lat="35.60506" data-lon="140.12333">千葉県</option>
+                                                                    <option value="Kanagawa" data-lat="35.44778" data-lon="139.6425">神奈川県</option>
+                                                                    <option value="Niigata" data-lat="37.90222" data-lon="139.02361">新潟県</option>
+                                                                    <option value="Toyama" data-lat="36.69529" data-lon="137.21134">富山県</option>
+                                                                    <option value="Ishikawa" data-lat="36.59444" data-lon="136.62556">石川県</option>
+                                                                    <option value="Fukui" data-lat="36.06528" data-lon="136.22194">福井県</option>
+                                                                    <option value="Yamanashi" data-lat="35.66389" data-lon="138.56833">山梨県</option>
+                                                                    <option value="Nagano" data-lat="36.65139" data-lon="138.18111">長野県</option>
+                                                                    <option value="Gifu" data-lat="35.39111" data-lon="136.72222">岐阜県</option>
+                                                                    <option value="Shizuoka" data-lat="34.97694" data-lon="138.38306">静岡県</option>
+                                                                    <option value="Aichi" data-lat="35.18028" data-lon="136.90667">愛知県</option>
+                                                                    <option value="Mie" data-lat="34.73028" data-lon="136.50859">三重県</option>
+                                                                    <option value="Shiga" data-lat="35.00444" data-lon="135.86833">滋賀県</option>
+                                                                    <option value="Kyoto" data-lat="35.02139" data-lon="135.75556">京都府</option>
+                                                                    <option value="Osaka" data-lat="34.68639" data-lon="135.52">大阪府</option>
+                                                                    <option value="Hyogo" data-lat="34.69139" data-lon="135.18306">兵庫県</option>
+                                                                    <option value="Nara" data-lat="34.68528" data-lon="135.83278">奈良県</option>
+                                                                    <option value="Wakayama" data-lat="34.22611" data-lon="135.1675">和歌山県</option>
+                                                                    <option value="Tottori" data-lat="35.50361" data-lon="134.23833">鳥取県</option>
+                                                                    <option value="Shimane" data-lat="35.47222" data-lon="133.05056">島根県</option>
+                                                                    <option value="Okayama" data-lat="34.66167" data-lon="133.935">岡山県</option>
+                                                                    <option value="Hiroshima" data-lat="34.39639" data-lon="132.45962">広島県</option>
+                                                                    <option value="Yamaguchi" data-lat="34.18583" data-lon="131.47139">山口県</option>
+                                                                    <option value="Tokushima" data-lat="34.06583" data-lon="134.55944">徳島県</option>
+                                                                    <option value="Kagawa" data-lat="34.34028" data-lon="134.04333">香川県</option>
+                                                                    <option value="Ehime" data-lat="33.84167" data-lon="132.76556">愛媛県</option>
+                                                                    <option value="Kochi" data-lat="33.55972" data-lon="133.53108">高知県</option>
+                                                                    <option value="Fukuoka" data-lat="33.60639" data-lon="130.41806">福岡県</option>
+                                                                    <option value="Saga" data-lat="33.24944" data-lon="130.29889">佐賀県</option>
+                                                                    <option value="Nagasaki" data-lat="32.74472" data-lon="129.87361">長崎県</option>
+                                                                    <option value="Kumamoto" data-lat="32.78972" data-lon="130.74167">熊本県</option>
+                                                                    <option value="Oita" data-lat="33.23806" data-lon="131.6125">大分県</option>
+                                                                    <option value="Miyazaki" data-lat="31.91111" data-lon="131.42389">宮崎県</option>
+                                                                    <option value="Kagoshima" data-lat="31.56028" data-lon="130.55806">鹿児島県</option>
+                                                                    <option value="Okinawa" data-lat="26.2125" data-lon="127.68111">沖縄県</option>
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                
+                                                <!-- 緯度/経度 (自動セット) -->
+                                                <input type="hidden" step="0.0001" name="lat" id="lat" required readonly>
+                                                <input type="hidden" step="0.0001" name="lon" id="lon" required readonly>
+                                                <input type="hidden" step="0.1" name="tz" required value="9.0">
+                                                <input type="hidden" step="0.1" name="dst" required value="0.0">
                                         
-                                        <!-- 緯度/経度 (自動セット) -->
-                                        <input type="hidden" step="0.0001" name="lat" id="lat" required readonly>
-                                        <input type="hidden" step="0.0001" name="lon" id="lon" required readonly>
-                                        <input type="hidden" step="0.1" name="tz" required value="9.0">
-                                        <input type="hidden" step="0.1" name="dst" required value="0.0">
-                                
-                                        <div id="error-message"></div>
-                                        
-                                        <div class="horoscope-container">
-                                            <!-- ホロスコープ作成ボタン -->
-                                            <div class="horoscope-create">
-                                            <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button>
-                                            <button type="button" id="view-button" class="open-modal-btn">ホロスコープの詳細</button>
-                                            </div>
-                                            <div style="text-align: right;">
-                                                <span style="font-size: x-small;">（プラシーダス方式で描きます。）</span>
-                                            </div>
-                                            <hr>
-                                            <div style="text-align: center;">
-                                                <span>以下から占いたい項目を選んでください。</span>
-                                            </div>
-                                            <hr>
-                                            <!-- 占いボタン群 -->
-                                            <div class="analysis-buttons">
-                                            <div class="analysis-button">
-                                                <button type="submit" id="submit-button1">性格</button>
-                                                <div id="spinner1" class="spinner"></div>
-                                            </div>
-                                            <div class="analysis-button">
-                                                <button type="submit" id="submit-button2">恋愛運</button>
-                                                <div id="spinner2" class="spinner"></div>
-                                            </div>
-                                            <div class="analysis-button">
-                                                <button type="submit" id="submit-button3">仕事運</button>
-                                                <div id="spinner3" class="spinner"></div>
-                                            </div>
-                                            <div class="analysis-button">
-                                                <button type="submit" id="submit-button4">金運</button>
-                                                <div id="spinner4" class="spinner"></div>
-                                            </div>
-                                            <div class="analysis-button">
-                                                <button type="submit" id="submit-button5">健康運</button>
-                                                <div id="spinner5" class="spinner"></div>
-                                            </div>
-                                            <div class="analysis-button">
-                                                <button type="submit" id="submit-button6">学業運</button>
-                                                <div id="spinner6" class="spinner"></div>
-                                            </div>
-                                            </div>
+                                                <div id="error-message"></div>
+                                                
+                                                <div class="horoscope-container">
+                                                    <!-- ホロスコープ作成ボタン -->
+                                                    <div class="horoscope-create">
+                                                    <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button>
+                                                    <button type="button" id="view-button" class="open-modal-btn">ホロスコープの詳細</button>
+                                                    </div>
+                                                    <div style="text-align: right;">
+                                                        <span style="font-size: x-small;">（プラシーダス方式で描きます。）</span>
+                                                    </div>
+                                                    <hr>
+                                                    <div style="text-align: center;">
+                                                        <span>以下から占いたい項目を選んでください。</span>
+                                                    </div>
+                                                    <hr>
+                                                    <!-- 占いボタン群 -->
+                                                    <div class="analysis-buttons">
+                                                    <div class="analysis-button">
+                                                        <button type="submit" id="submit-button1">性格</button>
+                                                        <div id="spinner1" class="spinner"></div>
+                                                    </div>
+                                                    <div class="analysis-button">
+                                                        <button type="submit" id="submit-button2">恋愛運</button>
+                                                        <div id="spinner2" class="spinner"></div>
+                                                    </div>
+                                                    <div class="analysis-button">
+                                                        <button type="submit" id="submit-button3">仕事運</button>
+                                                        <div id="spinner3" class="spinner"></div>
+                                                    </div>
+                                                    <div class="analysis-button">
+                                                        <button type="submit" id="submit-button4">金運</button>
+                                                        <div id="spinner4" class="spinner"></div>
+                                                    </div>
+                                                    <div class="analysis-button">
+                                                        <button type="submit" id="submit-button5">健康運</button>
+                                                        <div id="spinner5" class="spinner"></div>
+                                                    </div>
+                                                    <div class="analysis-button">
+                                                        <button type="submit" id="submit-button6">学業運</button>
+                                                        <div id="spinner6" class="spinner"></div>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                                <small>※30秒~1分ほどかかります。</small>
+                                                
+                                                <!-- 占い結果表示 -->
+                                                <div id="result">回答がここに表示されます</div>
+                                            </form>
                                         </div>
-                                        <small>※30秒~1分ほどかかります。</small>
-                                        
-                                        <!-- 占い結果表示 -->
-                                        <div id="result">回答がここに表示されます</div>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
+                                    </td>
+                                </tr>
+                            </table>
 
-                    <!-- モーダル -->
-                    <div id="chart-modal" class="modal">
-                        <div class="modal-content">
-                            <div id="chart-container">
-                                <!-- ホロスコープ描画領域 (JSで width/height を可変に) -->
-                                <canvas id="horoscope-canvas"></canvas>
-                                <!-- 保存ボタン -->
-                                <button onclick="saveCanvasAsImage()">保存</button>
-                                <button id="close-button">閉じる</button>
+                            <!-- モーダル -->
+                            <div id="chart-modal" class="modal">
+                                <div class="modal-content">
+                                    <div id="chart-container">
+                                        <!-- ホロスコープ描画領域 (JSで width/height を可変に) -->
+                                        <canvas id="horoscope-canvas"></canvas>
+                                        <!-- 保存ボタン -->
+                                        <button onclick="saveCanvasAsImage()">保存</button>
+                                        <button id="close-button">閉じる</button>
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
                     </div>
-
-                </div>
-            </div>
-            <!-- フッターエリア（広告） -->
-            <div class="footer">
-              <!-- 広告バナー -->
+                </main>
+                <!-- 右側広告エリア -->
+                <aside class="side-ad right-ad">
+                    <!-- 右側用の広告コードをここに挿入 -->
+                    <div class="ad-content">
+                        <a href="https://px.a8.net/svt/ejp?a8mat=44YP7H+D15N0I+2PEO+1BRTKX" rel="nofollow">
+                            <img border="0" width="300" height="250" alt="" src="https://www21.a8.net/svt/bgt?aid=250202141788&wid=003&eno=01&mid=s00000012624008024000&mc=1"></a>
+                            <img border="0" width="1" height="1" src="https://www16.a8.net/0.gif?a8mat=44YP7H+D15N0I+2PEO+1BRTKX" alt="">
+                    
+                    </div>
+                </aside>
+            </div> <!-- .layout-wrapper -->
+            
+            <!-- フッター（既存の広告バナー等） -->
+            <footer class="footer">
                 <div id="ad-banner">
-                    <!-- デスクトップ用広告 -->
-                    <div class="desktop-ad">
-                        <a href="https://px.a8.net/svt/ejp?a8mat=44YP7H+8KELOI+2PEO+C4LLD" rel="nofollow">
-                        <img border="0" width="300" height="250" alt="" src="https://www29.a8.net/svt/bgt?aid=250202141518&wid=003&eno=01&mid=s00000012624002037000&mc=1"></a>
-                        <img border="0" width="1" height="1" src="https://www12.a8.net/0.gif?a8mat=44YP7H+8KELOI+2PEO+C4LLD" alt="">
-                        <a href="https://px.a8.net/svt/ejp?a8mat=44YP7H+D15N0I+2PEO+1BRTKX" rel="nofollow">
-                        <img border="0" width="300" height="250" alt="" src="https://www21.a8.net/svt/bgt?aid=250202141788&wid=003&eno=01&mid=s00000012624008024000&mc=1"></a>
-                        <img border="0" width="1" height="1" src="https://www16.a8.net/0.gif?a8mat=44YP7H+D15N0I+2PEO+1BRTKX" alt="">
-                    </div>
+                    <div id="ad-banner">
+                        <!-- デスクトップ用広告 -->
+                        <div class="desktop-ad">
+                            <a href="https://px.a8.net/svt/ejp?a8mat=44YP7H+8KELOI+2PEO+C4LLD" rel="nofollow">
+                            <img border="0" width="300" height="250" alt="" src="https://www29.a8.net/svt/bgt?aid=250202141518&wid=003&eno=01&mid=s00000012624002037000&mc=1"></a>
+                            <img border="0" width="1" height="1" src="https://www12.a8.net/0.gif?a8mat=44YP7H+8KELOI+2PEO+C4LLD" alt="">
+                            <a href="https://px.a8.net/svt/ejp?a8mat=44YP7H+D15N0I+2PEO+1BRTKX" rel="nofollow">
+                            <img border="0" width="300" height="250" alt="" src="https://www21.a8.net/svt/bgt?aid=250202141788&wid=003&eno=01&mid=s00000012624008024000&mc=1"></a>
+                            <img border="0" width="1" height="1" src="https://www16.a8.net/0.gif?a8mat=44YP7H+D15N0I+2PEO+1BRTKX" alt="">
+                        </div>
 
-                    <!-- スマホ用広告 -->
-                    <div class="mobile-ad">
-                        <a href="https://px.a8.net/svt/ejp?a8mat=44YP7H+8KELOI+2PEO+C4LLD" rel="nofollow">
-                        <img border="0" width="300" height="250" alt="" src="https://www29.a8.net/svt/bgt?aid=250202141518&wid=003&eno=01&mid=s00000012624002037000&mc=1"></a>
-                        <img border="0" width="1" height="1" src="https://www12.a8.net/0.gif?a8mat=44YP7H+8KELOI+2PEO+C4LLD" alt="">
-                        <a href="https://px.a8.net/svt/ejp?a8mat=44YP7H+D15N0I+2PEO+1BRTKX" rel="nofollow">
-                        <img border="0" width="300" height="250" alt="" src="https://www21.a8.net/svt/bgt?aid=250202141788&wid=003&eno=01&mid=s00000012624008024000&mc=1"></a>
-                        <img border="0" width="1" height="1" src="https://www16.a8.net/0.gif?a8mat=44YP7H+D15N0I+2PEO+1BRTKX" alt="">
+                        <!-- スマホ用広告 -->
+                        <div class="mobile-ad">
+                            <a href="https://px.a8.net/svt/ejp?a8mat=44YP7H+8KELOI+2PEO+C4LLD" rel="nofollow">
+                            <img border="0" width="300" height="250" alt="" src="https://www29.a8.net/svt/bgt?aid=250202141518&wid=003&eno=01&mid=s00000012624002037000&mc=1"></a>
+                            <img border="0" width="1" height="1" src="https://www12.a8.net/0.gif?a8mat=44YP7H+8KELOI+2PEO+C4LLD" alt="">
+                            <a href="https://px.a8.net/svt/ejp?a8mat=44YP7H+D15N0I+2PEO+1BRTKX" rel="nofollow">
+                            <img border="0" width="300" height="250" alt="" src="https://www21.a8.net/svt/bgt?aid=250202141788&wid=003&eno=01&mid=s00000012624008024000&mc=1"></a>
+                            <img border="0" width="1" height="1" src="https://www16.a8.net/0.gif?a8mat=44YP7H+D15N0I+2PEO+1BRTKX" alt="">
+                        </div>
                     </div>
                 </div>
-            </div>
+            </footer>
         </div>
 
 
