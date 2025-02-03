@@ -133,6 +133,32 @@
                 margin-top: 5px;
                 box-sizing: border-box;
             }
+            input,select {
+            /* 高さを小さく設定 */
+            height: 30px;
+            line-height: 30px;
+            
+            /* 内側の余白 */
+            padding: 0 10px;
+            
+            /* フォントサイズ */
+            font-size: 16px;
+            
+            /* 枠線・角丸 */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            
+            /* 背景色 */
+            background-color: #fff;
+            
+            /* iOS等でのデフォルトのスタイル（矢印など）を解除 */
+            /* appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none; */
+            
+            /* レンダリングのためにボックスサイズを指定 */
+            box-sizing: border-box;
+            }
             #horoscope-form input[type="time"] {
                 width: auto; 
                 min-width: 100px;
@@ -309,6 +335,7 @@
             }
             .checkbox-label {
                 display: flex;
+                white-space: nowrap;
                 gap: 4px;
             }
 
@@ -546,7 +573,7 @@
                                                                     <input type="time" id="time" name="time" required />
                                                                     <label for="unknown" class="checkbox-label">
                                                                         <input type="checkbox" id="unknown" name="unknown" />
-                                                                        不明の場合はチェック
+                                                                        <span style="display: inline;">不明</span>
                                                                     </label>
                                                                 </div>
                                                             </td>
@@ -733,7 +760,7 @@
                     if (this.checked) {
                         timeInput.value = '';
                     } else {
-                        timeInput.value = '';
+                        // timeInput.value = '';
                     }
                 });
             });
