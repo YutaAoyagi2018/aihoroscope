@@ -155,8 +155,8 @@ def analyze_horoscope_data(data: dict) -> dict:
         "天王星": data["planets"].get("Uranus", {}).get("longitude", [0.0])[0],
         "海王星": data["planets"].get("Neptune", {}).get("longitude", [0.0])[0],
         "冥王星": data["planets"].get("Pluto", {}).get("longitude", [0.0])[0],
-        "北ノード": data["nodes"].get("True Node", {}).get("longitude", [0.0])[0],
-        "リリス":  data["lilith"].get("Oscu Apogee(True Lilith)", {}).get("longitude", [0.0])[0],
+        # "北ノード": data["nodes"].get("True Node", {}).get("longitude", [0.0])[0],
+        # "リリス":  data["lilith"].get("Oscu Apogee(True Lilith)", {}).get("longitude", [0.0])[0],
     }
 
     # 0~360度に正規化
