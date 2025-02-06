@@ -97,6 +97,36 @@ ZODIAC_POLARITY = {
 
 # ========== ユーティリティ関数たち ==========
 
+def extract_date_time_params(request):
+    """
+    Extracts date and time parameters from a request object.
+    Returns a dictionary with the extracted values or raises a ValueError.
+    """
+    try:
+        year = int(request.GET.get("year", "2023"))
+        month = int(request.GET.get("month", "1"))
+        day = int(request.GET.get("day", "1"))
+        hour = int(request.GET.get("hour", "0"))
+        minute = int(request.GET.get("minute", "0"))
+        lat = float(request.GET.get("lat", "35.6895"))
+        lon = float(request.GET.get("lon", "139.6917"))
+        tz = float(request.GET.get("tz", "9.0"))
+        dst = float(request.GET.get("dst", "0.0"))
+        return {
+            "year": year,
+            "month": month,
+            "day": day,
+            "hour": hour,
+            "minute": minute,
+            "lat": lat,
+            "lon": lon,
+            "tz": tz,
+            "dst": dst
+        }
+    except ValueError as ve:
+        raise ValueError("Invalid input parameters") from ve
+
+
 def get_sign(degree: float):
     """経度(degree)から星座を判定し、(星座名, その星座内の度数) を返す。"""
     sign_index = int(degree // 30) % 12
@@ -414,7 +444,3 @@ def compute_horoscope(year: int, month: int, day: int,
         "analysis": analysis_result,
         "raw_data": raw_data
     }
-
-
-
-

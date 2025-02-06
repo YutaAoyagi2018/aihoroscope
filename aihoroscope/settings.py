@@ -22,12 +22,12 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7*+2g^2tr48q6fl!z8&6%)gwq90usyk#t@#0isz=t*9jpez^(z'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv('DEBUG', 'False')
 
-ALLOWED_HOSTS = ["aihoroscope.onrender.com",'aihoroscopeanalysis.com']
+# ALLOWED_HOSTS = ["aihoroscope.onrender.com",'aihoroscopeanalysis.com']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://aihoroscope.onrender.com',
