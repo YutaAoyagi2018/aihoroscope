@@ -27,7 +27,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False')
 
-# ALLOWED_HOSTS = ["aihoroscope.onrender.com",'aihoroscopeanalysis.com']
+ALLOWED_HOSTS = ["aihoroscope.onrender.com",'aihoroscopeanalysis.com']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://aihoroscope.onrender.com',
