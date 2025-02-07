@@ -19,15 +19,24 @@
     <style>
         /* 全体のレイアウト */
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
-            color: #333;
-            font-size: 14px; /* 少しコンパクトに */
-            line-height: 1.4;
-        }
-
+                /* 例：Google Fonts 等で 'Merriweather' や 'Playfair Display' を読み込んだ上で */
+                font-family: 'Merriweather', serif;
+                margin: 0;
+                background: linear-gradient(135deg, #fdfbfb, #ebedee);
+            }
+        /* ヘッダー */
         h1 {
+                background: linear-gradient(90deg, #2c3e50, #4ca1af);
+                color: #fff;
+                padding: 20px;
+                text-align: center;
+                margin: 0;
+                width: 100%;
+                font-family: 'Playfair Display', serif;  /* 上質な印象のセリフ体 */
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            }
+        
+        h2 {
             text-align: center;
             margin-bottom: 20px;
             font-size: 1.8em;
@@ -100,166 +109,646 @@
                 flex: 1 1 100%;
             }
         }
+
+        #chart-container {
+            display: block;   /* またはJavaScriptで指定された値と合わせる */
+            margin: 0 auto;
+        }
+        .wrapper {
+            padding: 20px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
-
-<h1>ホロスコープ詳細</h1>
-
-<div class="tables-wrapper">
-
-    <!-- 惑星ごとに星座内度数とハウスをまとめたテーブル -->
-    <div class="section">
-        <h2>天体</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>惑星</th>
-                    <th>星座内度数</th>
-                    <th>ハウス</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in marged_planets %}
-                <tr>
-                    <td>{{ item.planet }}</td>
-                    <td>{{ item.zodiac_formatted }}</td>
-                    <td>{{ item.house }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<h1>無料ホロスコープ作成・占い - AI占星術師アオポン</h1>
+<h2>ホロスコープ詳細</h2>
+<div class="wrapper">
+    <div id="chart-container">
+        <canvas id="horoscope-canvas"></canvas>
+        <!-- <button onclick="saveCanvasAsImage()">保存</button> -->
     </div>
+    <br><br>
+    <hr>
+    <div class="tables-wrapper">
 
-    <!-- 3・4の情報をまとめたテーブル -->
-    <div class="section">
-        <h2>ハウスカスプ</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ハウス</th>
-                    <th>星座内度数</th>
-                    <th>支配星</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cusp in merged_house_data %}
-                <tr>
-                    <td>{{ cusp.house }}</td>
-                    <td>{{ cusp.cusp_formatted }}</td>
-                    <td>{{ cusp.ruler }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+        <!-- 惑星ごとに星座内度数とハウスをまとめたテーブル -->
+        <div class="section">
+            <h2>天体</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>惑星</th>
+                        <th>星座内度数</th>
+                        <th>ハウス</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in marged_planets %}
+                    <tr>
+                        <td>{{ item.planet }}</td>
+                        <td>{{ item.zodiac_formatted }}</td>
+                        <td>{{ item.house }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-    <!-- 6. 天体の四区分 -->
-    <div class="section">
-        <h2>四区分</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>区分</th>
-                    <th>天体</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for element, planets in four_elements.items %}
-                <tr>
-                    <td>{{ element }}</td>
-                    <td>
-                        {% for planet in planets %}
-                            {{ planet }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+        <!-- 3・4の情報をまとめたテーブル -->
+        <div class="section">
+            <h2>ハウスカスプ</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ハウス</th>
+                        <th>星座内度数</th>
+                        <th>支配星</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cusp in merged_house_data %}
+                    <tr>
+                        <td>{{ cusp.house }}</td>
+                        <td>{{ cusp.cusp_formatted }}</td>
+                        <td>{{ cusp.ruler }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-    <!-- 7. 天体の三区分 -->
-    <div class="section">
-        <h2>三区分</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>区分</th>
-                    <th>天体</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for mode, planets in three_modes.items %}
-                <tr>
-                    <td>{{ mode }}</td>
-                    <td>
-                        {% for planet in planets %}
-                            {{ planet }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+        <!-- 6. 天体の四区分 -->
+        <div class="section">
+            <h2>四区分</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>区分</th>
+                        <th>天体</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for element, planets in four_elements.items %}
+                    <tr>
+                        <td>{{ element }}</td>
+                        <td>
+                            {% for planet in planets %}
+                                {{ planet }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-    <!-- 8. 天体の二区分 -->
-    <div class="section">
-        <h2>二区分</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>区分</th>
-                    <th>天体</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for polarity, planets in two_polarities.items %}
-                <tr>
-                    <td>{{ polarity }}</td>
-                    <td>
-                        {% for planet in planets %}
-                            {{ planet }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+        <!-- 7. 天体の三区分 -->
+        <div class="section">
+            <h2>三区分</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>区分</th>
+                        <th>天体</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mode, planets in three_modes.items %}
+                    <tr>
+                        <td>{{ mode }}</td>
+                        <td>
+                            {% for planet in planets %}
+                                {{ planet }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-    <!-- 5. アスペクトの結果 -->
-    <div class="section">
-        <h2>アスペクト</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>アスペクト</th>
-                    <th>惑星1</th>
-                    <th>惑星2</th>
-                    <th>角度</th>
-                    <th>オーブ</th>
-                    <th>オーブ符号</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for aspect in aspects %}
-                <tr>
-                    <td>{{ aspect.aspect }}</td>
-                    <td>{{ aspect.planet1 }}</td>
-                    <td>{{ aspect.planet2 }}</td>
-                    <td>{{ aspect.angle }}</td>
-                    <td>{{ aspect.orb }}</td>
-                    <td>{{ aspect.orb_sign }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+        <!-- 8. 天体の二区分 -->
+        <div class="section">
+            <h2>二区分</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>区分</th>
+                        <th>天体</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for polarity, planets in two_polarities.items %}
+                    <tr>
+                        <td>{{ polarity }}</td>
+                        <td>
+                            {% for planet in planets %}
+                                {{ planet }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 5. アスペクトの結果 -->
+        <div class="section">
+            <h2>アスペクト</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>アスペクト</th>
+                        <th>惑星1</th>
+                        <th>惑星2</th>
+                        <th>角度</th>
+                        <th>オーブ</th>
+                        <th>オーブ符号</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for aspect in aspects %}
+                    <tr>
+                        <td>{{ aspect.aspect }}</td>
+                        <td>{{ aspect.planet1 }}</td>
+                        <td>{{ aspect.planet2 }}</td>
+                        <td>{{ aspect.angle }}</td>
+                        <td>{{ aspect.orb }}</td>
+                        <td>{{ aspect.orb_sign }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
 
-</div><!-- /.tables-wrapper -->
+    </div><!-- /.tables-wrapper -->
+</div>
+<!-- (F) ホロスコープを生成・描画するスクリプト -->
+<script>
+    // 惑星英名 => 惑星和名
+    const planetNameMap = {
+        "Sun"     : "太陽",
+        "Moon"    : "月",
+        "Mercury" : "水星",
+        "Venus"   : "金星",
+        "Mars"    : "火星",
+        "Jupiter" : "木星",
+        "Saturn"  : "土星",
+        "Uranus"  : "天王星",
+        "Neptune" : "海王星",
+        "Pluto"   : "冥王星"
+    };
+    // 惑星英名 => シンボル
+    const planetSymbolMap = {
+        "Sun"     : "☉",
+        "Moon"    : "☾",
+        "Mercury" : "☿",
+        "Venus"   : "♀",
+        "Mars"    : "♂",
+        "Jupiter" : "♃",
+        "Saturn"  : "♄",
+        "Uranus"  : "♅",
+        "Neptune" : "♆",
+        "Pluto"   : "♇"
+    };
+    // アスペクト色（高級感のある金・銀・深紅・濃緑・ダークゴールド）
+    const aspectColorMap = {
+        "コンジャンクション": "#FFD700",  // 明るいゴールド（ゴールド）
+        "オポジション": "#0000FF",        // ブルー（青）
+        "スクエア": "#FF6347",            // 明るいレッド（トマトレッド）
+        "トライン": "#32CD32",            // 明るいグリーン（ライムグリーン）
+        "セクスタイル": "#FFCC33",        // 明るいゴールデンロッド（ライトゴールデンロッド）
+        "Conjunction": "#FFD700",
+        "Opposition": "#0000FF",
+        "Square": "#FF6347",
+        "Trine": "#32CD32",
+        "Sextile": "#FFCC33"
+    };
+    // 星座のシンボル
+    const zodiacSymbols = {
+        0: "♈", 1: "♉", 2: "♊", 3: "♋",
+        4: "♌", 5: "♍", 6: "♎", 7: "♏",
+        8: "♐", 9: "♑", 10: "♒", 11: "♓"
+    };
+
+    /**
+     * ホロスコープを描画する関数
+     * @param {Object} horoscopeData サーバー等から取得したホロスコープ情報
+     */
+    function drawHoroscopeWheel(horoscopeData) {
+        const chartContainer = document.getElementById('chart-container');
+        const canvas = document.getElementById('horoscope-canvas');
+
+        // canvas のサイズ調整
+        let containerWidth = chartContainer.offsetWidth; 
+        if (containerWidth > 500) {
+            containerWidth = 500; 
+        }
+        canvas.width = containerWidth;
+        canvas.height = containerWidth;
+        chartContainer.style.width  = containerWidth + "px";
+        chartContainer.style.height = containerWidth + "px";
+
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius  = canvas.width * 0.4;
+
+        // ハウスデータの処理（rotationOffset 等）
+        const houseData = horoscopeData?.raw_data?.houses;
+        let rotationOffset = 0;
+        if (houseData && houseData.cusp && houseData.cusp.length > 0) {
+            const firstCuspDeg = houseData.cusp[0];
+            rotationOffset = (90 - firstCuspDeg) % 360;
+        }
+        function degToRad(deg) {
+            return (360 - (deg + rotationOffset) - 90) * Math.PI / 180;
+        }
+
+        // 背景グラデーション（中心から薄い青がかかるグラデーション）
+        const bgGradient = ctx.createRadialGradient(
+            centerX, centerY, 0,
+            centerX, centerY, radius * 1.5
+        );
+        bgGradient.addColorStop(0,   "#f0f8ff");
+        bgGradient.addColorStop(0.7, "#cceeff");
+        bgGradient.addColorStop(1,   "#99bbff");
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 外円描画（ゴールドの外枠）
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius + 10, 0, 2 * Math.PI);
+        ctx.shadowColor = 'rgba(30, 144, 255, 0.5)'; // 濃い青色のシャドウ
+        ctx.shadowBlur = 10;
+        ctx.strokeStyle = '#E0FFFF'; // プラチナシルバー
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.restore();
+
+        // ハウス線とハウス番号（ハウス番号の色を黒に変更）
+        if (houseData && houseData.cusp) {
+            for (let i = 0; i < houseData.cusp.length; i++) {
+                const cuspAngleDeg = houseData.cusp[i];
+                const angleRad = degToRad(cuspAngleDeg);
+
+                const x2 = centerX + (radius + 10) * Math.cos(angleRad);
+                const y2 = centerY + (radius + 10) * Math.sin(angleRad);
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x2, y2);
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)'; // 黒
+                ctx.lineWidth = 1;
+                ctx.setLineDash([6, 4]); // 点線
+                ctx.stroke();
+                ctx.restore();
+
+                // ハウス番号を白で描画
+                const labelRadius = radius * 0.5;
+                const labelX = centerX + labelRadius * Math.cos(angleRad - 0.26);
+                const labelY = centerY + labelRadius * Math.sin(angleRad - 0.26);
+
+                ctx.save();
+                ctx.font = Math.floor(canvas.width * 0.025) + "px 'Times New Roman'";
+                ctx.fillStyle = "#000000"; // 黒
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText((i + 1).toString(), labelX, labelY);
+                ctx.restore();
+            }
+        }
+
+        // ★ 惑星配置
+        const planets = horoscopeData?.raw_data?.planets;
+        if (!planets) {
+            alert("惑星データが見つかりません。");
+            return;
+        }
+        const planetPositions = {};
+        // drawnSymbols 配列は adjust 関数用（シンボル位置の調整用）
+        const drawnSymbols = [];
+        // planetSymbolsToDraw 配列にシンボル描画情報を保存し、後で最前面に描画する
+        const planetSymbolsToDraw = [];
+
+        /**
+         * adjust 関数
+         * 惑星シンボル同士が重なっている場合、元の位置から offset ずらした位置を返し、
+         * その位置と元の位置を線分で結びます。
+         *
+         * @param {CanvasRenderingContext2D} ctx - canvas のコンテキスト
+         * @param {number} x - 元の x 座標
+         * @param {number} y - 元の y 座標
+         * @param {number} angle - 惑星配置の角度 (ラジアン)
+         * @param {Array} drawnSymbols - 既に描画済みのシンボルの位置リスト
+         * @returns {Object} 調整後の {x, y} 座標
+         */
+        function adjust(ctx, x, y, angle, drawnSymbols) {
+            const offsetStep = 30;         // 30px ずつずらす
+            let offset = 0;
+            let newX = x;
+            let newY = y;
+            const collisionThreshold = 15; // 中心間距離が15px未満なら重なっていると判定
+
+            while (true) {
+                let collision = false;
+                for (let pos of drawnSymbols) {
+                    const dx = pos.x - newX;
+                    const dy = pos.y - newY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < collisionThreshold) {
+                        collision = true;
+                        break;
+                    }
+                }
+                if (!collision) {
+                    break;
+                }
+                offset += offsetStep;
+                newX = x - offset * Math.cos(angle);
+                newY = y - offset * Math.sin(angle);
+                // 無限ループ防止のための上限
+                if (offset > 100) break;
+            }
+
+            // ずらしが発生していた場合、元の位置と調整後の位置を線分で結ぶ
+            if (offset > 0) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(newX, newY);
+                ctx.strokeStyle = "rgba(255,255,255,0.5)";
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+                ctx.restore();
+            }
+            drawnSymbols.push({ x: newX, y: newY });
+            return { x: newX, y: newY };
+        }
+
+        // 各惑星の描画（惑星の円はそのまま描く）
+        for (const planetName of Object.keys(planets)) {
+            const planetObj = planets[planetName];
+            if (planetObj.longitude === undefined) continue;
+            
+            let lonDeg = Array.isArray(planetObj.longitude)
+                ? planetObj.longitude[0]
+                : parseFloat(planetObj.longitude);
+            if (isNaN(lonDeg)) continue;
+            
+            const angleRad = degToRad(lonDeg);
+            const x = centerX + radius * Math.cos(angleRad);
+            const y = centerY + radius * Math.sin(angleRad);
+
+            // 惑星の円を描画（高級感のある色合い）
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, canvas.width * 0.008, 0, 2 * Math.PI);
+            let fillColor = '#dd3333';
+            switch (planetName) {
+                case 'Sun'     : fillColor = '#D4AF37'; break;  // ゴールド
+                case 'Moon'    : fillColor = '#C0C0C0'; break;  // シルバー
+                case 'Mercury' : fillColor = '#708090'; break;  // スレートグレー
+                case 'Venus'   : fillColor = '#B87333'; break;  // カッパー
+                case 'Mars'    : fillColor = '#8B0000'; break;  // ダークレッド
+                case 'Jupiter' : fillColor = '#CD7F32'; break;  // ブロンズ
+                case 'Saturn'  : fillColor = '#A67B5B'; break;  // ブロンズ系
+                case 'Uranus'  : fillColor = '#008080'; break;  // ティール
+                case 'Neptune' : fillColor = '#00008B'; break;  // ネイビー
+                case 'Pluto'   : fillColor = '#800080'; break;  // パープル
+            }
+            ctx.fillStyle = fillColor;
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)'; // 黒色のシャドウ
+            ctx.shadowBlur = 6;
+            ctx.fill();
+            ctx.restore();
+
+            // adjust 関数でシンボルの位置を調整（重なりがあれば線分も描画）
+            const symbol = planetSymbolMap[planetName] || planetName;
+            const adjustedPos = adjust(ctx, x, y, angleRad, drawnSymbols);
+            // ※ 惑星シンボルは黒で描画（fillStyle を "#000000" に変更）
+            planetSymbolsToDraw.push({
+                symbol: symbol,
+                x: adjustedPos.x,
+                y: adjustedPos.y,
+                font: Math.floor(canvas.width * 0.08) + "px sans-serif",
+                fillStyle: "#000000" // 黒
+            });
+
+            planetPositions[planetName] = { x, y };
+        }
+
+        // アスペクト描画
+        const aspects = horoscopeData?.analysis?.["4.アスペクトの結果"] || [];
+        aspects.forEach(aspect => {
+            const planet1Ja = aspect.planet1;
+            const planet2Ja = aspect.planet2;
+            const aspectName = aspect.aspect;
+            let p1En = null, p2En = null;
+            for (const [en, ja] of Object.entries(planetNameMap)) {
+                if (ja === planet1Ja) p1En = en;
+                if (ja === planet2Ja) p2En = en;
+            }
+            if (!p1En || !p2En) return;
+
+            const pos1 = planetPositions[p1En];
+            const pos2 = planetPositions[p2En];
+            if (!pos1 || !pos2) return;
+
+            let lineColor = aspectColorMap[aspectName] || "#AAAAAA"; // パステル調の色
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(pos1.x, pos1.y);
+            ctx.lineTo(pos2.x, pos2.y);
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth = canvas.width * 0.002;
+            if (aspectName === "スクエア" || aspectName === "Square") {
+                ctx.setLineDash([5, 3]);
+            }
+            ctx.stroke();
+            ctx.restore();
+        });
+
+        const zodiacColors = [
+            "#FF0000", // Red (牡羊座)
+            "#808000", // Dark Yellow (牡牛座)　
+            "#008000", // Green (双子座)
+            "#0000FF", // Blue (蟹座)
+            "#FF0000", // Red (獅子座)
+            "#808000", // Dark Yellow (乙女座)　
+            "#008000", // Green (天秤座)
+            "#0000FF", // Blue (蠍座)
+            "#FF0000", // Red (射手座)
+            "#808000", // Dark Yellow (山羊座)　
+            "#008000", // Green (水瓶座)
+            "#0000FF", // Blue (魚座)
+        ];
+
+        // ★ 星座の区分線およびシンボルの描画（修正版）
+        ctx.save();
+        // 内側のホロスコープ円（radius）はそのまま利用
+        // 内側の区分線の開始位置（ホロスコープ円から少し外側）
+        const innerDividingRadius = radius + (canvas.width * 0.017);
+        // 星座シンボルを描く半径（内側と外側の中間あたり）
+        const zodiacSymbolRadius = radius + (canvas.width * 0.06);
+        // 外側に描く大きな円の半径（星座シンボルの外側＋余白）
+        const outerCircleRadius = zodiacSymbolRadius + (canvas.width * 0.03);
+        
+        for (let i = 0; i < 12; i++) {
+            // degToRad が反転しているので、開始角度と終了角度を入れ替えています
+            const startAngle = degToRad((i + 1) * 30);
+            const endAngle   = degToRad(i * 30);
+
+            ctx.beginPath();
+            // 外側円弧の開始点に移動
+            ctx.moveTo(
+                centerX + outerCircleRadius * Math.cos(startAngle),
+                centerY + outerCircleRadius * Math.sin(startAngle)
+            );
+            // 外側の円弧を描く（startAngle ～ endAngle）
+            ctx.arc(centerX, centerY, outerCircleRadius, startAngle, endAngle, false);
+            // 外側の円弧の終点と内側の円弧の開始点を直接結ぶ
+            ctx.lineTo(
+                centerX + innerDividingRadius * Math.cos(endAngle),
+                centerY + innerDividingRadius * Math.sin(endAngle)
+            );
+            // 内側の円弧を描く（endAngle ～ startAngle を逆方向に）
+            ctx.arc(centerX, centerY, innerDividingRadius, endAngle, startAngle, true);
+            // パスを閉じる（自動的に内側の円弧の終点と外側の円弧の開始点を結ぶ）
+            ctx.closePath();
+
+            // ctx.fillStyle = zodiacColors[i];
+            ctx.fill();
+        }
+
+        // ① 外側の大円の外周を描画（ゴールドのライン）
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, outerCircleRadius, 0, 2 * Math.PI);
+        ctx.strokeStyle = '#D4AF37';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // ② 星座区分線と星座シンボルの描画
+        for (let i = 0; i < 12; i++) {
+            // 各星座の境界線の角度（0～360°）
+            const lineAngle = degToRad(i * 30);
+            // 区分線は内側（innerDividingRadius）から外側の大円（outerCircleRadius）まで
+            ctx.beginPath();
+            ctx.moveTo(
+                centerX + innerDividingRadius * Math.cos(lineAngle),
+                centerY + innerDividingRadius * Math.sin(lineAngle)
+            );
+            ctx.lineTo(
+                centerX + outerCircleRadius * Math.cos(lineAngle),
+                centerY + outerCircleRadius * Math.sin(lineAngle)
+            );
+            ctx.strokeStyle = "rgba(50, 50, 50, 0.8)"; // 濃いグレー
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // 星座シンボルは区分線の中央あたりに配置（色を黒に変更）
+            const midAngleRad = degToRad(i * 30 + 15);
+            // シンボルを配置する半径は内側と外側の中間
+            const symbolRadius = (innerDividingRadius + outerCircleRadius) / 2;
+            const textX = centerX + symbolRadius * Math.cos(midAngleRad);
+            const textY = centerY + symbolRadius * Math.sin(midAngleRad);
+
+            ctx.save();
+            ctx.translate(textX, textY);
+            ctx.font = Math.floor(canvas.width * 0.05) + "px 'Arial Rounded MT Bold'"; // Arial Rounded MT Bold風フォント
+            ctx.fillStyle = "#000000";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(zodiacSymbols[i], 0, 0);
+            ctx.restore();
+        }
+        ctx.restore();
+
+        // ★ 最後に、保存しておいた惑星シンボルを再描画して最前面に表示（色を黒に変更）
+        planetSymbolsToDraw.forEach(item => {
+            ctx.save();
+            ctx.font = item.font;
+            ctx.fillStyle = item.fillStyle;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(item.symbol, item.x, item.y);
+            ctx.restore();
+        });
+    }
+</script>
+<!-- (G) 「ホロスコープを作成」ボタンの処理 (本番データで描画) -->
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        // 現在のページのクエリ文字列を取得
+        const queryString = window.location.search;
+
+        // URLSearchParamsオブジェクトを作成
+        const urlParams = new URLSearchParams(queryString);
+
+        const year  = urlParams.get('year');
+        const month = urlParams.get('month');
+        const day   = urlParams.get('day');
+        const hour  = urlParams.get('hour');
+        const minute  = urlParams.get('minute');
+        const lat   = urlParams.get('lat');
+        const lon   = urlParams.get('lon');
+        const tz    = urlParams.get('tz');
+        const dst   = urlParams.get('dst');
+
+        // クエリパラメータを作成 (Django想定の例)
+        const params = new URLSearchParams({
+            year, month, day,
+            hour, minute,
+            lat, lon,
+            tz, dst
+        });
+        // 例: /horoscope_app/horoscope/?year=...&month=... など
+        // 実際のURLはサーバー側に合わせて修正してください
+        const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
+
+        // (2) fetch でサーバーからホロスコープデータを取得
+        try {
+            const response = await fetch(horoscopeUrl, {
+                method: 'GET',
+            });
+            if (!response.ok) {
+                throw new Error("ホロスコープデータの取得に失敗しました");
+            }
+
+            const horoscopeData = await response.json();
+
+            // (3) モーダルを表示後、実際に描画
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.style.display = 'block';
+            drawHoroscopeWheel(horoscopeData);
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+</script>
+
+<!-- 保存ボタン -->
+<script>
+    function saveCanvasAsImage() {
+    const canvas = document.getElementById('horoscope-canvas');
+    const link = document.createElement('a');
+    link.download = 'horoscope.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    }
+    
+</script>
 
 </body>
 </html>
