@@ -129,7 +129,7 @@
 
             /* input, select */
             input, select {
-                width: 100%;
+                width: 30%;
                 padding: 8px;
                 margin-top: 5px;
                 box-sizing: border-box;
@@ -140,7 +140,7 @@
             line-height: 30px;
             
             /* 内側の余白 */
-            padding: 0 10px;
+            padding: 0px;
             
             /* フォントサイズ */
             font-size: 16px;
@@ -182,31 +182,18 @@
             }
 
             /* 各ボタンのカラー例 */
-            /* 性格 */
-            #submit-button1 {
-                background: linear-gradient(45deg, #8e44ad, #9b59b6);
-            }
-            /* 恋愛運 */
-            #submit-button2 {
-                background: linear-gradient(45deg, #e74c3c, #e67e22);
-            }
-            /* 仕事運 */
-            #submit-button3 {
-                background: linear-gradient(45deg, #27ae60, #2ecc71);
-            }
-            /* 金運 (テキストは暗色) */
-            #submit-button4 {
-                background: linear-gradient(45deg, #f1c40f, #f39c12);
-                color: #000;
-            }
-            /* 健康運 */
-            #submit-button5 {
-                background: linear-gradient(45deg, #16a085, #1abc9c);
-            }
-            /* 学業運 (テキストは暗色) */
-            #submit-button6 {
-                background: linear-gradient(45deg, #d35400, #e67e22);
-                color: #000;
+            #submit-button7,
+            #submit-button8 {
+                background: linear-gradient(45deg, #2c3e50, #4ca1af); /* 高級感あるグラデーション */
+                color: #fff;
+                padding: 14px 28px;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease, filter 0.3s ease;
             }
 
             /* スピナーのスタイル */
@@ -590,9 +577,6 @@
             .form-section {
             width: 40%;
             }
-            .canvas-section {
-            width: 60%;
-            }
             /* 親要素にFlexboxレイアウトを適用 */
             .container {
             display: flex;
@@ -603,15 +587,11 @@
             
             /* 左側：フォーム部分 */
             .form-section {
-            flex: 0 0 auto;
+                flex: 0 0 auto;
             }
             
-            /* 右側：キャンバス部分 */
             .canvas-section {
-            flex: 1;
-            /* display: flex; */
-            justify-content: center;
-            align-items: center;
+                width: 60%;
             }
             
             /* キャンバスは初期サイズを400pxとしつつ、親要素に合わせて縮小 */
@@ -639,19 +619,31 @@
                 max-width: 400px;
             }
             }
+            /* CSS */
+            .container-wrapper {
+            display: column;         /* 横並びにする */
+            justify-content: space-between; /* 必要に応じてスペース調整 */
+            gap: 20px;             /* コンテナー間に隙間を作る（オプション） */
+            }
+
+            .container {
+            flex: 1;               /* 各コンテナーを均等に配置する */
+            box-sizing: border-box; /* パディング等を含めた幅の計算 */
+            /* 必要に応じて最大幅や最小幅を指定 */
+            }
         </style>
     </head>
     
     <body>
         <div class="wrapper">
-            <h1>無料ホロスコープ作成・占い - AI占星術師アオポン</h1>
+            <h1>二人の相性占い - AI占星術師アオポン</h1>
             <div class="layout-wrapper">
                 <aside class="side-ad left-ad">
                     <div class="ad-content">
                         <h3>メニュー</h3>
                         <ul>
-                            <li><a href="#main">メイン</a></li>
-                            <li><a href="{% url 'horoscope_app:compatibility' %}">二人の相性占い おすすめ！</a></li>
+                            <li><a href="{% url 'horoscope_app:index' %}">無料ホロスコープ作成・占い</a></li>
+                            <li><a href="#main">二人の相性占い</a></li>
                             <li><a href="#howtouse">利用方法</a></li>
                             <li><a href="#horoscope-sample">ホロスコープのサンプル（大谷翔平さん）</a></li>
                             <li><a href="#analysis-sample1">AIによる分析結果のサンプル（大谷翔平さん）性格</a></li>
@@ -682,122 +674,226 @@
                                 <a id="main"></a>
                                 <form id="horoscope-form" method="POST" action="#">
                                     {% csrf_token %}
-                                    <div class="container">
-                                        <div class="form-section">
-                                            <table>
-                                                <tbody>
-                                                    <tr>
-                                                        <th>生年月日</th>
-                                                        <td>
-                                                            <select name="year" id="year-select">
-                                                                {% for year in years %}
-                                                                    <option value="{{ year }}">{{ year }}</option>
-                                                                {% endfor %}
-                                                            </select>
-                                                            <select name="month" id="month-select">
-                                                                {% for month in months %}
-                                                                    <option value="{{ month }}">{{ month }}</option>
-                                                                {% endfor %}
-                                                            </select>
-                                                            <select name="day" id="day-select">
-                                                                {% for day in days %}
-                                                                    <option value="{{ day }}">{{ day }}</option>
-                                                                {% endfor %}
-                                                            </select>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>出生時刻</th>
-                                                        <td>
-                                                            <div class="input-group">
-                                                                <input type="time" id="time" name="time" required />
-                                                                <label for="unknown" class="checkbox-label">
-                                                                    <input type="checkbox" id="unknown" name="unknown" />
-                                                                    <span style="display: inline;">時刻不明</span>
-                                                                </label>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>出生地</th>
-                                                        <td>
-                                                            <select name="prefecture" id="prefecture">
-                                                                <option value="Hokkaido" data-lat="43.06417" data-lon="141.34694">北海道</option>
-                                                                <option value="Aomori" data-lat="40.82444" data-lon="140.74">青森県</option>
-                                                                <option value="Iwate" data-lat="39.70361" data-lon="141.1525">岩手県</option>
-                                                                <option value="Miyagi" data-lat="38.26889" data-lon="140.87194">宮城県</option>
-                                                                <option value="Akita" data-lat="39.71861" data-lon="140.1025">秋田県</option>
-                                                                <option value="Yamagata" data-lat="38.24056" data-lon="140.36333">山形県</option>
-                                                                <option value="Fukushima" data-lat="37.75" data-lon="140.46778">福島県</option>
-                                                                <option value="Ibaraki" data-lat="36.34139" data-lon="140.44667">茨城県</option>
-                                                                <option value="Tochigi" data-lat="36.56583" data-lon="139.88361">栃木県</option>
-                                                                <option value="Gunma" data-lat="36.39111" data-lon="139.06083">群馬県</option>
-                                                                <option value="Saitama" data-lat="35.85694" data-lon="139.64889">埼玉県</option>
-                                                                <option value="Tokyo" data-lat="35.6895" data-lon="139.6917" selected>東京都</option>
-                                                                <option value="Chiba" data-lat="35.60506" data-lon="140.12333">千葉県</option>
-                                                                <option value="Kanagawa" data-lat="35.44778" data-lon="139.6425">神奈川県</option>
-                                                                <option value="Niigata" data-lat="37.90222" data-lon="139.02361">新潟県</option>
-                                                                <option value="Toyama" data-lat="36.69529" data-lon="137.21134">富山県</option>
-                                                                <option value="Ishikawa" data-lat="36.59444" data-lon="136.62556">石川県</option>
-                                                                <option value="Fukui" data-lat="36.06528" data-lon="136.22194">福井県</option>
-                                                                <option value="Yamanashi" data-lat="35.66389" data-lon="138.56833">山梨県</option>
-                                                                <option value="Nagano" data-lat="36.65139" data-lon="138.18111">長野県</option>
-                                                                <option value="Gifu" data-lat="35.39111" data-lon="136.72222">岐阜県</option>
-                                                                <option value="Shizuoka" data-lat="34.97694" data-lon="138.38306">静岡県</option>
-                                                                <option value="Aichi" data-lat="35.18028" data-lon="136.90667">愛知県</option>
-                                                                <option value="Mie" data-lat="34.73028" data-lon="136.50859">三重県</option>
-                                                                <option value="Shiga" data-lat="35.00444" data-lon="135.86833">滋賀県</option>
-                                                                <option value="Kyoto" data-lat="35.02139" data-lon="135.75556">京都府</option>
-                                                                <option value="Osaka" data-lat="34.68639" data-lon="135.52">大阪府</option>
-                                                                <option value="Hyogo" data-lat="34.69139" data-lon="135.18306">兵庫県</option>
-                                                                <option value="Nara" data-lat="34.68528" data-lon="135.83278">奈良県</option>
-                                                                <option value="Wakayama" data-lat="34.22611" data-lon="135.1675">和歌山県</option>
-                                                                <option value="Tottori" data-lat="35.50361" data-lon="134.23833">鳥取県</option>
-                                                                <option value="Shimane" data-lat="35.47222" data-lon="133.05056">島根県</option>
-                                                                <option value="Okayama" data-lat="34.66167" data-lon="133.935">岡山県</option>
-                                                                <option value="Hiroshima" data-lat="34.39639" data-lon="132.45962">広島県</option>
-                                                                <option value="Yamaguchi" data-lat="34.18583" data-lon="131.47139">山口県</option>
-                                                                <option value="Tokushima" data-lat="34.06583" data-lon="134.55944">徳島県</option>
-                                                                <option value="Kagawa" data-lat="34.34028" data-lon="134.04333">香川県</option>
-                                                                <option value="Ehime" data-lat="33.84167" data-lon="132.76556">愛媛県</option>
-                                                                <option value="Kochi" data-lat="33.55972" data-lon="133.53108">高知県</option>
-                                                                <option value="Fukuoka" data-lat="33.60639" data-lon="130.41806">福岡県</option>
-                                                                <option value="Saga" data-lat="33.24944" data-lon="130.29889">佐賀県</option>
-                                                                <option value="Nagasaki" data-lat="32.74472" data-lon="129.87361">長崎県</option>
-                                                                <option value="Kumamoto" data-lat="32.78972" data-lon="130.74167">熊本県</option>
-                                                                <option value="Oita" data-lat="33.23806" data-lon="131.6125">大分県</option>
-                                                                <option value="Miyazaki" data-lat="31.91111" data-lon="131.42389">宮崎県</option>
-                                                                <option value="Kagoshima" data-lat="31.56028" data-lon="130.55806">鹿児島県</option>
-                                                                <option value="Okinawa" data-lat="26.2125" data-lon="127.68111">沖縄県</option>
-                                                            </select>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div class="canvas-section">
-                                            <div id="chart-container">
-                                                <canvas id="horoscope-canvas"></canvas>
+                                    <div class="container-wrapper">
+                                        <div class="container">
+                                            <div class="form-section">
+                                                <div>あなた</div>
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>生年月日</th>
+                                                            <td>
+                                                                <select name="year1" id="year-select1">
+                                                                    {% for year in years %}
+                                                                        <option value="{{ year }}">{{ year }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                                <select name="month1" id="month-select1">
+                                                                    {% for month in months %}
+                                                                        <option value="{{ month }}">{{ month }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                                <select name="day1" id="day-select1">
+                                                                    {% for day in days %}
+                                                                        <option value="{{ day }}">{{ day }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>出生時刻</th>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <input type="time" id="time1" name="time1" required />
+                                                                    <label for="unknown1" class="checkbox-label">
+                                                                        <input type="checkbox" id="unknown1" name="unknown1" />
+                                                                        <span style="display: inline;">時刻不明</span>
+                                                                    </label>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>出生地</th>
+                                                            <td>
+                                                                <select name="prefecture1" id="prefecture1">
+                                                                    <option value="Hokkaido" data-lat="43.06417" data-lon="141.34694">北海道</option>
+                                                                    <option value="Aomori" data-lat="40.82444" data-lon="140.74">青森県</option>
+                                                                    <option value="Iwate" data-lat="39.70361" data-lon="141.1525">岩手県</option>
+                                                                    <option value="Miyagi" data-lat="38.26889" data-lon="140.87194">宮城県</option>
+                                                                    <option value="Akita" data-lat="39.71861" data-lon="140.1025">秋田県</option>
+                                                                    <option value="Yamagata" data-lat="38.24056" data-lon="140.36333">山形県</option>
+                                                                    <option value="Fukushima" data-lat="37.75" data-lon="140.46778">福島県</option>
+                                                                    <option value="Ibaraki" data-lat="36.34139" data-lon="140.44667">茨城県</option>
+                                                                    <option value="Tochigi" data-lat="36.56583" data-lon="139.88361">栃木県</option>
+                                                                    <option value="Gunma" data-lat="36.39111" data-lon="139.06083">群馬県</option>
+                                                                    <option value="Saitama" data-lat="35.85694" data-lon="139.64889">埼玉県</option>
+                                                                    <option value="Tokyo" data-lat="35.6895" data-lon="139.6917" selected>東京都</option>
+                                                                    <option value="Chiba" data-lat="35.60506" data-lon="140.12333">千葉県</option>
+                                                                    <option value="Kanagawa" data-lat="35.44778" data-lon="139.6425">神奈川県</option>
+                                                                    <option value="Niigata" data-lat="37.90222" data-lon="139.02361">新潟県</option>
+                                                                    <option value="Toyama" data-lat="36.69529" data-lon="137.21134">富山県</option>
+                                                                    <option value="Ishikawa" data-lat="36.59444" data-lon="136.62556">石川県</option>
+                                                                    <option value="Fukui" data-lat="36.06528" data-lon="136.22194">福井県</option>
+                                                                    <option value="Yamanashi" data-lat="35.66389" data-lon="138.56833">山梨県</option>
+                                                                    <option value="Nagano" data-lat="36.65139" data-lon="138.18111">長野県</option>
+                                                                    <option value="Gifu" data-lat="35.39111" data-lon="136.72222">岐阜県</option>
+                                                                    <option value="Shizuoka" data-lat="34.97694" data-lon="138.38306">静岡県</option>
+                                                                    <option value="Aichi" data-lat="35.18028" data-lon="136.90667">愛知県</option>
+                                                                    <option value="Mie" data-lat="34.73028" data-lon="136.50859">三重県</option>
+                                                                    <option value="Shiga" data-lat="35.00444" data-lon="135.86833">滋賀県</option>
+                                                                    <option value="Kyoto" data-lat="35.02139" data-lon="135.75556">京都府</option>
+                                                                    <option value="Osaka" data-lat="34.68639" data-lon="135.52">大阪府</option>
+                                                                    <option value="Hyogo" data-lat="34.69139" data-lon="135.18306">兵庫県</option>
+                                                                    <option value="Nara" data-lat="34.68528" data-lon="135.83278">奈良県</option>
+                                                                    <option value="Wakayama" data-lat="34.22611" data-lon="135.1675">和歌山県</option>
+                                                                    <option value="Tottori" data-lat="35.50361" data-lon="134.23833">鳥取県</option>
+                                                                    <option value="Shimane" data-lat="35.47222" data-lon="133.05056">島根県</option>
+                                                                    <option value="Okayama" data-lat="34.66167" data-lon="133.935">岡山県</option>
+                                                                    <option value="Hiroshima" data-lat="34.39639" data-lon="132.45962">広島県</option>
+                                                                    <option value="Yamaguchi" data-lat="34.18583" data-lon="131.47139">山口県</option>
+                                                                    <option value="Tokushima" data-lat="34.06583" data-lon="134.55944">徳島県</option>
+                                                                    <option value="Kagawa" data-lat="34.34028" data-lon="134.04333">香川県</option>
+                                                                    <option value="Ehime" data-lat="33.84167" data-lon="132.76556">愛媛県</option>
+                                                                    <option value="Kochi" data-lat="33.55972" data-lon="133.53108">高知県</option>
+                                                                    <option value="Fukuoka" data-lat="33.60639" data-lon="130.41806">福岡県</option>
+                                                                    <option value="Saga" data-lat="33.24944" data-lon="130.29889">佐賀県</option>
+                                                                    <option value="Nagasaki" data-lat="32.74472" data-lon="129.87361">長崎県</option>
+                                                                    <option value="Kumamoto" data-lat="32.78972" data-lon="130.74167">熊本県</option>
+                                                                    <option value="Oita" data-lat="33.23806" data-lon="131.6125">大分県</option>
+                                                                    <option value="Miyazaki" data-lat="31.91111" data-lon="131.42389">宮崎県</option>
+                                                                    <option value="Kagoshima" data-lat="31.56028" data-lon="130.55806">鹿児島県</option>
+                                                                    <option value="Okinawa" data-lat="26.2125" data-lon="127.68111">沖縄県</option>
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <button type="button" id="draw-button1" class="open-modal-btn">ホロスコープを作成</button>
+                                            </div>
+                                            
+                                            <div class="canvas-section">
+                                                <div id="chart-container1">
+                                                    <canvas id="horoscope-canvas1"></canvas>
+                                                </div>
                                             </div>
                                         </div>
+                                        <!-- 緯度/経度 (自動セット) -->
+                                        <input type="hidden" step="0.0001" name="lat1" id="lat1" required readonly>
+                                        <input type="hidden" step="0.0001" name="lon1" id="lon1" required readonly>
+                                        <input type="hidden" step="0.1" name="tz1" required value="9.0">
+                                        <input type="hidden" step="0.1" name="dst1" required value="0.0">
+                                        <div id="error-message"></div>
+                                        <div class="container">
+                                            <div class="form-section">
+                                                <div>お相手</div>
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>生年月日</th>
+                                                            <td>
+                                                                <select name="year2" id="year-select2">
+                                                                    {% for year in years %}
+                                                                        <option value="{{ year }}">{{ year }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                                <select name="month2" id="month-select2">
+                                                                    {% for month in months %}
+                                                                        <option value="{{ month }}">{{ month }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                                <select name="day2" id="day-select2">
+                                                                    {% for day in days %}
+                                                                        <option value="{{ day }}">{{ day }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>出生時刻</th>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <input type="time" id="time2" name="time2" required />
+                                                                    <label for="unknown2" class="checkbox-label">
+                                                                        <input type="checkbox" id="unknown2" name="unknown2" />
+                                                                        <span style="display: inline;">時刻不明</span>
+                                                                    </label>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>出生地</th>
+                                                            <td>
+                                                                <select name="prefecture2" id="prefecture2">
+                                                                    <option value="Hokkaido" data-lat="43.06417" data-lon="141.34694">北海道</option>
+                                                                    <option value="Aomori" data-lat="40.82444" data-lon="140.74">青森県</option>
+                                                                    <option value="Iwate" data-lat="39.70361" data-lon="141.1525">岩手県</option>
+                                                                    <option value="Miyagi" data-lat="38.26889" data-lon="140.87194">宮城県</option>
+                                                                    <option value="Akita" data-lat="39.71861" data-lon="140.1025">秋田県</option>
+                                                                    <option value="Yamagata" data-lat="38.24056" data-lon="140.36333">山形県</option>
+                                                                    <option value="Fukushima" data-lat="37.75" data-lon="140.46778">福島県</option>
+                                                                    <option value="Ibaraki" data-lat="36.34139" data-lon="140.44667">茨城県</option>
+                                                                    <option value="Tochigi" data-lat="36.56583" data-lon="139.88361">栃木県</option>
+                                                                    <option value="Gunma" data-lat="36.39111" data-lon="139.06083">群馬県</option>
+                                                                    <option value="Saitama" data-lat="35.85694" data-lon="139.64889">埼玉県</option>
+                                                                    <option value="Tokyo" data-lat="35.6895" data-lon="139.6917" selected>東京都</option>
+                                                                    <option value="Chiba" data-lat="35.60506" data-lon="140.12333">千葉県</option>
+                                                                    <option value="Kanagawa" data-lat="35.44778" data-lon="139.6425">神奈川県</option>
+                                                                    <option value="Niigata" data-lat="37.90222" data-lon="139.02361">新潟県</option>
+                                                                    <option value="Toyama" data-lat="36.69529" data-lon="137.21134">富山県</option>
+                                                                    <option value="Ishikawa" data-lat="36.59444" data-lon="136.62556">石川県</option>
+                                                                    <option value="Fukui" data-lat="36.06528" data-lon="136.22194">福井県</option>
+                                                                    <option value="Yamanashi" data-lat="35.66389" data-lon="138.56833">山梨県</option>
+                                                                    <option value="Nagano" data-lat="36.65139" data-lon="138.18111">長野県</option>
+                                                                    <option value="Gifu" data-lat="35.39111" data-lon="136.72222">岐阜県</option>
+                                                                    <option value="Shizuoka" data-lat="34.97694" data-lon="138.38306">静岡県</option>
+                                                                    <option value="Aichi" data-lat="35.18028" data-lon="136.90667">愛知県</option>
+                                                                    <option value="Mie" data-lat="34.73028" data-lon="136.50859">三重県</option>
+                                                                    <option value="Shiga" data-lat="35.00444" data-lon="135.86833">滋賀県</option>
+                                                                    <option value="Kyoto" data-lat="35.02139" data-lon="135.75556">京都府</option>
+                                                                    <option value="Osaka" data-lat="34.68639" data-lon="135.52">大阪府</option>
+                                                                    <option value="Hyogo" data-lat="34.69139" data-lon="135.18306">兵庫県</option>
+                                                                    <option value="Nara" data-lat="34.68528" data-lon="135.83278">奈良県</option>
+                                                                    <option value="Wakayama" data-lat="34.22611" data-lon="135.1675">和歌山県</option>
+                                                                    <option value="Tottori" data-lat="35.50361" data-lon="134.23833">鳥取県</option>
+                                                                    <option value="Shimane" data-lat="35.47222" data-lon="133.05056">島根県</option>
+                                                                    <option value="Okayama" data-lat="34.66167" data-lon="133.935">岡山県</option>
+                                                                    <option value="Hiroshima" data-lat="34.39639" data-lon="132.45962">広島県</option>
+                                                                    <option value="Yamaguchi" data-lat="34.18583" data-lon="131.47139">山口県</option>
+                                                                    <option value="Tokushima" data-lat="34.06583" data-lon="134.55944">徳島県</option>
+                                                                    <option value="Kagawa" data-lat="34.34028" data-lon="134.04333">香川県</option>
+                                                                    <option value="Ehime" data-lat="33.84167" data-lon="132.76556">愛媛県</option>
+                                                                    <option value="Kochi" data-lat="33.55972" data-lon="133.53108">高知県</option>
+                                                                    <option value="Fukuoka" data-lat="33.60639" data-lon="130.41806">福岡県</option>
+                                                                    <option value="Saga" data-lat="33.24944" data-lon="130.29889">佐賀県</option>
+                                                                    <option value="Nagasaki" data-lat="32.74472" data-lon="129.87361">長崎県</option>
+                                                                    <option value="Kumamoto" data-lat="32.78972" data-lon="130.74167">熊本県</option>
+                                                                    <option value="Oita" data-lat="33.23806" data-lon="131.6125">大分県</option>
+                                                                    <option value="Miyazaki" data-lat="31.91111" data-lon="131.42389">宮崎県</option>
+                                                                    <option value="Kagoshima" data-lat="31.56028" data-lon="130.55806">鹿児島県</option>
+                                                                    <option value="Okinawa" data-lat="26.2125" data-lon="127.68111">沖縄県</option>
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <button type="button" id="draw-button2" class="open-modal-btn">ホロスコープを作成</button>
+                                            </div>
+                                            
+                                            <div class="canvas-section">
+                                                <div id="chart-container2">
+                                                    <canvas id="horoscope-canvas2"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- 緯度/経度 (自動セット) -->
+                                        <input type="hidden" step="0.0001" name="lat2" id="lat2" required readonly>
+                                        <input type="hidden" step="0.0001" name="lon2" id="lon2" required readonly>
+                                        <input type="hidden" step="0.1" name="tz2" required value="9.0">
+                                        <input type="hidden" step="0.1" name="dst2" required value="0.0">
+                                        <div id="error-message"></div>
                                     </div>
-                                    <!-- 緯度/経度 (自動セット) -->
-                                    <input type="hidden" step="0.0001" name="lat" id="lat" required readonly>
-                                    <input type="hidden" step="0.0001" name="lon" id="lon" required readonly>
-                                    <input type="hidden" step="0.1" name="tz" required value="9.0">
-                                    <input type="hidden" step="0.1" name="dst" required value="0.0">
-                            
-                                    <div id="error-message"></div>
                                     
                                     <div class="horoscope-container">
-                                        <!-- ホロスコープ作成ボタン -->
-                                        <div class="horoscope-create">
-                                        <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button>
-                                        <button type="button" id="view-button" class="open-modal-btn">ホロスコープの詳細</button>
-                                        </div>
-                                        <div style="text-align: right;">
-                                            <span style="font-size: x-small;">（プラシーダス方式で描きます。）</span>
-                                        </div>
                                         <hr>
                                         <div style="text-align: center;">
                                             <span>以下から占いたい項目を選んでください。<br>AI占星術師アオポンがあなたのホロスコープから占います。</span>
@@ -806,28 +902,12 @@
                                         <!-- 占いボタン群 -->
                                         <div class="analysis-buttons">
                                         <div class="analysis-button">
-                                            <button type="submit" id="submit-button1">性格</button>
-                                            <div id="spinner1" class="spinner"></div>
+                                            <button type="submit" id="submit-button7">二人の相性</button>
+                                            <div id="spinner7" class="spinner"></div>
                                         </div>
                                         <div class="analysis-button">
-                                            <button type="submit" id="submit-button2">恋愛運</button>
-                                            <div id="spinner2" class="spinner"></div>
-                                        </div>
-                                        <div class="analysis-button">
-                                            <button type="submit" id="submit-button3">仕事運</button>
-                                            <div id="spinner3" class="spinner"></div>
-                                        </div>
-                                        <div class="analysis-button">
-                                            <button type="submit" id="submit-button4">金運</button>
-                                            <div id="spinner4" class="spinner"></div>
-                                        </div>
-                                        <div class="analysis-button">
-                                            <button type="submit" id="submit-button5">健康運</button>
-                                            <div id="spinner5" class="spinner"></div>
-                                        </div>
-                                        <div class="analysis-button">
-                                            <button type="submit" id="submit-button6">学業運</button>
-                                            <div id="spinner6" class="spinner"></div>
+                                            <button type="submit" id="submit-button8">二人の今後</button>
+                                            <div id="spinner8" class="spinner"></div>
                                         </div>
                                         </div>
                                     </div>
@@ -995,8 +1075,20 @@
         <!-- (A) 時刻不明チェックボックスの自動処理 -->
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                const timeInput = document.getElementById('time');
-                const unknownCheckbox = document.getElementById('unknown');
+                const timeInput = document.getElementById('time1');
+                const unknownCheckbox = document.getElementById('unknown1');
+            
+                unknownCheckbox.addEventListener('change', function () {
+                    if (this.checked) {
+                        timeInput.value = '';
+                    } else {
+                        // timeInput.value = '';
+                    }
+                });
+            });
+            document.addEventListener('DOMContentLoaded', function () {
+                const timeInput = document.getElementById('time2');
+                const unknownCheckbox = document.getElementById('unknown2');
             
                 unknownCheckbox.addEventListener('change', function () {
                     if (this.checked) {
@@ -1035,20 +1127,20 @@
         <!-- (D) フォームの入力値をクッキーに保存＆復元 (必要に応じて) -->
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                const yearSelect = document.getElementById('year-select');
-                const monthSelect = document.getElementById('month-select');
-                const daySelect = document.getElementById('day-select');
-                const timeInput = document.querySelector('input[name="time"]');
-                const prefectureSelect = document.getElementById('prefecture');
-                const checkboxSelect = document.getElementById('unknown');
+                const yearSelect = document.getElementById('year-select1');
+                const monthSelect = document.getElementById('month-select1');
+                const daySelect = document.getElementById('day-select1');
+                const timeInput = document.querySelector('input[name="time1"]');
+                const prefectureSelect = document.getElementById('prefecture1');
+                const checkboxSelect = document.getElementById('unknown1');
 
                 // クッキーから読み込む例 (省略可)
-                const savedYear = getCookie('horoscope_year');
-                const savedMonth = getCookie('horoscope_month');
-                const savedDay = getCookie('horoscope_day');
-                const savedTime = getCookie('horoscope_time');
-                const savedPrefecture = getCookie('horoscope_prefecture');
-                const savedCheckbox = getCookie('horoscope_checkbox');
+                const savedYear = getCookie('horoscope_year1');
+                const savedMonth = getCookie('horoscope_month1');
+                const savedDay = getCookie('horoscope_day1');
+                const savedTime = getCookie('horoscope_time1');
+                const savedPrefecture = getCookie('horoscope_prefecture1');
+                const savedCheckbox = getCookie('horoscope_checkbox1');
 
                 if (yearSelect && savedYear) {
                     yearSelect.value = savedYear;
@@ -1092,13 +1184,82 @@
                 if (prefectureSelect) {
                     function updateLatLon(e) {
                         const selected = e.target.selectedOptions[0];
-                        document.getElementById('lat').value = selected.getAttribute('data-lat');
-                        document.getElementById('lon').value = selected.getAttribute('data-lon');
+                        document.getElementById('lat1').value = selected.getAttribute('data-lat');
+                        document.getElementById('lon1').value = selected.getAttribute('data-lon');
                     }
                     // 初期化
                     const defaultSelected = prefectureSelect.selectedOptions[0];
-                    document.getElementById('lat').value = defaultSelected.getAttribute('data-lat');
-                    document.getElementById('lon').value = defaultSelected.getAttribute('data-lon');
+                    document.getElementById('lat1').value = defaultSelected.getAttribute('data-lat');
+                    document.getElementById('lon1').value = defaultSelected.getAttribute('data-lon');
+                    // 変更イベント
+                    prefectureSelect.addEventListener('change', updateLatLon);
+                }
+            });
+            document.addEventListener('DOMContentLoaded', () => {
+                const yearSelect = document.getElementById('year-select2');
+                const monthSelect = document.getElementById('month-select2');
+                const daySelect = document.getElementById('day-select2');
+                const timeInput = document.querySelector('input[name="time2"]');
+                const prefectureSelect = document.getElementById('prefecture2');
+                const checkboxSelect = document.getElementById('unknown2');
+
+                // クッキーから読み込む例 (省略可)
+                const savedYear = getCookie('horoscope_year2');
+                const savedMonth = getCookie('horoscope_month2');
+                const savedDay = getCookie('horoscope_day2');
+                const savedTime = getCookie('horoscope_time2');
+                const savedPrefecture = getCookie('horoscope_prefecture2');
+                const savedCheckbox = getCookie('horoscope_checkbox2');
+
+                if (yearSelect && savedYear) {
+                    yearSelect.value = savedYear;
+                }
+                if (monthSelect && savedMonth) {
+                    monthSelect.value = savedMonth;
+                }
+                if (daySelect && savedDay) {
+                    daySelect.value = savedDay;
+                }
+                if (timeInput && savedTime !== null) {
+                    timeInput.value = savedTime;
+                }
+                if (checkboxSelect && savedCheckbox !== null) {
+                    checkboxSelect.checked = (savedCheckbox === 'true');
+                }
+                if (prefectureSelect && savedPrefecture) {
+                    const options = prefectureSelect.options;
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].value === savedPrefecture) {
+                            prefectureSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                // デフォルト値の設定（Cookieに該当値がない場合のみ）
+                if (!savedYear || !savedMonth || !savedDay) {
+                    const now = new Date();
+                    if (yearSelect && !savedYear)  yearSelect.value  = now.getFullYear();
+                    if (monthSelect && !savedMonth) monthSelect.value = String(now.getMonth() + 1);
+                    if (daySelect && !savedDay)     daySelect.value   = String(now.getDate());
+                }
+                if (!savedTime && savedCheckbox == null) {
+                    const now = new Date();
+                    const hours   = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    if (timeInput) timeInput.value = `${hours}:${minutes}`;
+                }
+                // 都道府県切り替え
+                if (prefectureSelect) {
+                    function updateLatLon(e) {
+                        const selected = e.target.selectedOptions[0];
+                        document.getElementById('lat2').value = selected.getAttribute('data-lat');
+                        document.getElementById('lon2').value = selected.getAttribute('data-lon');
+                    }
+                    // 初期化
+                    const defaultSelected = prefectureSelect.selectedOptions[0];
+                    document.getElementById('lat2').value = defaultSelected.getAttribute('data-lat');
+                    document.getElementById('lon2').value = defaultSelected.getAttribute('data-lon');
                     // 変更イベント
                     prefectureSelect.addEventListener('change', updateLatLon);
                 }
@@ -1113,12 +1274,8 @@
             
             // 送信ボタンの要素（例: 3つのボタン）
             const submitButtons = [
-            document.getElementById('submit-button1'),
-            document.getElementById('submit-button2'),
-            document.getElementById('submit-button3'),
-            document.getElementById('submit-button4'),
-            document.getElementById('submit-button5'),
-            document.getElementById('submit-button6')
+            document.getElementById('submit-button7'),
+            document.getElementById('submit-button8')
             ];
             const resultDiv = document.getElementById('result');
 
@@ -1132,15 +1289,26 @@
             // クッキーに保存する関数
             function saveFormDataToCookies(formData) {
                 const data = formDataToObject(formData);
-                setCookie('horoscope_year', data.year, 30); // 30日間有効
-                setCookie('horoscope_month', data.month, 30); // 30日間有効
-                setCookie('horoscope_day', data.day, 30); // 30日間有効
-                setCookie('horoscope_time', data.time, 30);
-                setCookie('horoscope_prefecture', data.prefecture, 30);
+                setCookie('horoscope_year1', data.year1, 30); // 30日間有効
+                setCookie('horoscope_month1', data.month1, 30); // 30日間有効
+                setCookie('horoscope_day1', data.day1, 30); // 30日間有効
+                setCookie('horoscope_time1', data.time1, 30);
+                setCookie('horoscope_prefecture1', data.prefecture1, 30);
                 
                 // チェックボックスの状態を 'true' または 'false' で保存
-                const isChecked = formData.has('unknown') ? 'true' : 'false';
-                setCookie('horoscope_checkbox', isChecked, 30);
+                const isChecked1 = formData.has('unknown1') ? 'true' : 'false';
+                setCookie('horoscope_checkbox1', isChecked1, 30);
+
+
+                setCookie('horoscope_year2', data.year2, 30); // 30日間有効
+                setCookie('horoscope_month2', data.month2, 30); // 30日間有効
+                setCookie('horoscope_day2', data.day2, 30); // 30日間有効
+                setCookie('horoscope_time2', data.time2, 30);
+                setCookie('horoscope_prefecture2', data.prefecture2, 30);
+                
+                // チェックボックスの状態を 'true' または 'false' で保存
+                const isChecked2 = formData.has('unknown2') ? 'true' : 'false';
+                setCookie('horoscope_checkbox2', isChecked2, 30);
             }
             
             // 送信ハンドラー生成関数
@@ -1156,27 +1324,43 @@
                     const data = formDataToObject(formData);
                     
                     // 日付と時刻の分解
-                    // const [year, month, day] = data.date.split('-');
-                    const year = data.year;
-                    const month = data.month;
-                    const day = data.day;
-                    const time  = data.time || "12:00";
-                    const [hour, minute] = time.split(':');
-                    const unknown = data.unknown;
+                    const year1 = data.year1;
+                    const month1 = data.month1;
+                    const day1 = data.day1;
+                    const time1  = data.time1 || "12:00";
+                    const [hour1, minute1] = time1.split(':');
+                    const unknown1 = data.unknown1;
+                    
+                    const year2 = data.year2;
+                    const month2 = data.month2;
+                    const day2 = data.day2;
+                    const time2  = data.time2 || "12:00";
+                    const [hour2, minute2] = time2.split(':');
+                    const unknown2 = data.unknown2;
 
                     // 送信データの組み立て
                     const sendData = {
-                        year: year,
-                        month: month,
-                        day: day,
-                        hour: hour,
-                        minute: minute,
-                        lat: data.lat,
-                        lon: data.lon,
-                        tz: data.tz,
-                        dst: data.dst,
-                        sb: sbValue,
-                        unknown: unknown
+                        year1: year1,
+                        month1: month1,
+                        day1: day1,
+                        hour1: hour1,
+                        minute1: minute1,
+                        lat1: data.lat1,
+                        lon1: data.lon1,
+                        tz1: data.tz1,
+                        dst1: data.dst1,
+                        unknown1: unknown1,
+                        year2: year2,
+                        month2: month2,
+                        day2: day2,
+                        hour2: hour2,
+                        minute2: minute2,
+                        lat2: data.lat2,
+                        lon2: data.lon2,
+                        tz2: data.tz2,
+                        dst2: data.dst2,
+                        unknown2: unknown2,
+                        sb: sbValue
                     };
 
                     // UI状態更新
@@ -1185,7 +1369,7 @@
                     if (spinner) spinner.style.display = 'inline-block';
 
                     // APIリクエスト
-                    const response = await fetch("{% url 'horoscope_app:analyze' %}", {
+                    const response = await fetch("{% url 'horoscope_app:analyze_compatibility' %}", {
                     method: 'POST',
                     credentials: 'same-origin',  // これを追加
                     headers: {
@@ -1222,12 +1406,8 @@
 
             // ボタン設定とイベントリスナーの登録
             const buttonConfigs = [
-            { id: 'submit-button1', spinner: 'spinner1', sb: 1 },
-            { id: 'submit-button2', spinner: 'spinner2', sb: 2 },
-            { id: 'submit-button3', spinner: 'spinner3', sb: 3 },
-            { id: 'submit-button4', spinner: 'spinner4', sb: 4 },
-            { id: 'submit-button5', spinner: 'spinner5', sb: 5 },
-            { id: 'submit-button6', spinner: 'spinner6', sb: 6 }
+            { id: 'submit-button7', spinner: 'spinner7', sb: 7 },
+            { id: 'submit-button8', spinner: 'spinner8', sb: 8 }
             ];
 
             buttonConfigs.forEach(({ id, spinner, sb }) => {
@@ -1237,7 +1417,6 @@
             }
             });
         </script>
-    
 
         <!-- (F) ホロスコープを生成・描画するスクリプト -->
         <script>
@@ -1291,14 +1470,14 @@
              * ホロスコープを描画する関数
              * @param {Object} horoscopeData サーバー等から取得したホロスコープ情報
              */
-            function drawHoroscopeWheel(horoscopeData) {
-                const chartContainer = document.getElementById('chart-container');
-                const canvas = document.getElementById('horoscope-canvas');
+            function drawHoroscopeWheel(horoscopeData, name1, name2) {
+                const chartContainer = document.getElementById(name1);
+                const canvas = document.getElementById(name2);
 
                 // canvas のサイズ調整
                 let containerWidth = chartContainer.offsetWidth; 
-                if (containerWidth > 386) {
-                    containerWidth = 386; 
+                if (containerWidth > 300) {
+                    containerWidth = 300; 
                 }
                 canvas.width = containerWidth;
                 canvas.height = containerWidth;
@@ -1638,20 +1817,20 @@
         </script>
 
 
-        <!-- (G) 「ホロスコープを作成」ボタンの処理 (本番データで描画) -->
+        <!-- (G-1) 「ホロスコープを作成」ボタンの処理 (本番データで描画) -->
         <script>
-            document.getElementById('draw-button').addEventListener('click', async function() {
+            document.getElementById('draw-button1').addEventListener('click', async function() {
                 // (1) フォームの入力からパラメータを生成
                 const form = document.getElementById('horoscope-form');
                 const formData = new FormData(form);
-                const year  = formData.get('year');
-                const month = formData.get('month');
-                const day   = formData.get('day');
-                const time  = formData.get('time') || "12:00";
-                const lat   = formData.get('lat');
-                const lon   = formData.get('lon');
-                const tz    = formData.get('tz');
-                const dst   = formData.get('dst');
+                const year  = formData.get('year1');
+                const month = formData.get('month1');
+                const day   = formData.get('day1');
+                const time  = formData.get('time1') || "12:00";
+                const lat   = formData.get('lat1');
+                const lon   = formData.get('lon1');
+                const tz    = formData.get('tz1');
+                const dst   = formData.get('dst1');
     
                 // 不明時刻の場合は hour, minute = '12:00' などで補正
                 const [hour, minute] = time.split(':');
@@ -1679,9 +1858,9 @@
                     const horoscopeData = await response.json();
     
                     // (3) モーダルを表示後、実際に描画
-                    const chartContainer = document.getElementById('chart-container');
+                    const chartContainer = document.getElementById('chart-container1');
                     chartContainer.style.display = 'block';
-                    drawHoroscopeWheel(horoscopeData);
+                    drawHoroscopeWheel(horoscopeData,'chart-container1','horoscope-canvas1');
                     saveFormDataToCookies(formData);
     
                 } catch (err) {
@@ -1689,20 +1868,20 @@
                 }
             });
         </script>
-        <!-- (G2) 「ホロスコープを作成」の処理画面読み込み時 (本番データで描画) -->
+        <!-- (G2-1) 「ホロスコープを作成」の処理画面読み込み時 (本番データで描画) -->
         <script>
             document.addEventListener('DOMContentLoaded', async function() {
                 // (1) フォームの入力からパラメータを生成
                 const form = document.getElementById('horoscope-form');
                 const formData = new FormData(form);
-                const year  = formData.get('year');
-                const month = formData.get('month');
-                const day   = formData.get('day');
-                const time  = formData.get('time') || "12:00";
-                const lat   = formData.get('lat');
-                const lon   = formData.get('lon');
-                const tz    = formData.get('tz');
-                const dst   = formData.get('dst');
+                const year  = formData.get('year1');
+                const month = formData.get('month1');
+                const day   = formData.get('day1');
+                const time  = formData.get('time1') || "12:00";
+                const lat   = formData.get('lat1');
+                const lon   = formData.get('lon1');
+                const tz    = formData.get('tz1');
+                const dst   = formData.get('dst1');
     
                 // 不明時刻の場合は hour, minute = '12:00' などで補正
                 const [hour, minute] = time.split(':');
@@ -1730,9 +1909,9 @@
                     const horoscopeData = await response.json();
     
                     // (3) モーダルを表示後、実際に描画
-                    const chartContainer = document.getElementById('chart-container');
+                    const chartContainer = document.getElementById('chart-container1');
                     chartContainer.style.display = 'block';
-                    drawHoroscopeWheel(horoscopeData);
+                    drawHoroscopeWheel(horoscopeData,'chart-container1','horoscope-canvas1');
                     saveFormDataToCookies(formData);
     
                 } catch (err) {
@@ -1740,45 +1919,107 @@
                 }
             });
         </script>
-        <!-- 詳細画面へリンク -->
+        <!-- (G-2) 「ホロスコープを作成」ボタンの処理 (本番データで描画) -->
         <script>
-            document.getElementById('view-button').addEventListener('click', function() {
-            const form = document.getElementById('horoscope-form');
-            const formData = new FormData(form);
-            const year  = formData.get('year');
-            const month = formData.get('month');
-            const day   = formData.get('day');
-            const time  = formData.get('time') || "12:00";
-            const lat   = formData.get('lat');
-            const lon   = formData.get('lon');
-            const tz    = formData.get('tz');
-            const dst   = formData.get('dst');
-        
-            const [hour, minute] = time.split(':');
-        
-            const params = new URLSearchParams({
-                year, month, day,
-                hour, minute,
-                lat, lon,
-                tz, dst
-            });
-            
-            saveFormDataToCookies(formData);
-
-            const horoscopeUrl = "{% url 'horoscope_app:horoscope_detail' %}?" + params.toString();
-            window.location.href = horoscopeUrl;
+            document.getElementById('draw-button2').addEventListener('click', async function() {
+                // (1) フォームの入力からパラメータを生成
+                const form = document.getElementById('horoscope-form');
+                const formData = new FormData(form);
+                const year  = formData.get('year2');
+                const month = formData.get('month2');
+                const day   = formData.get('day2');
+                const time  = formData.get('time2') || "12:00";
+                const lat   = formData.get('lat2');
+                const lon   = formData.get('lon2');
+                const tz    = formData.get('tz2');
+                const dst   = formData.get('dst2');
+    
+                // 不明時刻の場合は hour, minute = '12:00' などで補正
+                const [hour, minute] = time.split(':');
+    
+                // クエリパラメータを作成 (Django想定の例)
+                const params = new URLSearchParams({
+                    year, month, day,
+                    hour, minute,
+                    lat, lon,
+                    tz, dst
+                });
+                // 例: /horoscope_app/horoscope/?year=...&month=... など
+                // 実際のURLはサーバー側に合わせて修正してください
+                const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
+    
+                // (2) fetch でサーバーからホロスコープデータを取得
+                try {
+                    const response = await fetch(horoscopeUrl, {
+                        method: 'GET',
+                    });
+                    if (!response.ok) {
+                        throw new Error("ホロスコープデータの取得に失敗しました");
+                    }
+    
+                    const horoscopeData = await response.json();
+    
+                    // (3) モーダルを表示後、実際に描画
+                    const chartContainer = document.getElementById('chart-container2');
+                    chartContainer.style.display = 'block';
+                    drawHoroscopeWheel(horoscopeData,'chart-container2','horoscope-canvas2');
+                    saveFormDataToCookies(formData);
+    
+                } catch (err) {
+                    alert(err.message);
+                }
             });
         </script>
-        <!-- 保存ボタン -->
+        <!-- (G2-2) 「ホロスコープを作成」の処理画面読み込み時 (本番データで描画) -->
         <script>
-            function saveCanvasAsImage() {
-            const canvas = document.getElementById('horoscope-canvas');
-            const link = document.createElement('a');
-            link.download = 'horoscope.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            }
+            document.addEventListener('DOMContentLoaded', async function() {
+                // (1) フォームの入力からパラメータを生成
+                const form = document.getElementById('horoscope-form');
+                const formData = new FormData(form);
+                const year  = formData.get('year2');
+                const month = formData.get('month2');
+                const day   = formData.get('day2');
+                const time  = formData.get('time2') || "12:00";
+                const lat   = formData.get('lat2');
+                const lon   = formData.get('lon2');
+                const tz    = formData.get('tz2');
+                const dst   = formData.get('dst2');
+    
+                // 不明時刻の場合は hour, minute = '12:00' などで補正
+                const [hour, minute] = time.split(':');
+    
+                // クエリパラメータを作成 (Django想定の例)
+                const params = new URLSearchParams({
+                    year, month, day,
+                    hour, minute,
+                    lat, lon,
+                    tz, dst
+                });
+                // 例: /horoscope_app/horoscope/?year=...&month=... など
+                // 実際のURLはサーバー側に合わせて修正してください
+                const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
+    
+                // (2) fetch でサーバーからホロスコープデータを取得
+                try {
+                    const response = await fetch(horoscopeUrl, {
+                        method: 'GET',
+                    });
+                    if (!response.ok) {
+                        throw new Error("ホロスコープデータの取得に失敗しました");
+                    }
+    
+                    const horoscopeData = await response.json();
+    
+                    // (3) モーダルを表示後、実際に描画
+                    const chartContainer = document.getElementById('chart-container2');
+                    chartContainer.style.display = 'block';
+                    drawHoroscopeWheel(horoscopeData,'chart-container2','horoscope-canvas2');
+                    saveFormDataToCookies(formData);
+    
+                } catch (err) {
+                    alert(err.message);
+                }
+            });
         </script>
-  
     </body>
 </html>

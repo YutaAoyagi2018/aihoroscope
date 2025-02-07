@@ -13,7 +13,7 @@ import datetime
 from openai import OpenAI
 
 # 上で作成したユーティリティ関数をインポート
-from .utils import compute_horoscope, extract_date_time_params
+from .utils import compute_horoscope
 
 def index(request):
     """
@@ -25,6 +25,15 @@ def index(request):
     days = range(1, 32)
     return render(request, 'horoscope_app/index.html', {'years': years, 'months': months, 'days': days})
 
+def compatibility(request):
+    """
+    二人の相性(compatibility.html)を返すビュー。
+    ユーザがここでフォームに出生データを入力する。
+    """
+    years = range(1900, 2100)
+    months = range(1, 13)
+    days = range(1, 32)
+    return render(request, 'horoscope_app/compatibility.html', {'years': years, 'months': months, 'days': days})
 
 
 def horoscope(request):
@@ -40,11 +49,15 @@ def horoscope(request):
 
     # GETから各値を取得
     try:
-        params = extract_date_time_params(request)
-        year, month, day = params["year"], params["month"], params["day"]
-        hour, minute = params["hour"], params["minute"]
-        lat, lon = params["lat"], params["lon"]
-        tz, dst = params["tz"], params["dst"]
+        year = int(request.GET.get("year", "2023"))
+        month = int(request.GET.get("month", "1"))
+        day = int(request.GET.get("day", "1"))
+        hour = int(request.GET.get("hour", "0"))
+        minute = int(request.GET.get("minute", "0"))
+        lat = float(request.GET.get("lat", "35.6895"))
+        lon = float(request.GET.get("lon", "139.6917"))
+        tz = float(request.GET.get("tz", "9.0"))
+        dst = float(request.GET.get("dst", "0.0"))
     except ValueError as ve:
         return JsonResponse({"error": "Invalid input parameters", "details": str(ve)}, status=400)
 
@@ -60,7 +73,7 @@ def horoscope(request):
 
     # ユーティリティ関数で計算
     result_dict = compute_horoscope(year, month, day, hour, minute, lat, lon, tz, dst)
-
+    
     # JSONとして返す
     return JsonResponse(result_dict)
 
@@ -76,11 +89,15 @@ def analyze(request):
     data = request.POST
 
     try:
-        params = extract_date_time_params(request)
-        year, month, day = params["year"], params["month"], params["day"]
-        hour, minute = params["hour"], params["minute"]
-        lat, lon = params["lat"], params["lon"]
-        tz, dst = params["tz"], params["dst"]
+        year = int(request.POST.get("year", "2023"))
+        month = int(request.POST.get("month", "1"))
+        day = int(request.POST.get("day", "1"))
+        hour = int(request.POST.get("hour", "0"))
+        minute = int(request.POST.get("minute", "0"))
+        lat = float(request.POST.get("lat", "35.6895"))
+        lon = float(request.POST.get("lon", "139.6917"))
+        tz = float(request.POST.get("tz", "9.0"))
+        dst = float(request.POST.get("dst", "0.0"))
         sb = int(request.POST.get("sb", "1"))
         unknown_str = request.POST.get("unknown", "false").lower()
         unknown = unknown_str == "on"
@@ -98,8 +115,11 @@ def analyze(request):
     
 
     # (1) ホロスコープ計算
+    
     result_dict = compute_horoscope(year, month, day, hour, minute, lat, lon, tz, dst)
+    
     horoscope_data = result_dict.get("analysis", {})
+    
 
     # (2) ChatGPTへ送るプロンプト作成
     horoscope_str = json.dumps(horoscope_data, ensure_ascii=False, indent=2)
@@ -174,6 +194,121 @@ def analyze(request):
     # (4) 結果を返す
     return JsonResponse({"result": answer})
 
+@csrf_protect
+def analyze_compatibility(request):
+    """
+    POSTで受け取った出生データを使い、ホロスコープを計算→OpenAI で占いコメントを生成→返す。
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "POSTメソッドのみ対応しています。"}, status=400)
+
+    data = request.POST
+
+    try:
+        year1 = int(request.POST.get("year1", "2023"))
+        month1 = int(request.POST.get("month1", "1"))
+        day1 = int(request.POST.get("day1", "1"))
+        hour1 = int(request.POST.get("hour1", "0"))
+        minute1 = int(request.POST.get("minute1", "0"))
+        lat1 = float(request.POST.get("lat1", "35.6895"))
+        lon1 = float(request.POST.get("lon1", "139.6917"))
+        tz1 = float(request.POST.get("tz1", "9.0"))
+        dst1 = float(request.POST.get("dst1", "0.0"))
+        unknown_str1 = request.POST.get("unknown1", "false").lower()
+        unknown1 = unknown_str1 == "on"
+        
+        year2 = int(request.POST.get("year2", "2023"))
+        month2 = int(request.POST.get("month2", "1"))
+        day2 = int(request.POST.get("day2", "1"))
+        hour2 = int(request.POST.get("hour2", "0"))
+        minute2 = int(request.POST.get("minute2", "0"))
+        lat2 = float(request.POST.get("lat2", "35.6895"))
+        lon2 = float(request.POST.get("lon2", "139.6917"))
+        tz2 = float(request.POST.get("tz2", "9.0"))
+        dst2 = float(request.POST.get("dst2", "0.0"))
+        unknown_str2 = request.POST.get("unknown2", "false").lower()
+        unknown2 = unknown_str2 == "on"
+        
+        sb = int(request.POST.get("sb", "1"))
+        
+
+
+    except (ValueError, TypeError):
+        return JsonResponse({"error": "入力データに誤りがあります。"}, status=400)
+    
+    try:
+        input_date = datetime.datetime(year1, month1, day1)
+        if input_date < datetime.datetime(1900, 1, 1) or input_date > datetime.datetime(2100, 12, 31):
+            raise ValidationError("日付は1900年1月1日から2100年12月31日までの範囲で入力してください。")
+    except ValidationError as ve:
+        return JsonResponse({"error": str(ve)}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": "日付の解析に失敗しました。"}, status=400)
+    
+
+    # (1) ホロスコープ計算
+    result_dict1 = compute_horoscope(year1, month1, day1, hour1, minute1, lat1, lon1, tz1, dst1)
+    result_dict2 = compute_horoscope(year2, month2, day2, hour2, minute2, lat2, lon2, tz2, dst2)
+    horoscope_data1 = result_dict1.get("analysis", {})
+    horoscope_data2 = result_dict2.get("analysis", {})
+
+    # (2) ChatGPTへ送るプロンプト作成
+    horoscope_str1 = json.dumps(horoscope_data1, ensure_ascii=False, indent=2)
+    horoscope_str2 = json.dumps(horoscope_data2, ensure_ascii=False, indent=2)
+    
+    user_message = "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。\n"
+    if sb == 7:
+        user_message += (
+            "以下のネイタルチャートを参考に、二人の相性を教えてください。\n"
+            "【私のネイタルチャート】\n"
+            f"{horoscope_str1}\n\n\n\n"
+            "【お相手のネイタルチャート】\n"
+            f"{horoscope_str2}\n\n"
+            "この二人の相性はどのようになっていると考えられますか？\n"
+        )
+    elif sb == 8:
+        user_message += (
+            "以下のネイタルチャートを参考に、二人の今後を教えてください。\n"
+            "【私のネイタルチャート】\n"
+            f"{horoscope_str1}\n\n\n\n"
+            "【お相手のネイタルチャート】\n"
+            f"{horoscope_str2}\n\n"
+            "この二人の今後はどのようになっていると考えられますか？\n"
+        )
+
+    if unknown1 == True and unknown2 == False:
+        user_message += "私の出生時刻が不明なので、私のアセンダント、MC、ハウスのデータは使わないでください。"
+    elif unknown1 == False and unknown2 == True:
+        user_message += "お相手の出生時刻が不明なので、お相手のアセンダント、MC、ハウスのデータは使わないでください。"
+    elif unknown1 == True and unknown2 == True:
+        user_message += "二人の出生時刻が不明なので、アセンダント、MC、ハウスのデータは使わないでください。"
+
+
+    # (3) OpenAI APIキーを取得し、ChatCompletionを呼び出し
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+    if not OPENAI_API_KEY:
+        return JsonResponse({"error": "OpenAI APIキーが設定されていません。"}, status=500)
+
+    client = OpenAI(api_key=OPENAI_API_KEY)
+
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                # {"role": "system", "content": "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。"},
+                {"role": "user", "content": user_message},
+            ],
+            model="o3-mini",  # 必要に応じてモデル名を修正
+            # temperature=0.7,
+            # max_tokens=1500
+        )
+        answer = chat_completion.choices[0].message.content
+    except Exception as e:
+        return JsonResponse({"error": f"OpenAI APIの呼び出しに失敗: {e}"}, status=500)
+
+    # (4) 結果を返す
+    return JsonResponse({"result": answer})
+
+
 def horoscope_detail(request):
 
     if request.method != "GET":
@@ -181,11 +316,15 @@ def horoscope_detail(request):
 
     # GETから各値を取得
     try:
-        params = extract_date_time_params(request)
-        year, month, day = params["year"], params["month"], params["day"]
-        hour, minute = params["hour"], params["minute"]
-        lat, lon = params["lat"], params["lon"]
-        tz, dst = params["tz"], params["dst"]
+        year = int(request.POST.get("year", "2023"))
+        month = int(request.POST.get("month", "1"))
+        day = int(request.POST.get("day", "1"))
+        hour = int(request.POST.get("hour", "0"))
+        minute = int(request.POST.get("minute", "0"))
+        lat = float(request.POST.get("lat", "35.6895"))
+        lon = float(request.POST.get("lon", "139.6917"))
+        tz = float(request.POST.get("tz", "9.0"))
+        dst = float(request.POST.get("dst", "0.0"))
     except ValueError as ve:
         return JsonResponse({"error": "Invalid input parameters", "details": str(ve)}, status=400)
 
@@ -242,3 +381,4 @@ def horoscope_detail(request):
         'merged_house_data': merged_house_data,
     }
     return render(request, 'horoscope_app/horoscope_detail.html', context)
+
