@@ -432,20 +432,23 @@
             display: none;
             }
 
-            /* レスポンシブ対応：画面幅が600px以下の場合 */
-            @media (max-width: 768px) {
-            .analysis-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            .analysis-button {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-            }
+            
             html, body {
             height: 100%;
             margin: 0;
+            }
+            @media (max-width: 768px) {
+            .analysis-buttons {
+                /* 2列レイアウトのため、横並びにして折り返しを許可 */
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between; /* ボタン間のスペースを調整 */
+            }
+            .analysis-button {
+                /* 各ボタンの幅を2列分に（gap分を引いた値） */
+                min-width: calc(50% - 10px);
+                margin-bottom: 10px;
+            }
             }
             /* ページ全体をラップするコンテナ */
             .wrapper {
