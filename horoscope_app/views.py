@@ -316,15 +316,15 @@ def horoscope_detail(request):
 
     # GETから各値を取得
     try:
-        year = int(request.POST.get("year", "2023"))
-        month = int(request.POST.get("month", "1"))
-        day = int(request.POST.get("day", "1"))
-        hour = int(request.POST.get("hour", "0"))
-        minute = int(request.POST.get("minute", "0"))
-        lat = float(request.POST.get("lat", "35.6895"))
-        lon = float(request.POST.get("lon", "139.6917"))
-        tz = float(request.POST.get("tz", "9.0"))
-        dst = float(request.POST.get("dst", "0.0"))
+        year = int(request.GET.get("year", "2023"))
+        month = int(request.GET.get("month", "1"))
+        day = int(request.GET.get("day", "1"))
+        hour = int(request.GET.get("hour", "0"))
+        minute = int(request.GET.get("minute", "0"))
+        lat = float(request.GET.get("lat", "35.6895"))
+        lon = float(request.GET.get("lon", "139.6917"))
+        tz = float(request.GET.get("tz", "9.0"))
+        dst = float(request.GET.get("dst", "0.0"))
     except ValueError as ve:
         return JsonResponse({"error": "Invalid input parameters", "details": str(ve)}, status=400)
 

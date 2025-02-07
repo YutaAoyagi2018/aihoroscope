@@ -1681,32 +1681,30 @@
         <!-- 詳細画面へリンク -->
         <script>
             document.getElementById('view-button').addEventListener('click', function() {
-            const form = document.getElementById('horoscope-form');
-            const formData = new FormData(form);
-            const year  = formData.get('year');
-            const month = formData.get('month');
-            const day   = formData.get('day');
-            const time  = formData.get('time') || "12:00";
-            const lat   = formData.get('lat');
-            const lon   = formData.get('lon');
-            const tz    = formData.get('tz');
-            const dst   = formData.get('dst');
-        
-            const [hour, minute] = time.split(':');
-        
-            const params = new URLSearchParams({
+              const form = document.getElementById('horoscope-form');
+              const formData = new FormData(form);
+              const year  = formData.get('year');
+              const month = formData.get('month');
+              const day   = formData.get('day');
+              const time  = formData.get('time') || "12:00";
+              const lat   = formData.get('lat');
+              const lon   = formData.get('lon');
+              const tz    = formData.get('tz');
+              const dst   = formData.get('dst');
+          
+              const [hour, minute] = time.split(':');
+          
+              const params = new URLSearchParams({
                 year, month, day,
                 hour, minute,
                 lat, lon,
                 tz, dst
+              });
+          
+              const horoscopeUrl = "{% url 'horoscope_app:horoscope_detail' %}?" + params.toString();
+              window.location.href = horoscopeUrl;
             });
-            
-            saveFormDataToCookies(formData);
-
-            const horoscopeUrl = "{% url 'horoscope_app:horoscope_detail' %}?" + params.toString();
-            window.location.href = horoscopeUrl;
-            });
-        </script>
+          </script>
         <!-- 保存ボタン -->
         <script>
             function saveCanvasAsImage() {
@@ -1780,8 +1778,17 @@
             document.getElementById('month-select').addEventListener('change', updateHoroscope);
             document.getElementById('day-select').addEventListener('change', updateHoroscope);
             document.getElementById('time').addEventListener('change', updateHoroscope);
-            document.getElementById('prefecture').addEventListener('change', updateHoroscope);
             document.getElementById('unknown').addEventListener('change', updateHoroscope);
+            // 既存の prefecture 変更時の処理を統合する例
+            document.getElementById('prefecture').addEventListener('change', function(e) {
+            const selected = e.target.selectedOptions[0];
+            // 緯度・経度を更新
+            document.getElementById('lat').value = selected.getAttribute('data-lat');
+            document.getElementById('lon').value = selected.getAttribute('data-lon');
+
+            // 更新された隠しフィールドの値を使ってホロスコープを再描画
+            updateHoroscope(); // または updateHoroscope() を直接呼び出す
+            });
         </script>
   
   
