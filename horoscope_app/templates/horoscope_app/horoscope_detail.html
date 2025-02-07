@@ -131,7 +131,7 @@
 <div class="wrapper">
     <div id="chart-container">
         <canvas id="horoscope-canvas"></canvas>
-        <!-- <button onclick="saveCanvasAsImage()">保存</button> -->
+        <button onclick="saveCanvasAsImage()">保存</button>
     </div>
     <br><br>
     <hr>
@@ -348,8 +348,8 @@
 
         // canvas のサイズ調整
         let containerWidth = chartContainer.offsetWidth; 
-        if (containerWidth > 500) {
-            containerWidth = 500; 
+        if (containerWidth > 700) {
+            containerWidth = 700; 
         }
         canvas.width = containerWidth;
         canvas.height = containerWidth;
@@ -687,7 +687,7 @@
         });
     }
 </script>
-<!-- (G) 「ホロスコープを作成」ボタンの処理 (本番データで描画) -->
+<!-- (G) 「ホロスコープを作成」の処理 画面読み込み時(本番データで描画) -->
 <script>
     document.addEventListener('DOMContentLoaded', async function() {
         // 現在のページのクエリ文字列を取得
