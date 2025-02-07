@@ -307,7 +307,7 @@
             .open-modal-btn {
                 background: linear-gradient(45deg, #2c3e50, #4ca1af); /* 高級感あるグラデーション */
                 color: #fff;
-                padding: 14px 28px;
+                padding: 5px 10px;
                 border: none;
                 border-radius: 8px;
                 font-size: 16px;
@@ -769,6 +769,7 @@
                                                     </tbody>
                                                 </table>
                                                 <button type="button" id="draw-button1" class="open-modal-btn">ホロスコープを作成</button>
+                                                <button type="button" id="view-button1" class="open-modal-btn">ホロスコープの詳細</button>
                                             </div>
                                             
                                             <div class="canvas-section">
@@ -877,6 +878,7 @@
                                                     </tbody>
                                                 </table>
                                                 <button type="button" id="draw-button2" class="open-modal-btn">ホロスコープを作成</button>
+                                                <button type="button" id="view-button2" class="open-modal-btn">ホロスコープの詳細</button>
                                             </div>
                                             
                                             <div class="canvas-section">
@@ -2018,6 +2020,61 @@
                 } catch (err) {
                     alert(err.message);
                 }
+            });
+        </script>
+        <!-- 詳細画面へリンク -->
+        <script>
+            document.getElementById('view-button1').addEventListener('click', function() {
+            const form = document.getElementById('horoscope-form');
+            const formData = new FormData(form);
+            const year  = formData.get('year1');
+            const month = formData.get('month1');
+            const day   = formData.get('day1');
+            const time  = formData.get('time1') || "12:00";
+            const lat   = formData.get('lat1');
+            const lon   = formData.get('lon1');
+            const tz    = formData.get('tz1');
+            const dst   = formData.get('dst1');
+        
+            const [hour, minute] = time.split(':');
+        
+            const params = new URLSearchParams({
+                year, month, day,
+                hour, minute,
+                lat, lon,
+                tz, dst
+            });
+            
+            saveFormDataToCookies(formData);
+
+            const horoscopeUrl = "{% url 'horoscope_app:horoscope_detail' %}?" + params.toString();
+            window.location.href = horoscopeUrl;
+            });
+            document.getElementById('view-button2').addEventListener('click', function() {
+            const form = document.getElementById('horoscope-form');
+            const formData = new FormData(form);
+            const year  = formData.get('year2');
+            const month = formData.get('month2');
+            const day   = formData.get('day2');
+            const time  = formData.get('time2') || "12:00";
+            const lat   = formData.get('lat2');
+            const lon   = formData.get('lon2');
+            const tz    = formData.get('tz2');
+            const dst   = formData.get('dst2');
+        
+            const [hour, minute] = time.split(':');
+        
+            const params = new URLSearchParams({
+                year, month, day,
+                hour, minute,
+                lat, lon,
+                tz, dst
+            });
+            
+            saveFormDataToCookies(formData);
+
+            const horoscopeUrl = "{% url 'horoscope_app:horoscope_detail' %}?" + params.toString();
+            window.location.href = horoscopeUrl;
             });
         </script>
     </body>
