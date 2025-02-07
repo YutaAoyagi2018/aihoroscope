@@ -792,7 +792,7 @@
                                     <div class="horoscope-container">
                                         <!-- ホロスコープ作成ボタン -->
                                         <div class="horoscope-create">
-                                        <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button>
+                                        <!-- <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button> -->
                                         <button type="button" id="view-button" class="open-modal-btn">ホロスコープの詳細</button>
                                         </div>
                                         <div style="text-align: right;">
@@ -865,7 +865,7 @@
                                         <h3>このサイトの利用方法</h3>
                                         <div>
                                             <p>1.占いたい人の生年月日、出生時刻、出生地を入力します。（出生時刻が分からない場合は不明にチェックを入れてください。）</p>
-                                            <p>2.ホロスコープを作成ボタンからホロスコープを作成できます。</p>
+                                            <p>2.すると自動的にホロスコープが作成されます。</p>
                                             <p>3.ホロスコープの詳細を見たい場合は、ホロスコープの詳細ボタンを押してください。大きなホロスコープを見ることができます。</p>
                                             <p>4.その後、占いたい項目をカラフルな6つのボタンから選択してください。</p>
                                             <p>5.ボタンを押すとAIが<strong>惑星の配置だけに基づいて</strong>、解析結果を占ってくれます。</p>
@@ -1626,57 +1626,7 @@
         </script>
 
 
-        <!-- (G) 「ホロスコープを作成」ボタンの処理 (本番データで描画) -->
-        <script>
-            document.getElementById('draw-button').addEventListener('click', async function() {
-                // (1) フォームの入力からパラメータを生成
-                const form = document.getElementById('horoscope-form');
-                const formData = new FormData(form);
-                const year  = formData.get('year');
-                const month = formData.get('month');
-                const day   = formData.get('day');
-                const time  = formData.get('time') || "12:00";
-                const lat   = formData.get('lat');
-                const lon   = formData.get('lon');
-                const tz    = formData.get('tz');
-                const dst   = formData.get('dst');
-    
-                // 不明時刻の場合は hour, minute = '12:00' などで補正
-                const [hour, minute] = time.split(':');
-    
-                // クエリパラメータを作成 (Django想定の例)
-                const params = new URLSearchParams({
-                    year, month, day,
-                    hour, minute,
-                    lat, lon,
-                    tz, dst
-                });
-                // 例: /horoscope_app/horoscope/?year=...&month=... など
-                // 実際のURLはサーバー側に合わせて修正してください
-                const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
-    
-                // (2) fetch でサーバーからホロスコープデータを取得
-                try {
-                    const response = await fetch(horoscopeUrl, {
-                        method: 'GET',
-                    });
-                    if (!response.ok) {
-                        throw new Error("ホロスコープデータの取得に失敗しました");
-                    }
-    
-                    const horoscopeData = await response.json();
-    
-                    // (3) モーダルを表示後、実際に描画
-                    const chartContainer = document.getElementById('chart-container');
-                    chartContainer.style.display = 'block';
-                    drawHoroscopeWheel(horoscopeData);
-                    saveFormDataToCookies(formData);
-    
-                } catch (err) {
-                    alert(err.message);
-                }
-            });
-        </script>
+        
         <!-- (G2) 「ホロスコープを作成」の処理画面読み込み時 (本番データで描画) -->
         <script>
             document.addEventListener('DOMContentLoaded', async function() {
@@ -1767,6 +1717,73 @@
             link.click();
             }
         </script>
+
+        <script>
+            // 生年月日、出生時刻、出生地が変更されたときにホロスコープを更新する関数
+            async function updateHoroscope() {
+            const form = document.getElementById('horoscope-form');
+            const formData = new FormData(form);
+            const unknown = formData.get('unknown');  // チェックされている場合、通常 "on" が返る
+  
+            // unknown がチェックされているなら time をデフォルト値にする
+            let time = formData.get('time');
+            if (unknown) {
+                time = "12:00";
+            } else if (!time) {
+                time = "12:00";
+            }
+        
+            // 各入力値を取得（出生時刻が未入力の場合はデフォルトで "12:00" を設定）
+            const year  = formData.get('year');
+            const month = formData.get('month');
+            const day   = formData.get('day');
+            // const time  = formData.get('time') || "12:00";
+            const lat   = formData.get('lat');
+            const lon   = formData.get('lon');
+            const tz    = formData.get('tz');
+            const dst   = formData.get('dst');
+        
+            // 時刻の分解（"hh:mm" 形式）
+            const [hour, minute] = time.split(':');
+        
+            // クエリパラメータの作成（サーバー側のホロスコープデータ取得用URLに付加）
+            const params = new URLSearchParams({
+                year, month, day,
+                hour, minute,
+                lat, lon,
+                tz, dst
+            });
+        
+            // Django側のホロスコープ取得用URL（適宜サーバー側のURLに合わせてください）
+            const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
+        
+            try {
+                // GETリクエストでホロスコープデータを取得
+                const response = await fetch(horoscopeUrl, { method: 'GET' });
+                if (!response.ok) {
+                throw new Error("ホロスコープデータの取得に失敗しました");
+                }
+                const horoscopeData = await response.json();
+        
+                // ホロスコープ描画エリアを表示して描画関数を呼び出す
+                const chartContainer = document.getElementById('chart-container');
+                chartContainer.style.display = 'block';
+                drawHoroscopeWheel(horoscopeData);
+                saveFormDataToCookies(formData);
+            } catch (error) {
+                console.error(error.message);
+            }
+            }
+        
+            // 以下の各入力項目で変更があった際に updateHoroscope 関数を呼び出す
+            document.getElementById('year-select').addEventListener('change', updateHoroscope);
+            document.getElementById('month-select').addEventListener('change', updateHoroscope);
+            document.getElementById('day-select').addEventListener('change', updateHoroscope);
+            document.getElementById('time').addEventListener('change', updateHoroscope);
+            document.getElementById('prefecture').addEventListener('change', updateHoroscope);
+            document.getElementById('unknown').addEventListener('change', updateHoroscope);
+        </script>
+  
   
     </body>
 </html>
