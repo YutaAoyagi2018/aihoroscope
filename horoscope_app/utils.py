@@ -44,7 +44,15 @@ ASPECTS = {
     "トライン": 120,
     "オポジション": 180
 }
-ORB = 8  # 全アスペクト共通のオーブ例
+# ORB = 8  # 全アスペクト共通のオーブ例
+# アスペクト名とORB値の対応を辞書で定義
+aspect_orbs = {
+    "コンジャンクション": 10,
+    "オポジション": 8,
+    "トライン": 6,
+    "スクエア": 6,
+    "セクスタイル": 4,
+}
 
 # 4区分（元素）
 ZODIAC_ELEMENTS = {
@@ -217,6 +225,7 @@ def analyze_horoscope_data(data: dict) -> dict:
 
         for asp_name, asp_angle in ASPECTS.items():
             diff = fabs(angle - asp_angle)
+            ORB = aspect_orbs.get(asp_name, 8)
             if diff <= ORB:
                 orb_diff = angle - asp_angle
                 orb_sign = "+" if orb_diff >= 0 else "-"
