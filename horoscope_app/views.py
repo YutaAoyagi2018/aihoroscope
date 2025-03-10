@@ -195,6 +195,7 @@ def analyze(request):
                 {"role": "user", "content": user_message},
             ],
             model="gpt-4.5-preview",  # 必要に応じてモデル名を修正
+            timeout=180,
             # temperature=0.7,
             # max_tokens=1500
         )
@@ -311,6 +312,7 @@ def analyze_compatibility(request):
                 {"role": "user", "content": user_message},
             ],
             model="gpt-4.5-preview",  # 必要に応じてモデル名を修正
+            timeout=180,
             # temperature=0.7,
             # max_tokens=1500
         )
