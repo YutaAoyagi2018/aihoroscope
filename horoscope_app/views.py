@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 from django.core.exceptions import ValidationError
 import datetime
+from datetime import date
 
 # OpenAI
 from openai import OpenAI
@@ -58,6 +59,7 @@ def horoscope(request):
         lon = float(request.GET.get("lon", "139.6917"))
         tz = float(request.GET.get("tz", "9.0"))
         dst = float(request.GET.get("dst", "0.0"))
+        prefecture = request.GET.get('prefecture', 'Tokyo')
     except ValueError as ve:
         return JsonResponse({"error": "Invalid input parameters", "details": str(ve)}, status=400)
 
@@ -72,7 +74,7 @@ def horoscope(request):
     
 
     # ユーティリティ関数で計算
-    result_dict = compute_horoscope(year, month, day, hour, minute, lat, lon, tz, dst)
+    result_dict = compute_horoscope(year, month, day, hour, minute, lat, lon, tz, dst, prefecture)
     
     # JSONとして返す
     return JsonResponse(result_dict)
@@ -99,6 +101,7 @@ def analyze(request):
         tz = float(request.POST.get("tz", "9.0"))
         dst = float(request.POST.get("dst", "0.0"))
         sb = int(request.POST.get("sb", "1"))
+        prefecture = request.POST.get('prefecture', 'Tokyo')
         unknown_str = request.POST.get("unknown", "false").lower()
         unknown = unknown_str == "on"
     except (ValueError, TypeError):
@@ -116,7 +119,7 @@ def analyze(request):
 
     # (1) ホロスコープ計算
     
-    result_dict = compute_horoscope(year, month, day, hour, minute, lat, lon, tz, dst)
+    result_dict = compute_horoscope(year, month, day, hour, minute, lat, lon, tz, dst, prefecture)
     
     horoscope_data = result_dict.get("analysis", {})
     
@@ -166,6 +169,14 @@ def analyze(request):
             f"{horoscope_str}\n\n"
             "この人の学業運はどのようになっていると考えられますか？\n"
         )
+    elif sb == 9:
+        current_year = date.today().year
+        user_message += (
+            f"以下のネイタルチャートを参考に、{current_year}年の運勢を教えてください。\n"
+            "【ネイタルチャート】\n"
+            f"{horoscope_str}\n\n"
+            f"この人の{current_year}年の運勢はどのようになっていると考えられますか？\n"
+        )
 
     if unknown:
         user_message += "出生時刻が不明なので、アセンダント、MC、ハウスのデータは使わないでください。"
@@ -183,7 +194,7 @@ def analyze(request):
                 # {"role": "system", "content": "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。"},
                 {"role": "user", "content": user_message},
             ],
-            model="o3-mini",  # 必要に応じてモデル名を修正
+            model="gpt-4.5-preview",  # 必要に応じてモデル名を修正
             # temperature=0.7,
             # max_tokens=1500
         )
@@ -214,6 +225,7 @@ def analyze_compatibility(request):
         lon1 = float(request.POST.get("lon1", "139.6917"))
         tz1 = float(request.POST.get("tz1", "9.0"))
         dst1 = float(request.POST.get("dst1", "0.0"))
+        prefecture1 = request.POST.get('prefecture1', 'Tokyo')
         unknown_str1 = request.POST.get("unknown1", "false").lower()
         unknown1 = unknown_str1 == "on"
         
@@ -226,6 +238,7 @@ def analyze_compatibility(request):
         lon2 = float(request.POST.get("lon2", "139.6917"))
         tz2 = float(request.POST.get("tz2", "9.0"))
         dst2 = float(request.POST.get("dst2", "0.0"))
+        prefecture2 = request.POST.get('prefecture2', 'Tokyo')
         unknown_str2 = request.POST.get("unknown2", "false").lower()
         unknown2 = unknown_str2 == "on"
         
@@ -247,8 +260,8 @@ def analyze_compatibility(request):
     
 
     # (1) ホロスコープ計算
-    result_dict1 = compute_horoscope(year1, month1, day1, hour1, minute1, lat1, lon1, tz1, dst1)
-    result_dict2 = compute_horoscope(year2, month2, day2, hour2, minute2, lat2, lon2, tz2, dst2)
+    result_dict1 = compute_horoscope(year1, month1, day1, hour1, minute1, lat1, lon1, tz1, dst1, prefecture1)
+    result_dict2 = compute_horoscope(year2, month2, day2, hour2, minute2, lat2, lon2, tz2, dst2, prefecture2)
     horoscope_data1 = result_dict1.get("analysis", {})
     horoscope_data2 = result_dict2.get("analysis", {})
 
@@ -297,7 +310,7 @@ def analyze_compatibility(request):
                 # {"role": "system", "content": "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。"},
                 {"role": "user", "content": user_message},
             ],
-            model="o3-mini",  # 必要に応じてモデル名を修正
+            model="gpt-4.5-preview",  # 必要に応じてモデル名を修正
             # temperature=0.7,
             # max_tokens=1500
         )
@@ -325,6 +338,7 @@ def horoscope_detail(request):
         lon = float(request.GET.get("lon", "139.6917"))
         tz = float(request.GET.get("tz", "9.0"))
         dst = float(request.GET.get("dst", "0.0"))
+        prefecture = request.GET.get('prefecture', 'Tokyo')
     except ValueError as ve:
         return JsonResponse({"error": "Invalid input parameters", "details": str(ve)}, status=400)
 
@@ -339,7 +353,7 @@ def horoscope_detail(request):
     
 
     # ユーティリティ関数で計算
-    result_dict = compute_horoscope(year, month, day, hour, minute, lat, lon, tz, dst)
+    result_dict = compute_horoscope(year, month, day, hour, minute, lat, lon, tz, dst, prefecture)
 
     # JSONとして返す
     data = result_dict

@@ -140,7 +140,7 @@ def format_position(deg_in_sign: float, sign: str) -> str:
     return f"{deg_int}°{minutes:02d}' {sign}"
 
 
-def analyze_horoscope_data(data: dict) -> dict:
+def analyze_horoscope_data(data: dict, birth_info: dict) -> dict:
     """
     raw_data (swissephで計算した結果) を解析し、
     星座/ハウス/アスペクト/4区分/3区分/2区分/ハウスカスプ度数 をまとめた dict を返す。
@@ -284,14 +284,15 @@ def analyze_horoscope_data(data: dict) -> dict:
         "5.天体の四区分": four_divisions,
         "6.天体の三区分": three_divisions,
         "7.天体の二区分": two_divisions,
-        "8.ハウスカスプ": house_cusps_list        # ★追加した項目
+        "8.ハウスカスプ": house_cusps_list,
+        "9.生年月日と出生地": birth_info  # ★ここを追加
     }
 
 
 def compute_horoscope(year: int, month: int, day: int,
                       hour: int, minute: int,
                       lat: float, lon: float,
-                      tz: float, dst: float) -> dict:
+                      tz: float, dst: float, prefecture: str) -> dict:
     """
     スイスエフェメリスを用いてホロスコープを計算し、
     解析結果をまとめた辞書({ "raw_data": {...}, "analysis": {...} })を返す。
@@ -410,11 +411,22 @@ def compute_horoscope(year: int, month: int, day: int,
         "lilith":  lilith_info,
         "houses":  houses_info
     }
-
+    birth_info = {
+        "year": year,
+        "month": month,
+        "day": day,
+        "hour": hour,
+        "minute": minute,
+        "latitude": lat,
+        "longitude": lon,
+        "timezone": tz,
+        "dst": dst,
+        "birthplace": prefecture  # prefecture（出生地）を追加
+    }
     # ---------------------------
     # (2) 解析(星座/ハウス/アスペクト/4区分など)
     # ---------------------------
-    analysis_result = analyze_horoscope_data(raw_data)
+    analysis_result = analyze_horoscope_data(raw_data, birth_info)
 
     # ---------------------------
     # (3) 返却 (raw_data + analysis)

@@ -1372,6 +1372,7 @@
                     const time1  = data.time1 || "12:00";
                     const [hour1, minute1] = time1.split(':');
                     const unknown1 = data.unknown1;
+                    const prefecture1 = data.prefecture1;
                     
                     const year2 = data.year2;
                     const month2 = data.month2;
@@ -1379,6 +1380,7 @@
                     const time2  = data.time2 || "12:00";
                     const [hour2, minute2] = time2.split(':');
                     const unknown2 = data.unknown2;
+                    const prefecture2 = data.prefecture2;
 
                     // 送信データの組み立て
                     const sendData = {
@@ -1392,6 +1394,7 @@
                         tz1: data.tz1,
                         dst1: data.dst1,
                         unknown1: unknown1,
+                        prefecture1: prefecture1,
                         year2: year2,
                         month2: month2,
                         day2: day2,
@@ -1402,6 +1405,7 @@
                         tz2: data.tz2,
                         dst2: data.dst2,
                         unknown2: unknown2,
+                        prefecture2: prefecture2,
                         sb: sbValue
                     };
 
@@ -1869,6 +1873,7 @@
                 const month = formData.get('month1');
                 const day   = formData.get('day1');
                 const time  = formData.get('time1') || "12:00";
+                const prefecture = formData.get('prefecture1');
                 const lat   = formData.get('lat1');
                 const lon   = formData.get('lon1');
                 const tz    = formData.get('tz1');
@@ -1882,7 +1887,8 @@
                     year, month, day,
                     hour, minute,
                     lat, lon,
-                    tz, dst
+                    tz, dst,
+                    prefecture
                 });
                 // 例: /horoscope_app/horoscope/?year=...&month=... など
                 // 実際のURLはサーバー側に合わせて修正してください
@@ -1920,6 +1926,7 @@
                 const month = formData.get('month1');
                 const day   = formData.get('day1');
                 const time  = formData.get('time1') || "12:00";
+                const prefecture = formData.get('prefecture1');
                 const lat   = formData.get('lat1');
                 const lon   = formData.get('lon1');
                 const tz    = formData.get('tz1');
@@ -1933,7 +1940,8 @@
                     year, month, day,
                     hour, minute,
                     lat, lon,
-                    tz, dst
+                    tz, dst,
+                    prefecture
                 });
                 // 例: /horoscope_app/horoscope/?year=...&month=... など
                 // 実際のURLはサーバー側に合わせて修正してください
@@ -1971,6 +1979,7 @@
                 const month = formData.get('month2');
                 const day   = formData.get('day2');
                 const time  = formData.get('time2') || "12:00";
+                const prefecture = formData.get('prefecture2');
                 const lat   = formData.get('lat2');
                 const lon   = formData.get('lon2');
                 const tz    = formData.get('tz2');
@@ -1984,7 +1993,8 @@
                     year, month, day,
                     hour, minute,
                     lat, lon,
-                    tz, dst
+                    tz, dst,
+                    prefecture
                 });
                 // 例: /horoscope_app/horoscope/?year=...&month=... など
                 // 実際のURLはサーバー側に合わせて修正してください
@@ -2022,6 +2032,7 @@
                 const month = formData.get('month2');
                 const day   = formData.get('day2');
                 const time  = formData.get('time2') || "12:00";
+                const prefecture = formData.get('prefecture2');
                 const lat   = formData.get('lat2');
                 const lon   = formData.get('lon2');
                 const tz    = formData.get('tz2');
@@ -2035,7 +2046,8 @@
                     year, month, day,
                     hour, minute,
                     lat, lon,
-                    tz, dst
+                    tz, dst,
+                    prefecture
                 });
                 // 例: /horoscope_app/horoscope/?year=...&month=... など
                 // 実際のURLはサーバー側に合わせて修正してください
@@ -2072,6 +2084,7 @@
             const month = formData.get('month1');
             const day   = formData.get('day1');
             const time  = formData.get('time1') || "12:00";
+            const prefecture = formData.get('prefecture1');
             const lat   = formData.get('lat1');
             const lon   = formData.get('lon1');
             const tz    = formData.get('tz1');
@@ -2083,7 +2096,8 @@
                 year, month, day,
                 hour, minute,
                 lat, lon,
-                tz, dst
+                tz, dst,
+                prefecture
             });
             
             saveFormDataToCookies(formData);
@@ -2098,6 +2112,7 @@
             const month = formData.get('month2');
             const day   = formData.get('day2');
             const time  = formData.get('time2') || "12:00";
+            const prefecture = formData.get('prefecture2');
             const lat   = formData.get('lat2');
             const lon   = formData.get('lon2');
             const tz    = formData.get('tz2');
@@ -2109,7 +2124,8 @@
                 year, month, day,
                 hour, minute,
                 lat, lon,
-                tz, dst
+                tz, dst,
+                prefecture
             });
             
             saveFormDataToCookies(formData);
