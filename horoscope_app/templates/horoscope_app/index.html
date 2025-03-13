@@ -208,6 +208,10 @@
             }
             /* 学業運 (テキストは暗色) */
             #submit-button9 {
+                background: linear-gradient(45deg, #1ABC9C, #16A085);
+            }
+            /* 学業運 (テキストは暗色) */
+            #submit-button10 {
                 background: linear-gradient(45deg, #2980b9, #3498db);
             }
 
@@ -641,19 +645,17 @@
                 max-width: 400px;
             }
             }
-            .analysis-button-new {
-            position: relative; /* 子要素の絶対配置の基準にする */
+            .new-badge {
+                position: relative;
             }
-
-            /* 擬似要素で右上に "new!" を追加 */
-            .analysis-button-new::after {
-            content: "new!";
-            position: absolute;
-            top: 0px;  /* 上からの位置は適宜調整 */
-            right: -10px;  /* 右側からの位置は適宜調整 */
-            color: red;
-            font-weight: bold;
-            font-size: 0.9em; /* サイズもお好みで */
+            .new-badge::after {
+                content: "new!";
+                position: absolute;
+                top: 0;
+                right: -30px; /* 必要に応じて調整 */
+                color: red;
+                font-weight: bold;
+                font-size: 0.9em;
             }
         </style>
     </head>
@@ -845,9 +847,17 @@
                                                 <button type="submit" id="submit-button6">学業運</button>
                                                 <div id="spinner6" class="spinner"></div>
                                             </div>
-                                            <div  class="analysis-button analysis-button-new">
-                                                <button type="submit" id="submit-button9">今年の運勢</button>
+                                        </div>
+                                        <br>
+                                        <hr>
+                                        <div class="analysis-buttons">
+                                            <div  class="analysis-button">
+                                                <button type="submit" id="submit-button9" class="new-badge">今日の運勢</button>
                                                 <div id="spinner9" class="spinner"></div>                                                
+                                            </div>
+                                            <div  class="analysis-button">
+                                                <button type="submit" id="submit-button10" class="new-badge">今年の運勢</button>
+                                                <div id="spinner10" class="spinner"></div>                                                
                                             </div>
                                         </div>
                                     </div>
@@ -1138,7 +1148,8 @@
             document.getElementById('submit-button4'),
             document.getElementById('submit-button5'),
             document.getElementById('submit-button6'),
-            document.getElementById('submit-button9')
+            document.getElementById('submit-button9'),
+            document.getElementById('submit-button10')
             ];
             const resultDiv = document.getElementById('result');
 
@@ -1250,7 +1261,8 @@
             { id: 'submit-button4', spinner: 'spinner4', sb: 4 },
             { id: 'submit-button5', spinner: 'spinner5', sb: 5 },
             { id: 'submit-button6', spinner: 'spinner6', sb: 6 },
-            { id: 'submit-button9', spinner: 'spinner9', sb: 9 }
+            { id: 'submit-button9', spinner: 'spinner9', sb: 9 },
+            { id: 'submit-button10', spinner: 'spinner10', sb: 10 }
             ];
 
             buttonConfigs.forEach(({ id, spinner, sb }) => {

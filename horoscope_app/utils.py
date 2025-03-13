@@ -151,36 +151,72 @@ def analyze_horoscope_data(data: dict, birth_info: dict) -> dict:
     # 1) 天体リストの抽出
     # ---------------------------
     celestial_bodies = {
-        "アセンダント": data["houses"].get("ASC", 0.0),
-        "ミッドヘヴェン": data["houses"].get("MC", 0.0),
-        "太陽":   data["planets"].get("Sun", {}).get("longitude", [0.0])[0],
-        "月":     data["planets"].get("Moon", {}).get("longitude", [0.0])[0],
-        "水星":   data["planets"].get("Mercury", {}).get("longitude", [0.0])[0],
-        "金星":   data["planets"].get("Venus", {}).get("longitude", [0.0])[0],
-        "火星":   data["planets"].get("Mars", {}).get("longitude", [0.0])[0],
-        "木星":   data["planets"].get("Jupiter", {}).get("longitude", [0.0])[0],
-        "土星":   data["planets"].get("Saturn", {}).get("longitude", [0.0])[0],
-        "天王星": data["planets"].get("Uranus", {}).get("longitude", [0.0])[0],
-        "海王星": data["planets"].get("Neptune", {}).get("longitude", [0.0])[0],
-        "冥王星": data["planets"].get("Pluto", {}).get("longitude", [0.0])[0],
-        # "北ノード": data["nodes"].get("True Node", {}).get("longitude", [0.0])[0],
-        # "リリス":  data["lilith"].get("Oscu Apogee(True Lilith)", {}).get("longitude", [0.0])[0],
+        "アセンダント": {
+            "longitude_0": data["houses"].get("ASC", 0.0) % 360,
+            "longitude_3": 0.0  # スピードの情報がない場合は0.0等のデフォルト値
+        },
+        "ミッドヘヴェン": {
+            "longitude_0": data["houses"].get("MC", 0.0) % 360,
+            "longitude_3": 0.0
+        },
+        "太陽": {
+            "longitude_0": data["planets"].get("Sun", {}).get("longitude", [0.0])[0] % 360,
+            "longitude_3": data["planets"].get("Sun", {}).get("longitude", [0.0])[3],
+        },
+        "月": {
+            "longitude_0": data["planets"].get("Moon", {}).get("longitude", [0.0])[0] % 360,
+            "longitude_3": data["planets"].get("Moon", {}).get("longitude", [0.0])[3],
+        },
+        "水星": {
+            "longitude_0": data["planets"].get("Mercury", {}).get("longitude", [0.0])[0] % 360,
+            "longitude_3": data["planets"].get("Mercury", {}).get("longitude", [0.0])[3],
+        },
+        "金星": {
+            "longitude_0": data["planets"].get("Venus", {}).get("longitude", [0.0])[0] % 360,
+            "longitude_3": data["planets"].get("Venus", {}).get("longitude", [0.0])[3],
+        },
+        "火星": {
+            "longitude_0": data["planets"].get("Mars", {}).get("longitude", [0.0])[0] % 360,
+            "longitude_3": data["planets"].get("Mars", {}).get("longitude", [0.0])[3],
+        },
+        "木星": {
+            "longitude_0": data["planets"].get("Jupiter", {}).get("longitude", [0.0])[0] % 360,
+            "longitude_3": data["planets"].get("Jupiter", {}).get("longitude", [0.0])[3],
+        },
+        "土星": {
+            "longitude_0": data["planets"].get("Saturn", {}).get("longitude", [0.0])[0] % 360,
+            "longitude_3": data["planets"].get("Saturn", {}).get("longitude", [0.0])[3],
+        },
+        "天王星": {
+            "longitude_0": data["planets"].get("Uranus", {}).get("longitude", [0.0])[0] % 360,
+            "longitude_3": data["planets"].get("Uranus", {}).get("longitude", [0.0])[3],
+        },
+        "海王星": {
+            "longitude_0": data["planets"].get("Neptune", {}).get("longitude", [0.0])[0] % 360,
+            "longitude_3": data["planets"].get("Neptune", {}).get("longitude", [0.0])[3],
+        },
+        "冥王星": {
+            "longitude_0": data["planets"].get("Pluto", {}).get("longitude", [0.0])[0] % 360,
+            "longitude_3": data["planets"].get("Pluto", {}).get("longitude", [0.0])[3],
+        },
     }
-
-    # 0~360度に正規化
-    celestial_bodies = {k: (v % 360) for k, v in celestial_bodies.items()}
 
     # ---------------------------
     # 2) 各天体の星座・度数・フォーマット
     # ---------------------------
     celestial_positions = {}
-    for body, degree in celestial_bodies.items():
+    for body, info in celestial_bodies.items():
+        degree = info["longitude_0"]
+        speed = info["longitude_3"]
         sign_name, deg_in_sign = get_sign(degree)
+        formatted = format_position(deg_in_sign, sign_name)
+        if speed < 0:
+            formatted += " R"
         celestial_positions[body] = {
             "degree": degree,
             "sign": sign_name,
             "deg_in_sign": deg_in_sign,
-            "formatted": format_position(deg_in_sign, sign_name)
+            "formatted": formatted
         }
 
     # ---------------------------
@@ -218,8 +254,8 @@ def analyze_horoscope_data(data: dict, birth_info: dict) -> dict:
     ]
     aspect_results = []
     for p1, p2 in combinations(planet_list, 2):
-        deg1 = celestial_bodies[p1]
-        deg2 = celestial_bodies[p2]
+        deg1 = celestial_positions[p1]["degree"]
+        deg2 = celestial_positions[p2]["degree"]
         angle = fabs(deg1 - deg2)
         angle = angle if angle <= 180 else 360 - angle
 
@@ -321,9 +357,10 @@ def compute_horoscope(year: int, month: int, day: int,
     # 3) 主要天体の位置 (太陽～冥王星) を計算
     # ---------------------------
     planets_info = {}
+    flg = swe.FLG_SWIEPH | swe.FLG_SPEED
     for planet_code in range(swe.SUN, swe.PLUTO + 1):
         try:
-            lon_p, lat_p = swe.calc_ut(jd_ut, planet_code, swe.FLG_SWIEPH)
+            lon_p, lat_p = swe.calc_ut(jd_ut, planet_code, flg)
             planet_name = swe.get_planet_name(planet_code)
             planets_info[planet_name] = {
                 "longitude": lon_p,
@@ -343,7 +380,7 @@ def compute_horoscope(year: int, month: int, day: int,
     nodes_info = {}
     for node_name, node_code in nodes_codes:
         try:
-            lon_n, lat_n = swe.calc_ut(jd_ut, node_code, swe.FLG_SWIEPH)
+            lon_n, lat_n = swe.calc_ut(jd_ut, node_code, flg)
             nodes_info[node_name] = {
                 "longitude": lon_n,
                 "latitude": lat_n
@@ -361,7 +398,7 @@ def compute_horoscope(year: int, month: int, day: int,
     lilith_info = {}
     for lilith_name, lilith_code in lilith_codes:
         try:
-            lon_l, lat_l = swe.calc_ut(jd_ut, lilith_code, swe.FLG_SWIEPH)
+            lon_l, lat_l = swe.calc_ut(jd_ut, lilith_code, flg)
             lilith_info[lilith_name] = {
                 "longitude": lon_l,
                 "latitude": lat_l
