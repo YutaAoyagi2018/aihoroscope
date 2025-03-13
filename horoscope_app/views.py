@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 from django.core.exceptions import ValidationError
 import datetime
-from datetime import date
+from zoneinfo import ZoneInfo
 
 # OpenAI
 from openai import OpenAI
@@ -170,7 +170,8 @@ def analyze(request):
             "この人の学業運はどのようになっていると考えられますか？\n"
         )
     elif sb == 9:
-        today = date.today()
+        tokyo_now = datetime.datetime.now(ZoneInfo("Asia/Tokyo"))
+        today = tokyo_now.date()
         year_t = today.year
         month_t = today.month
         day_t = today.day
@@ -187,7 +188,8 @@ def analyze(request):
             f"この人の今日（{year_t}年{month_t}月{day_t}日）の運勢はどのようになっていると考えられますか？\n"
         )
     elif sb == 10:
-        today = date.today()
+        tokyo_now = datetime.datetime.now(ZoneInfo("Asia/Tokyo"))
+        today = tokyo_now.date()
         year_t = today.year
 
         # 各月のトランジットデータを格納する辞書を初期化
