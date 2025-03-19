@@ -186,6 +186,7 @@ def analyze(request):
             "【トランジットの惑星】\n"
             f"{transit_str}\n\n"
             f"この人の今日（{year_t}年{month_t}月{day_t}日）の運勢はどのようになっていると考えられますか？\n"
+            f"400字程度で結論だけ教えてください。\n"
         )
     elif sb == 10:
         tokyo_now = datetime.datetime.now(ZoneInfo("Asia/Tokyo"))
