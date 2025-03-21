@@ -1778,7 +1778,8 @@
                 hour, minute,
                 lat, lon,
                 tz, dst,
-                prefecture
+                prefecture,
+                token: "{{ token }}" // ここでトークンを追加
               });
           
               const horoscopeUrl = "{% url 'horoscope_app:horoscope_ai' %}?" + params.toString();

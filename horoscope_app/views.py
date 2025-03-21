@@ -10,6 +10,9 @@ from django.core.exceptions import ValidationError
 import datetime
 from zoneinfo import ZoneInfo
 import copy
+import uuid
+from django.shortcuts import render, redirect
+from django.http import JsonResponse, HttpResponseForbidden
 
 # OpenAI
 from openai import OpenAI
@@ -25,7 +28,17 @@ def index(request):
     years = range(1900, 2100)
     months = range(1, 13)
     days = range(1, 32)
-    return render(request, 'horoscope_app/index.html', {'years': years, 'months': months, 'days': days})
+    # ワンタイムトークン生成
+    token = str(uuid.uuid4())
+    request.session['valid_token'] = token
+
+    context = {
+        'years': years,
+        'months': months,
+        'days': days,
+        'token': token,  # テンプレートに渡す
+    }
+    return render(request, 'horoscope_app/index.html', context)
 
 def compatibility(request):
     """
@@ -452,6 +465,15 @@ def horoscope_ai(request):
     if request.method != "GET":
         return JsonResponse({"error": "Invalid request method. GETのみ対応しています。"}, status=400)
 
+    # トークン検証
+    token = request.GET.get('token')
+    valid_token = request.session.get('valid_token')
+
+    if not (token and valid_token and token == valid_token):
+        return HttpResponseForbidden('Forbidden: 無効なトークンです。')
+
+    # トークンは使い捨て
+    del request.session['valid_token']
     # GETから各値を取得
     try:
         year = int(request.GET.get("year", "2023"))
