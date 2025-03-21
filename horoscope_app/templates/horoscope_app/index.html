@@ -812,6 +812,7 @@
                                         <div class="horoscope-create">
                                             <!-- <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button> -->
                                             <button type="button" id="view-button" class="open-modal-btn">ホロスコープの詳細</button>
+                                            <button type="button" id="ai-button" class="">ホロスコープの詳細（AI用）</button>
                                         </div>
                                         <div style="text-align: right;">
                                             <span style="font-size: x-small;">（プラシーダス方式で描きます。）</span>
@@ -1755,7 +1756,35 @@
               const horoscopeUrl = "{% url 'horoscope_app:horoscope_detail' %}?" + params.toString();
               window.location.href = horoscopeUrl;
             });
-          </script>
+        </script>
+        <script>
+            document.getElementById('ai-button').addEventListener('click', function() {
+              const form = document.getElementById('horoscope-form');
+              const formData = new FormData(form);
+              const year  = formData.get('year');
+              const month = formData.get('month');
+              const day   = formData.get('day');
+              const time  = formData.get('time') || "12:00";
+              const prefecture = formData.get('prefecture');
+              const lat   = formData.get('lat');
+              const lon   = formData.get('lon');
+              const tz    = formData.get('tz');
+              const dst   = formData.get('dst');
+          
+              const [hour, minute] = time.split(':');
+          
+              const params = new URLSearchParams({
+                year, month, day,
+                hour, minute,
+                lat, lon,
+                tz, dst,
+                prefecture
+              });
+          
+              const horoscopeUrl = "{% url 'horoscope_app:horoscope_ai' %}?" + params.toString();
+              window.location.href = horoscopeUrl;
+            });
+        </script>
         <!-- 保存ボタン -->
         <script>
             function saveCanvasAsImage() {

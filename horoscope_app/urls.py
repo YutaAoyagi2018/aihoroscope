@@ -13,6 +13,7 @@ urlpatterns = [
     )),
     path('', views.index, name='index'),
     path('horoscope/', views.horoscope, name='horoscope'),  # GET用のホロスコープAPI
+    path('horoscope/ai/', views.horoscope_ai, name='horoscope_ai'),  # AI用のホロスコープAPI
     path('analyze/', views.analyze, name='analyze'),         # POSTで解析→OpenAI
     path('horoscope/detail/', horoscope_detail, name='horoscope_detail'),
     path('compatibility/', views.compatibility, name='compatibility'),

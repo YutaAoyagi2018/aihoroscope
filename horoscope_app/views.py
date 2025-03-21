@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.core.exceptions import ValidationError
 import datetime
 from zoneinfo import ZoneInfo
+import copy
 
 # OpenAI
 from openai import OpenAI
@@ -176,7 +177,7 @@ def analyze(request):
         month_t = today.month
         day_t = today.day
         result_dict = compute_horoscope(year_t, month_t, day_t, 12, 0, lat, lon, tz, dst, prefecture)
-        transit_data = result_dict.get("analysis", {}).get("1.惑星の星座")
+        transit_data = result_dict.get("analysis", {}).get("1.天体の配置")
         filtered_dict = {key: value for key, value in transit_data.items() if key not in ['アセンダント', 'ミッドヘヴェン']}
         transit_str = json.dumps(filtered_dict, ensure_ascii=False, indent=2)
         user_message += (
@@ -202,7 +203,7 @@ def analyze(request):
             result_dict[month] = horoscope_result
 
             # トランジットデータの抽出と不要なキーの除外
-            transit_data = horoscope_result.get("analysis", {}).get("1.惑星の星座", {})
+            transit_data = horoscope_result.get("analysis", {}).get("1.天体の配置", {})
             filtered = {k: v for k, v in transit_data.items() if k not in ['アセンダント', 'ミッドヘヴェン']}
             transit_str[month] = json.dumps(filtered, ensure_ascii=False, indent=2)
 
@@ -402,7 +403,7 @@ def horoscope_detail(request):
     data = result_dict
 
     merged_planets = []
-    for planet, z_info in data["analysis"]["1.惑星の星座"].items():
+    for planet, z_info in data["analysis"]["1.天体の配置"].items():
         clean_planet = planet.strip()
         h_info = data["analysis"]["2.惑星のハウス"].get(clean_planet, None)
         merged_planets.append({
@@ -426,7 +427,7 @@ def horoscope_detail(request):
 
     # テンプレートに渡すコンテキストを作成
     context = {
-        'zodiac_info': data["analysis"]["1.惑星の星座"],
+        'zodiac_info': data["analysis"]["1.天体の配置"],
         'house_info': data["analysis"]["2.惑星のハウス"],
         'house_ruler': data["analysis"]["3.ハウスの支配星"],
         'aspects': data["analysis"]["4.アスペクトの結果"],
@@ -439,3 +440,62 @@ def horoscope_detail(request):
     }
     return render(request, 'horoscope_app/horoscope_detail.html', context)
 
+
+def horoscope_ai(request):
+    """
+    GETパラメータからホロスコープを計算して JSON を返すAPIエンドポイント。
+
+    例:
+      /horoscope?year=2025&month=1&day=29&hour=14&minute=30
+        &lat=35.6895&lon=139.6917&tz=9.0&dst=0.0
+    """
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method. GETのみ対応しています。"}, status=400)
+
+    # GETから各値を取得
+    try:
+        year = int(request.GET.get("year", "2023"))
+        month = int(request.GET.get("month", "1"))
+        day = int(request.GET.get("day", "1"))
+        hour = int(request.GET.get("hour", "0"))
+        minute = int(request.GET.get("minute", "0"))
+        lat = float(request.GET.get("lat", "35.6895"))
+        lon = float(request.GET.get("lon", "139.6917"))
+        tz = float(request.GET.get("tz", "9.0"))
+        dst = float(request.GET.get("dst", "0.0"))
+        prefecture = request.GET.get('prefecture', 'Tokyo')
+    except ValueError as ve:
+        return JsonResponse({"error": "Invalid input parameters", "details": str(ve)}, status=400)
+
+    try:
+        input_date = datetime.datetime(year, month, day)
+        if input_date < datetime.datetime(1900, 1, 1) or input_date > datetime.datetime(2100, 12, 31):
+            raise ValidationError("日付は1900年1月1日から2100年12月31日までの範囲で入力してください。")
+    except ValidationError as ve:
+        return JsonResponse({"error": str(ve)}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": "日付の解析に失敗しました。"}, status=400)
+    
+
+    # ユーティリティ関数で計算
+    result_dict = compute_horoscope(year, month, day, hour, minute, lat, lon, tz, dst, prefecture)
+    
+    result_dict = result_dict["analysis"]
+
+
+    # 元のデータを壊さないように、深いコピーを作成する
+    result_copy = copy.deepcopy(result_dict)
+
+    # 天体の配置のformattedだけを抽出
+    result_copy["1.天体の配置"] = {
+        planet: data["formatted"]
+        for planet, data in result_dict["1.天体の配置"].items()
+    }
+
+    # ハウスカスプのformattedだけを抽出
+    result_copy["8.ハウスカスプ"] = [
+        cusp["formatted"] for cusp in result_dict["8.ハウスカスプ"]
+    ]
+
+    # JSONとして返す
+    return JsonResponse(result_copy)

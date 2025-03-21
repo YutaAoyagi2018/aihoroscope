@@ -313,7 +313,7 @@ def analyze_horoscope_data(data: dict, birth_info: dict) -> dict:
     # 解析結果まとめ
     # ---------------------------
     return {
-        "1.惑星の星座": celestial_positions,      # 天体：星座・度数
+        "1.天体の配置": celestial_positions,      # 天体：星座・度数
         "2.惑星のハウス": celestial_houses,       # 天体が何ハウスか
         "3.ハウスの支配星": house_rulers,         # ハウスの支配星
         "4.アスペクトの結果": aspect_results,      # 惑星間のアスペクト
