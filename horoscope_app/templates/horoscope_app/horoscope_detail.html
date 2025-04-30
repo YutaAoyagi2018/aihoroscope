@@ -553,6 +553,54 @@
             planetPositions[planetName] = { x, y };
         }
 
+        // ノード情報を取得
+        const nodes = horoscopeData?.raw_data?.nodes;
+        if (nodes && nodes["True Node"] && Array.isArray(nodes["True Node"].longitude)) {
+            const rawNodeLon = nodes["True Node"].longitude[0];
+            const nodeLon    = parseFloat(rawNodeLon);
+            if (!isNaN(nodeLon)) {
+                // ドラゴンヘッド（North Node）
+                const headDeg = nodeLon % 360;
+                // ドラゴンテイル（South Node）
+                const tailDeg = (headDeg + 180) % 360;
+
+                // 共通の描画関数
+                function drawNode(deg, symbol, fillColor) {
+                    const angleRad = degToRad(deg);
+                    const x = centerX + radius * Math.cos(angleRad);
+                    const y = centerY + radius * Math.sin(angleRad);
+
+                    // 円を描く
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(x, y, canvas.width * 0.008, 0, 2 * Math.PI);
+                    ctx.fillStyle = fillColor;
+                    ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                    ctx.shadowBlur = 6;
+                    ctx.fill();
+                    ctx.restore();
+
+                    // シンボルを adjust して描画
+                    const adjusted = adjust(ctx, x, y, angleRad, drawnSymbols);
+                    planetSymbolsToDraw.push({
+                        symbol: symbol,
+                        x: adjusted.x,
+                        y: adjusted.y,
+                        font: Math.floor(canvas.width * 0.08) + "px sans-serif",
+                        fillStyle: "#000000"
+                    });
+
+                    // 位置を planetPositions にも保存してアスペクト線で使う
+                    planetPositions[symbol] = { x, y };
+                }
+
+                // ドラゴンヘッド：シンボル ☊、色を紫（例）に
+                drawNode(headDeg, "☊", "#800080");
+                // ドラゴンテイル：シンボル ☋、色を濃緑（例）に
+                drawNode(tailDeg, "☋", "#008000");
+            }
+        }
+
         // アスペクト描画
         const aspects = horoscopeData?.analysis?.["4.アスペクトの結果"] || [];
         aspects.forEach(aspect => {
@@ -563,6 +611,15 @@
             for (const [en, ja] of Object.entries(planetNameMap)) {
                 if (ja === planet1Ja) p1En = en;
                 if (ja === planet2Ja) p2En = en;
+            }
+            // ② フォールバックでノードを symbol キーにマッピング
+            if (!p1En) {
+                if (planet1Ja === "ドラゴンヘッド")  p1En = "☊";
+                if (planet1Ja === "ドラゴンテイル") p1En = "☋";
+            }
+            if (!p2En) {
+                if (planet2Ja === "ドラゴンヘッド")  p2En = "☊";
+                if (planet2Ja === "ドラゴンテイル") p2En = "☋";
             }
             if (!p1En || !p2En) return;
 

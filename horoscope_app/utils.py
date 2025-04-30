@@ -200,6 +200,27 @@ def analyze_horoscope_data(data: dict, birth_info: dict) -> dict:
             "longitude_3": data["planets"].get("Pluto", {}).get("longitude", [0.0])[3],
         },
     }
+     # ——————————————
+    # ノード(ドラゴンヘッド) と テイル の追加
+    # ——————————————
+    # data["nodes"]["True Node"]["longitude"] は
+    # [度数, 緯度, 距離, 速度] のリストまたはタプルで来る前提
+    raw_node = data.get("nodes", {}) \
+                   .get("True Node", {}) \
+                   .get("longitude", [0.0, 0.0, 0.0, 0.0])
+    node_deg   = raw_node[0] % 360
+    node_speed = raw_node[3] if len(raw_node) > 3 else 0.0
+
+    celestial_bodies["ドラゴンヘッド"] = {
+       "longitude_0": node_deg,
+        "longitude_3": node_speed
+    }
+    celestial_bodies["ドラゴンテイル"] = {
+        "longitude_0": (node_deg + 180) % 360,
+        "longitude_3": node_speed
+    }
+     
+
 
     # ---------------------------
     # 2) 各天体の星座・度数・フォーマット
@@ -250,7 +271,7 @@ def analyze_horoscope_data(data: dict, birth_info: dict) -> dict:
     # ---------------------------
     planet_list = [
         "太陽", "月", "水星", "金星", "火星",
-        "木星", "土星", "天王星", "海王星", "冥王星"
+        "木星", "土星", "天王星", "海王星", "冥王星","ドラゴンヘッド","ドラゴンテイル"
     ]
     aspect_results = []
     for p1, p2 in combinations(planet_list, 2):
