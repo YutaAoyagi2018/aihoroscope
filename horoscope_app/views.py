@@ -249,7 +249,7 @@ def analyze(request):
                 # {"role": "system", "content": "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。"},
                 {"role": "user", "content": user_message},
             ],
-            model="o3-mini",  # 必要に応じてモデル名を修正
+            model="gpt-4o-2024-11-20",  # 必要に応じてモデル名を修正
             timeout=180,
             # temperature=0.7,
             # max_tokens=1500
@@ -366,7 +366,7 @@ def analyze_compatibility(request):
                 # {"role": "system", "content": "あなたは熟練した占星術師であり、日本語で丁寧に分かりやすく回答を行います。"},
                 {"role": "user", "content": user_message},
             ],
-            model="o3-mini",  # 必要に応じてモデル名を修正
+            model="gpt-4o-2024-11-20",  # 必要に応じてモデル名を修正
             timeout=180,
             # temperature=0.7,
             # max_tokens=1500
