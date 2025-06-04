@@ -246,6 +246,38 @@
                 background: linear-gradient(45deg, #2980b9, #3498db);
             }
 
+            #submit-button21 {
+                background: linear-gradient(45deg, #8e44ad, #9b59b6);
+            }
+            /* 恋愛運 */
+            #submit-button22 {
+                background: linear-gradient(45deg, #e74c3c, #e67e22);
+            }
+            /* 仕事運 */
+            #submit-button23 {
+                background: linear-gradient(45deg, #27ae60, #2ecc71);
+            }
+            /* 金運 (テキストは暗色) */
+            #submit-button24 {
+                background: linear-gradient(45deg, #f1c40f, #f39c12);
+            }
+            /* 健康運 */
+            #submit-button25 {
+                background: linear-gradient(45deg, #16a085, #1abc9c);
+            }
+            /* 学業運 (テキストは暗色) */
+            #submit-button26 {
+                background: linear-gradient(45deg, #d35400, #e67e22);
+            }
+            /* 学業運 (テキストは暗色) */
+            #submit-button29 {
+                background: linear-gradient(45deg, #1ABC9C, #16A085);
+            }
+            /* 学業運 (テキストは暗色) */
+            #submit-button30 {
+                background: linear-gradient(45deg, #2980b9, #3498db);
+            }
+
             /* スピナーのスタイル */
             .spinner {
                 border: 4px solid rgba(0, 0, 0, 0.1);
@@ -851,7 +883,7 @@
                                         <div class="horoscope-create">
                                             <!-- <button type="button" id="draw-button" class="open-modal-btn">ホロスコープを作成</button> -->
                                             <button type="button" id="view-button" class="open-modal-btn">ホロスコープの詳細</button>
-                                            <button type="button" id="ai-button" class="">ホロスコープの詳細（AI用）</button>
+                                            <!-- <button type="button" id="ai-button" class="">ホロスコープの詳細（AI用）</button> -->
                                         </div>
                                         <div style="text-align: right;">
                                             <span style="font-size: x-small;">（プラシーダス方式で描きます。）</span>
@@ -862,7 +894,6 @@
                                         </div>
                                         <hr>
                                         <h3>簡易占い</h3>
-                                        <!-- 占いボタン群 -->
                                         <div class="analysis-buttons">
                                             <div class="analysis-button">
                                                 <button type="submit" id="submit-button1">性格</button>
@@ -900,7 +931,6 @@
                                         <br>
                                         <hr>
                                         <h3>詳細占い</h3>
-                                        <!-- 占いボタン群 -->
                                         <div class="analysis-buttons">
                                             <div class="analysis-button">
                                                 <button type="submit" id="submit-button11">性格</button>
@@ -935,12 +965,53 @@
                                                 <div id="spinner20" class="spinner"></div>                                                
                                             </div>
                                         </div>
+                                        <small>※AIがその都度鑑定を行うため、30秒~3分ほどかかります。</small>
+                                        <br>
+                                        <hr>
+                                        <h3>質問</h3>
+                                        <!-- 占いボタン群 -->
+                                        <div class="analysis-buttons">
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button21">性格</button>
+                                                <div id="spinner11" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button22">恋愛運</button>
+                                                <div id="spinner12" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button23">仕事運</button>
+                                                <div id="spinner13" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button24">金運</button>
+                                                <div id="spinner14" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button25">健康運</button>
+                                                <div id="spinner15" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button26">学業運</button>
+                                                <div id="spinner16" class="spinner"></div>
+                                            </div>
+                                            <div  class="analysis-button">
+                                                <button type="submit" id="submit-button29">今日の運勢</button>
+                                                <div id="spinner19" class="spinner"></div>                                                
+                                            </div>
+                                            <div  class="analysis-button">
+                                                <button type="submit" id="submit-button30">今年の運勢</button>
+                                                <div id="spinner20" class="spinner"></div>                                                
+                                        </div>
                                     </div>
-                                    <small>※AIがその都度鑑定を行うため、30秒~3分ほどかかります。</small>
+                                    <small>※質問は即座に表示されます。</small>
                                     <br>
                                     <!-- 占い結果表示 -->
-                                    <h3>回答表示欄</h3>
-                                    <div id="result">AIの回答がここに表示されます</div>
+                                    <h3>回答・質問表示欄
+                                        <!-- コピー ボタン -->
+                                        <button id="copyBtn">コピー</button>
+                                    </h3>
+                                    <div id="result">AIの回答やAIへの質問がここに表示されます</div>
                                     
                                     <hr>
                                     <div id="ad-banner">
@@ -977,7 +1048,7 @@
                                             <p>1.占いたい人の生年月日、出生時刻、出生地を入力します。（出生時刻が分からない場合は不明にチェックを入れてください。）</p>
                                             <p>2.すると自動的にホロスコープが作成されます。</p>
                                             <p>3.ホロスコープの詳細を見たい場合は、ホロスコープの詳細ボタンを押してください。大きなホロスコープを見ることができます。</p>
-                                            <p>4.その後、占いたい項目をカラフルな8つのボタンから選択してください。</p>
+                                            <p>4.その後、占いたい項目を（簡易占いまたは詳細占いの）カラフルな8つのボタンから選択してください。</p>
                                             <p>5.ボタンを押すとAIが<strong>惑星の配置だけに基づいて</strong>、解析結果を占ってくれます。</p>
                                             <p>この解析結果の作成にはOpenAIのAPIを利用しています。</p>
                                         </div>
@@ -986,14 +1057,12 @@
                                         <hr>
                                         <h3>AIを使ったオーダーメイドな使い方</h3>
                                         <div>
-                                            <p>1.生年月日等入力後ホロスコープの詳細（AI用）ボタンを押します。</p>
-                                            <p>（Forbidden: 無効なトークンです。と表示された場合は、トップ画面を再読み込みしてからアクセスしてください。）</p>
-                                            <p>2.出てきたJSONデータをコピーして、お好きなAI（ChatGPT、Gemini、Grok等）に貼り付けます。</p>
-                                            <p>（日本語で読める形式で張り付けたほうがいいと思います。ブラウザによって、この方法は異なります。）
-                                            <br>（また、ChatGPTなどのサイトは各自でアクセスしてください。）</p>
-                                            <p>3.チャット欄の先頭に「以下のホロスコープの人の【聞きたいこと】（運勢など）を教えて」と入力します。</p>
-                                            <p>4.するとホロスコープに基づいた分析を占ってくれます。</p>
-                                            <p>5.チャット形式なので、他にも聞きたいことを続けて聞くことができます。自分の聞きたいAIに自分の好きな質問ができます。</p>
+                                            <p>1.生年月日等入力します。</p>
+                                            <p>2.質問確認から知りたい質問を押します。</p>
+                                            <p>3.コピーボタンを押します。</p>
+                                            <p>4.ChatGPT、Grok、Geminiなどにアクセスします。</p>
+                                            <p>5.コピーした文章を張り付けて質問すると答えてくれます。</p>
+                                            <p>6.チャット形式なので、他にも聞きたいことを続けて聞くことができます。自分の聞きたいAIに自分の好きな質問ができます。</p>
                                             <p>おすすめはOpenAIのGPT-4oです。また、Grok3も比較的正確に返してくれます。</p>
                                         </div>
                                     </div>
@@ -1248,7 +1317,15 @@
             document.getElementById('submit-button15'),
             document.getElementById('submit-button16'),
             document.getElementById('submit-button19'),
-            document.getElementById('submit-button20')
+            document.getElementById('submit-button20'),
+            document.getElementById('submit-button21'),
+            document.getElementById('submit-button22'),
+            document.getElementById('submit-button23'),
+            document.getElementById('submit-button24'),
+            document.getElementById('submit-button25'),
+            document.getElementById('submit-button26'),
+            document.getElementById('submit-button29'),
+            document.getElementById('submit-button30')
             ];
             const resultDiv = document.getElementById('result');
 
@@ -1369,7 +1446,15 @@
             { id: 'submit-button15', spinner: 'spinner15', sb: 15 },
             { id: 'submit-button16', spinner: 'spinner16', sb: 16 },
             { id: 'submit-button19', spinner: 'spinner19', sb: 19 },
-            { id: 'submit-button20', spinner: 'spinner20', sb: 20 }
+            { id: 'submit-button20', spinner: 'spinner20', sb: 20 },
+            { id: 'submit-button21', spinner: 'spinner21', sb: 21 },
+            { id: 'submit-button22', spinner: 'spinner22', sb: 22 },
+            { id: 'submit-button23', spinner: 'spinner23', sb: 23 },
+            { id: 'submit-button24', spinner: 'spinner24', sb: 24 },
+            { id: 'submit-button25', spinner: 'spinner25', sb: 25 },
+            { id: 'submit-button26', spinner: 'spinner26', sb: 26 },
+            { id: 'submit-button29', spinner: 'spinner29', sb: 29 },
+            { id: 'submit-button30', spinner: 'spinner30', sb: 30 }
             ];
 
             buttonConfigs.forEach(({ id, spinner, sb }) => {
@@ -2036,7 +2121,18 @@
             updateHoroscope(); // または updateHoroscope() を直接呼び出す
             });
         </script>
-  
+        
+        <script>
+            document.getElementById("copyBtn").addEventListener("click", function (event) {
+                event.preventDefault(); // デフォルト動作を防ぐ（フォーム内などで有効）
+                const text = document.getElementById("result").innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    alert("コピーしました！");
+                }).catch(err => {
+                    alert("コピーに失敗しました: " + err);
+                });
+            });
+        </script>
   
     </body>
 </html>

@@ -183,7 +183,9 @@
 
             /* 各ボタンのカラー例 */
             #submit-button7,
-            #submit-button8 {
+            #submit-button8,
+            #submit-button17,
+            #submit-button18 {
                 background: linear-gradient(45deg, #2c3e50, #4ca1af); /* 高級感あるグラデーション */
                 color: #fff;
                 padding: 14px 28px;
@@ -360,7 +362,7 @@
             }
             /* 全体コンテナ */
             .horoscope-container {
-            max-width: 1000px;
+            max-width: 1800px;
             margin: 0 auto;
             padding: 0 10px;
             }
@@ -901,20 +903,40 @@
                                             <span>以下から占いたい項目を選んでください。<br>AI占星術師アオポンがあなたのホロスコープから占います。</span>
                                         </div>
                                         <hr>
+                                        <h3>占い</h3>
                                         <!-- 占いボタン群 -->
                                         <div class="analysis-buttons">
-                                        <div class="analysis-button">
-                                            <button type="submit" id="submit-button7">二人の相性</button>
-                                            <div id="spinner7" class="spinner"></div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button7">二人の相性</button>
+                                                <div id="spinner7" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button8">二人の今後</button>
+                                                <div id="spinner8" class="spinner"></div>
+                                            </div>
                                         </div>
-                                        <div class="analysis-button">
-                                            <button type="submit" id="submit-button8">二人の今後</button>
-                                            <div id="spinner8" class="spinner"></div>
+                                        <small>※AIがその都度鑑定を行うため、30秒~3分ほどかかります。</small>
+                                        <br>
+                                        <hr>
+                                        <h3>質問確認</h3>
+                                        <!-- 占いボタン群 -->
+                                        <div class="analysis-buttons">
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button17">二人の相性</button>
+                                                <div id="spinner17" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button18">二人の今後</button>
+                                                <div id="spinner18" class="spinner"></div>
+                                            </div>
                                         </div>
-                                        </div>
+                                        <small>※質問は即座に表示されます。</small>
                                     </div>
-                                    <small>※AIがその都度鑑定を行うため、30秒~3分ほどかかります。</small>
-                                    
+                                    <h3>
+                                        回答・質問表示欄
+                                        <!-- コピー ボタン -->
+                                        <button id="copyBtn">コピー</button>
+                                    </h3>
                                     <!-- 占い結果表示 -->
                                     <div id="result">AIの回答がここに表示されます</div>
                                     
@@ -956,6 +978,19 @@
                                             <p>4.その後、占いたい項目(相性、今後)を2つのボタンから選択してください。</p>
                                             <p>5.ボタンを押すとAIが<strong>惑星の配置だけに基づいて</strong>、解析結果を占ってくれます。</p>
                                             <p>この解析結果の作成にはOpenAIのAPIを利用しています。</p>
+                                        </div>
+                                        <br>
+                                        <br>
+                                        <hr>
+                                        <h3>AIを使ったオーダーメイドな使い方</h3>
+                                        <div>
+                                            <p>1.占いたい人の生年月日、出生時刻、出生地を入力します。（出生時刻が分からない場合は不明にチェックを入れてください。）</p>
+                                            <p>2.質問確認から知りたい質問を押します。</p>
+                                            <p>3.コピーボタンを押します。</p>
+                                            <p>4.ChatGPT、Grok、Geminiなどにアクセスします。</p>
+                                            <p>5.コピーした文章を張り付けて質問すると答えてくれます。</p>
+                                            <p>6.チャット形式なので、他にも聞きたいことを続けて聞くことができます。自分の聞きたいAIに自分の好きな質問ができます。</p>
+                                            <p>おすすめはOpenAIのGPT-4oです。また、Grok3も比較的正確に返してくれます。</p>
                                         </div>
                                     </div>
                                     <div id="ad-banner">
@@ -1317,7 +1352,9 @@
             // 送信ボタンの要素（例: 3つのボタン）
             const submitButtons = [
             document.getElementById('submit-button7'),
-            document.getElementById('submit-button8')
+            document.getElementById('submit-button8'),
+            document.getElementById('submit-button17'),
+            document.getElementById('submit-button18')
             ];
             const resultDiv = document.getElementById('result');
 
@@ -1453,7 +1490,9 @@
             // ボタン設定とイベントリスナーの登録
             const buttonConfigs = [
             { id: 'submit-button7', spinner: 'spinner7', sb: 7 },
-            { id: 'submit-button8', spinner: 'spinner8', sb: 8 }
+            { id: 'submit-button8', spinner: 'spinner8', sb: 8 },
+            { id: 'submit-button17', spinner: 'spinner17', sb: 17 },
+            { id: 'submit-button18', spinner: 'spinner18', sb: 18 }
             ];
 
             buttonConfigs.forEach(({ id, spinner, sb }) => {
@@ -2189,6 +2228,17 @@
 
             const horoscopeUrl = "{% url 'horoscope_app:horoscope_detail' %}?" + params.toString();
             window.location.href = horoscopeUrl;
+            });
+        </script>
+        <script>
+            document.getElementById("copyBtn").addEventListener("click", function (event) {
+                event.preventDefault(); // デフォルト動作を防ぐ（フォーム内などで有効）
+                const text = document.getElementById("result").innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    alert("コピーしました！");
+                }).catch(err => {
+                    alert("コピーに失敗しました: " + err);
+                });
             });
         </script>
     </body>
