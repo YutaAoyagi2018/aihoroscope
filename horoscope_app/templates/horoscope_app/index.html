@@ -214,6 +214,37 @@
             #submit-button10 {
                 background: linear-gradient(45deg, #2980b9, #3498db);
             }
+            #submit-button11 {
+                background: linear-gradient(45deg, #8e44ad, #9b59b6);
+            }
+            /* 恋愛運 */
+            #submit-button12 {
+                background: linear-gradient(45deg, #e74c3c, #e67e22);
+            }
+            /* 仕事運 */
+            #submit-button13 {
+                background: linear-gradient(45deg, #27ae60, #2ecc71);
+            }
+            /* 金運 (テキストは暗色) */
+            #submit-button14 {
+                background: linear-gradient(45deg, #f1c40f, #f39c12);
+            }
+            /* 健康運 */
+            #submit-button15 {
+                background: linear-gradient(45deg, #16a085, #1abc9c);
+            }
+            /* 学業運 (テキストは暗色) */
+            #submit-button16 {
+                background: linear-gradient(45deg, #d35400, #e67e22);
+            }
+            /* 学業運 (テキストは暗色) */
+            #submit-button19 {
+                background: linear-gradient(45deg, #1ABC9C, #16A085);
+            }
+            /* 学業運 (テキストは暗色) */
+            #submit-button20 {
+                background: linear-gradient(45deg, #2980b9, #3498db);
+            }
 
             /* スピナーのスタイル */
             .spinner {
@@ -379,7 +410,7 @@
             }
             /* 全体コンテナ */
             .horoscope-container {
-            max-width: 1000px;
+            max-width: 1800px;
             margin: 0 auto;
             padding: 0 10px;
             }
@@ -822,6 +853,7 @@
                                             <span>以下から占いたい項目を選んでください。<br>AI占星術師アオポンがあなたのホロスコープから占います。</span>
                                         </div>
                                         <hr>
+                                        <h3>簡易占い</h3>
                                         <!-- 占いボタン群 -->
                                         <div class="analysis-buttons">
                                             <div class="analysis-button">
@@ -848,17 +880,51 @@
                                                 <button type="submit" id="submit-button6">学業運</button>
                                                 <div id="spinner6" class="spinner"></div>
                                             </div>
-                                        </div>
-                                        <br>
-                                        <hr>
-                                        <div class="analysis-buttons">
                                             <div  class="analysis-button">
-                                                <button type="submit" id="submit-button9" class="new-badge">今日の運勢</button>
+                                                <button type="submit" id="submit-button9">今日の運勢</button>
                                                 <div id="spinner9" class="spinner"></div>                                                
                                             </div>
                                             <div  class="analysis-button">
-                                                <button type="submit" id="submit-button10" class="new-badge">今年の運勢</button>
+                                                <button type="submit" id="submit-button10">今年の運勢</button>
                                                 <div id="spinner10" class="spinner"></div>                                                
+                                            </div>
+                                        </div>
+                                        <br>
+                                        <hr>
+                                        <h3>詳細占い</h3>
+                                        <!-- 占いボタン群 -->
+                                        <div class="analysis-buttons">
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button11">性格</button>
+                                                <div id="spinner11" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button12">恋愛運</button>
+                                                <div id="spinner12" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button13">仕事運</button>
+                                                <div id="spinner13" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button14">金運</button>
+                                                <div id="spinner14" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button15">健康運</button>
+                                                <div id="spinner15" class="spinner"></div>
+                                            </div>
+                                            <div class="analysis-button">
+                                                <button type="submit" id="submit-button16">学業運</button>
+                                                <div id="spinner16" class="spinner"></div>
+                                            </div>
+                                            <div  class="analysis-button">
+                                                <button type="submit" id="submit-button19">今日の運勢</button>
+                                                <div id="spinner19" class="spinner"></div>                                                
+                                            </div>
+                                            <div  class="analysis-button">
+                                                <button type="submit" id="submit-button20">今年の運勢</button>
+                                                <div id="spinner20" class="spinner"></div>                                                
                                             </div>
                                         </div>
                                     </div>
@@ -1165,7 +1231,15 @@
             document.getElementById('submit-button5'),
             document.getElementById('submit-button6'),
             document.getElementById('submit-button9'),
-            document.getElementById('submit-button10')
+            document.getElementById('submit-button10'),
+            document.getElementById('submit-button11'),
+            document.getElementById('submit-button12'),
+            document.getElementById('submit-button13'),
+            document.getElementById('submit-button14'),
+            document.getElementById('submit-button15'),
+            document.getElementById('submit-button16'),
+            document.getElementById('submit-button19'),
+            document.getElementById('submit-button20')
             ];
             const resultDiv = document.getElementById('result');
 
@@ -1278,7 +1352,15 @@
             { id: 'submit-button5', spinner: 'spinner5', sb: 5 },
             { id: 'submit-button6', spinner: 'spinner6', sb: 6 },
             { id: 'submit-button9', spinner: 'spinner9', sb: 9 },
-            { id: 'submit-button10', spinner: 'spinner10', sb: 10 }
+            { id: 'submit-button10', spinner: 'spinner10', sb: 10 },
+            { id: 'submit-button11', spinner: 'spinner11', sb: 11 },
+            { id: 'submit-button12', spinner: 'spinner12', sb: 12 },
+            { id: 'submit-button13', spinner: 'spinner13', sb: 13 },
+            { id: 'submit-button14', spinner: 'spinner14', sb: 14 },
+            { id: 'submit-button15', spinner: 'spinner15', sb: 15 },
+            { id: 'submit-button16', spinner: 'spinner16', sb: 16 },
+            { id: 'submit-button19', spinner: 'spinner19', sb: 19 },
+            { id: 'submit-button20', spinner: 'spinner20', sb: 20 }
             ];
 
             buttonConfigs.forEach(({ id, spinner, sb }) => {

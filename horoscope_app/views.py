@@ -147,6 +147,7 @@ def analyze(request):
             "【ネイタルチャート】\n"
             f"{horoscope_str}\n\n"
             "この人の性格はどのようになっていると考えられますか？\n"
+            f"400字程度で結論だけ教えてください。\n"
         )
     elif sb == 2:
         user_message += (
@@ -154,6 +155,7 @@ def analyze(request):
             "【ネイタルチャート】\n"
             f"{horoscope_str}\n\n"
             "この人の恋愛運はどのようになっていると考えられますか？\n"
+            f"400字程度で結論だけ教えてください。\n"
         )
     elif sb == 3:
         user_message += (
@@ -161,6 +163,7 @@ def analyze(request):
             "【ネイタルチャート】\n"
             f"{horoscope_str}\n\n"
             "この人の仕事運はどのようになっていると考えられますか？\n"
+            f"400字程度で結論だけ教えてください。\n"
         )
     elif sb == 4:
         user_message += (
@@ -168,6 +171,7 @@ def analyze(request):
             "【ネイタルチャート】\n"
             f"{horoscope_str}\n\n"
             "この人の金運はどのようになっていると考えられますか？\n"
+            f"400字程度で結論だけ教えてください。\n"
         )
     elif sb == 5:
         user_message += (
@@ -175,6 +179,7 @@ def analyze(request):
             "【ネイタルチャート】\n"
             f"{horoscope_str}\n\n"
             "この人の健康運はどのようになっていると考えられますか？\n"
+            f"400字程度で結論だけ教えてください。\n"
         )
     elif sb == 6:
         user_message += (
@@ -182,6 +187,7 @@ def analyze(request):
             "【ネイタルチャート】\n"
             f"{horoscope_str}\n\n"
             "この人の学業運はどのようになっていると考えられますか？\n"
+            f"400字程度で結論だけ教えてください。\n"
         )
     elif sb == 9:
         tokyo_now = datetime.datetime.now(ZoneInfo("Asia/Tokyo"))
@@ -231,7 +237,99 @@ def analyze(request):
             f"【ネイタルチャート】\n{horoscope_str}\n\n"
             f"{transit_messages}\n\n"
             f"トランジットの特に外惑星との関係から、この人の今年（{year_t}年）の運勢はどのようになっていると考えられますか？\n"
+            f"400字程度で結論だけ教えてください。\n"
         )
+    elif sb == 11:
+        user_message += (
+            "以下のネイタルチャートを参考に、性格を教えてください。\n"
+            "【ネイタルチャート】\n"
+            f"{horoscope_str}\n\n"
+            "この人の性格はどのようになっていると考えられますか？\n"
+        )
+    elif sb == 12:
+        user_message += (
+            "以下のネイタルチャートを参考に、恋愛運を教えてください。\n"
+            "【ネイタルチャート】\n"
+            f"{horoscope_str}\n\n"
+            "この人の恋愛運はどのようになっていると考えられますか？\n"
+        )
+    elif sb == 13:
+        user_message += (
+            "以下のネイタルチャートを参考に、仕事運を教えてください。\n"
+            "【ネイタルチャート】\n"
+            f"{horoscope_str}\n\n"
+            "この人の仕事運はどのようになっていると考えられますか？\n"
+        )
+    elif sb == 14:
+        user_message += (
+            "以下のネイタルチャートを参考に、金運を教えてください。\n"
+            "【ネイタルチャート】\n"
+            f"{horoscope_str}\n\n"
+            "この人の金運はどのようになっていると考えられますか？\n"
+        )
+    elif sb == 15:
+        user_message += (
+            "以下のネイタルチャートを参考に、健康運を教えてください。\n"
+            "【ネイタルチャート】\n"
+            f"{horoscope_str}\n\n"
+            "この人の健康運はどのようになっていると考えられますか？\n"
+        )
+    elif sb == 16:
+        user_message += (
+            "以下のネイタルチャートを参考に、学業運を教えてください。\n"
+            "【ネイタルチャート】\n"
+            f"{horoscope_str}\n\n"
+            "この人の学業運はどのようになっていると考えられますか？\n"
+        )
+    elif sb == 19:
+        tokyo_now = datetime.datetime.now(ZoneInfo("Asia/Tokyo"))
+        today = tokyo_now.date()
+        year_t = today.year
+        month_t = today.month
+        day_t = today.day
+        result_dict = compute_horoscope(year_t, month_t, day_t, 12, 0, lat, lon, tz, dst, prefecture)
+        transit_data = result_dict.get("analysis", {}).get("1.天体の配置")
+        filtered_dict = {key: value for key, value in transit_data.items() if key not in ['アセンダント', 'ミッドヘヴェン']}
+        transit_str = json.dumps(filtered_dict, ensure_ascii=False, indent=2)
+        user_message += (
+            f"以下のネイタルチャートとトランジットの惑星データを参考に、アスペクトも計算して、今日（{year_t}年{month_t}月{day_t}日）の運勢を教えてください。\n"
+            "【ネイタルチャート】\n"
+            f"{horoscope_str}\n\n"
+            "【トランジットの惑星】\n"
+            f"{transit_str}\n\n"
+            f"この人の今日（{year_t}年{month_t}月{day_t}日）の運勢はどのようになっていると考えられますか？\n"
+        )
+    elif sb == 20:
+        tokyo_now = datetime.datetime.now(ZoneInfo("Asia/Tokyo"))
+        today = tokyo_now.date()
+        year_t = today.year
+
+        # 各月のトランジットデータを格納する辞書を初期化
+        transit_str = {}
+
+        for month in range(1, 13):
+            # 各月のホロスコープを計算
+            horoscope_result = compute_horoscope(year_t, month, 1, 12, 0, lat, lon, tz, dst, prefecture)
+            result_dict[month] = horoscope_result
+
+            # トランジットデータの抽出と不要なキーの除外
+            transit_data = horoscope_result.get("analysis", {}).get("1.天体の配置", {})
+            filtered = {k: v for k, v in transit_data.items() if k not in ['アセンダント', 'ミッドヘヴェン']}
+            transit_str[month] = json.dumps(filtered, ensure_ascii=False, indent=2)
+
+        # 各月のトランジットデータの文字列を生成
+        transit_messages = "\n\n".join(
+            [f"【トランジットの惑星{month}月】\n{transit_str[month]}" for month in range(1, 13)]
+        )
+
+        # ユーザーメッセージの生成
+        user_message += (
+            f"以下のネイタルチャートとトランジットの惑星データを参考に、アスペクトも計算して、今年（{year_t}年）の運勢を教えてください。\n"
+            f"【ネイタルチャート】\n{horoscope_str}\n\n"
+            f"{transit_messages}\n\n"
+            f"トランジットの特に外惑星との関係から、この人の今年（{year_t}年）の運勢はどのようになっていると考えられますか？\n"
+        )
+
 
     if unknown:
         user_message += "出生時刻が不明なので、アセンダント、MC、ハウスのデータは使わないでください。"
