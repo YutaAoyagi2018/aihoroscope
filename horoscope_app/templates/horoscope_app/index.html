@@ -264,7 +264,15 @@
             }
 
             /* 結果表示のスタイル */
-            #result,
+            #result {
+                margin-top: 20px;
+                padding: 15px;
+                border: 1px solid #ccc;
+                background-color: #f9f9f9;
+                white-space: pre-line;
+                font-size: 16px;
+                color: #333;
+            }
             .result-sample {
                 margin-top: 30px;
                 padding: 15px;
@@ -929,8 +937,9 @@
                                         </div>
                                     </div>
                                     <small>※AIがその都度鑑定を行うため、30秒~3分ほどかかります。</small>
-                                    
+                                    <br>
                                     <!-- 占い結果表示 -->
+                                    <h3>回答表示欄</h3>
                                     <div id="result">AIの回答がここに表示されます</div>
                                     
                                     <hr>
