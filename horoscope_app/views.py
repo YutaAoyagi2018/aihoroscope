@@ -51,30 +51,48 @@ def compatibility(request):
     return render(request, 'horoscope_app/compatibility.html', {'years': years, 'months': months, 'days': days})
 
 
+@csrf_exempt
 def horoscope(request):
     """
-    GETパラメータからホロスコープを計算して JSON を返すAPIエンドポイント。
+    POSTデータからホロスコープを計算して JSON を返すAPIエンドポイント。
 
     例:
-      /horoscope?year=2025&month=1&day=29&hour=14&minute=30
-        &lat=35.6895&lon=139.6917&tz=9.0&dst=0.0
+      POST /horoscope
+      Body (x-www-form-urlencoded または JSON):
+        {
+          "year": 2025,
+          "month": 1,
+          "day": 29,
+          "hour": 14,
+          "minute": 30,
+          "lat": 35.6895,
+          "lon": 139.6917,
+          "tz": 9.0,
+          "dst": 0.0,
+          "prefecture": "Tokyo"
+        }
     """
-    if request.method != "GET":
-        return JsonResponse({"error": "Invalid request method. GETのみ対応しています。"}, status=400)
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method. POSTのみ対応しています。"}, status=400)
 
-    # GETから各値を取得
     try:
-        year = int(request.GET.get("year", "2023"))
-        month = int(request.GET.get("month", "1"))
-        day = int(request.GET.get("day", "1"))
-        hour = int(request.GET.get("hour", "0"))
-        minute = int(request.GET.get("minute", "0"))
-        lat = float(request.GET.get("lat", "35.6895"))
-        lon = float(request.GET.get("lon", "139.6917"))
-        tz = float(request.GET.get("tz", "9.0"))
-        dst = float(request.GET.get("dst", "0.0"))
-        prefecture = request.GET.get('prefecture', 'Tokyo')
-    except ValueError as ve:
+        # JSONで送られてきた場合にも対応
+        data = request.POST or request.body
+        if request.content_type == 'application/json':
+            import json
+            data = json.loads(request.body)
+
+        year = int(data.get("year", 2023))
+        month = int(data.get("month", 1))
+        day = int(data.get("day", 1))
+        hour = int(data.get("hour", 0))
+        minute = int(data.get("minute", 0))
+        lat = float(data.get("lat", 35.6895))
+        lon = float(data.get("lon", 139.6917))
+        tz = float(data.get("tz", 9.0))
+        dst = float(data.get("dst", 0.0))
+        prefecture = data.get("prefecture", "Tokyo")
+    except (ValueError, TypeError) as ve:
         return JsonResponse({"error": "Invalid input parameters", "details": str(ve)}, status=400)
 
     try:
@@ -83,16 +101,13 @@ def horoscope(request):
             raise ValidationError("日付は1900年1月1日から2100年12月31日までの範囲で入力してください。")
     except ValidationError as ve:
         return JsonResponse({"error": str(ve)}, status=400)
-    except Exception as e:
+    except Exception:
         return JsonResponse({"error": "日付の解析に失敗しました。"}, status=400)
-    
 
-    # ユーティリティ関数で計算
+    # 計算処理
     result_dict = compute_horoscope(year, month, day, hour, minute, lat, lon, tz, dst, prefecture)
-    
-    # JSONとして返す
-    return JsonResponse(result_dict)
 
+    return JsonResponse(result_dict)
 
 @csrf_protect
 def analyze(request):

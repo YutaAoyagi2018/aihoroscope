@@ -633,6 +633,25 @@
             box-sizing: border-box; /* パディング等を含めた幅の計算 */
             /* 必要に応じて最大幅や最小幅を指定 */
             }
+            .site-footer{
+            margin-top: 40px;
+            padding: 16px 12px;
+            border-top: 1px solid #eee;
+            background: #fafafa;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            }
+            .site-footer a{
+            text-decoration: underline;
+            }
+            .site-footer a:hover{
+            opacity: 0.8;
+            }
+            html, body { height: 100%; }
+            body { display: flex; flex-direction: column; }
+            .wrapper { flex: 1 0 auto; }
+            .site-footer { flex-shrink: 0; }
         </style>
     </head>
     
@@ -1146,9 +1165,104 @@
                 </main>
             </div> <!-- .layout-wrapper -->
             
+            <footer class="site-footer">
+                <p>
+                    © {% now "Y" %} AI占星術師アオポン —
+                    <a href="https://github.com/YutaAoyagi2018/aihoroscope" target="_blank" rel="noopener noreferrer">
+                        GitHubでソースを見る
+                    </a>
+                </p>
+            </footer>
         </div>
 
+        <script>
+        // 既存の getCookie があればそのままでOK（無ければ下を使用）
+        function getCookie(name) {
+            const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return m ? decodeURIComponent(m.pop()) : '';
+        }
 
+        // prefix = "1" or "2"
+        function buildParamsFromForm(prefix) {
+            const form = document.getElementById('horoscope-form');
+            const fd = new FormData(form);
+            const year  = fd.get('year' + prefix);
+            const month = fd.get('month' + prefix);
+            const day   = fd.get('day' + prefix);
+            const time  = fd.get('time' + prefix) || "12:00";
+            const prefecture = fd.get('prefecture' + prefix);
+            const lat   = fd.get('lat' + prefix);
+            const lon   = fd.get('lon' + prefix);
+            const tz    = fd.get('tz' + prefix);
+            const dst   = fd.get('dst' + prefix);
+
+            const [hour, minute] = time.split(':');
+
+            return new URLSearchParams({
+            year, month, day,
+            hour, minute,
+            lat, lon,
+            tz, dst,
+            prefecture
+            });
+        }
+
+        async function fetchHoroscopeAndDraw(prefix, containerId, canvasId) {
+            const params = buildParamsFromForm(prefix);
+            const url = "{% url 'horoscope_app:horoscope' %}";
+
+            const response = await fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: params.toString()
+            });
+
+            if (!response.ok) {
+            throw new Error("ホロスコープデータの取得に失敗しました");
+            }
+            const data = await response.json();
+
+            const chartContainer = document.getElementById(containerId);
+            chartContainer.style.display = 'block';
+            drawHoroscopeWheel(data, containerId, canvasId);
+
+            // 既存の保存関数があるなら呼び出し
+            const form = document.getElementById('horoscope-form');
+            if (typeof saveFormDataToCookies === 'function') {
+            saveFormDataToCookies(new FormData(form));
+            }
+        }
+
+        // POST で別ページへ遷移（Django CSRF 対応）
+        function postRedirect(actionUrl, params) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = actionUrl;
+
+            // CSRF
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = 'csrfmiddlewaretoken';
+            csrf.value = getCookie('csrftoken');
+            form.appendChild(csrf);
+
+            // params（URLSearchParams）を hidden にして追加
+            for (const [k, v] of params.entries()) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = k;
+            input.value = v;
+            form.appendChild(input);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+        </script>
         <!-- (A) 時刻不明チェックボックスの自動処理 -->
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -1959,217 +2073,110 @@
         </script>
 
 
-        <!-- (G-1) 「ホロスコープを作成」ボタンの処理 (本番データで描画) -->
         <script>
-            document.getElementById('draw-button1').addEventListener('click', async function() {
-                // (1) フォームの入力からパラメータを生成
-                const form = document.getElementById('horoscope-form');
-                const formData = new FormData(form);
-                const year  = formData.get('year1');
-                const month = formData.get('month1');
-                const day   = formData.get('day1');
-                const time  = formData.get('time1') || "12:00";
-                const prefecture = formData.get('prefecture1');
-                const lat   = formData.get('lat1');
-                const lon   = formData.get('lon1');
-                const tz    = formData.get('tz1');
-                const dst   = formData.get('dst1');
-    
-                // 不明時刻の場合は hour, minute = '12:00' などで補正
-                const [hour, minute] = time.split(':');
-    
-                // クエリパラメータを作成 (Django想定の例)
-                const params = new URLSearchParams({
-                    year, month, day,
-                    hour, minute,
-                    lat, lon,
-                    tz, dst,
-                    prefecture
-                });
-                // 例: /horoscope_app/horoscope/?year=...&month=... など
-                // 実際のURLはサーバー側に合わせて修正してください
-                const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
-    
-                // (2) fetch でサーバーからホロスコープデータを取得
-                try {
-                    const response = await fetch(horoscopeUrl, {
-                        method: 'GET',
-                    });
-                    if (!response.ok) {
-                        throw new Error("ホロスコープデータの取得に失敗しました");
-                    }
-    
-                    const horoscopeData = await response.json();
-    
-                    // (3) モーダルを表示後、実際に描画
-                    const chartContainer = document.getElementById('chart-container1');
-                    chartContainer.style.display = 'block';
-                    drawHoroscopeWheel(horoscopeData,'chart-container1','horoscope-canvas1');
-                    saveFormDataToCookies(formData);
-    
-                } catch (err) {
-                    alert(err.message);
-                }
+
+        // prefix = "1" or "2"（フォームから送信用パラメータを作る）
+        function buildParamsFromForm(prefix) {
+            const form = document.getElementById('horoscope-form');
+            const fd = new FormData(form);
+
+            const year  = fd.get('year' + prefix);
+            const month = fd.get('month' + prefix);
+            const day   = fd.get('day' + prefix);
+            const time  = fd.get('time' + prefix) || '12:00';
+            const prefecture = fd.get('prefecture' + prefix);
+            const lat   = fd.get('lat' + prefix);
+            const lon   = fd.get('lon' + prefix);
+            const tz    = fd.get('tz' + prefix);
+            const dst   = fd.get('dst' + prefix);
+
+            const [hour, minute] = time.split(':');
+
+            return new URLSearchParams({
+            year, month, day,
+            hour, minute,
+            lat, lon,
+            tz, dst,
+            prefecture
             });
-        </script>
-        <!-- (G2-1) 「ホロスコープを作成」の処理画面読み込み時 (本番データで描画) -->
-        <script>
-            document.addEventListener('DOMContentLoaded', async function() {
-                // (1) フォームの入力からパラメータを生成
-                const form = document.getElementById('horoscope-form');
-                const formData = new FormData(form);
-                const year  = formData.get('year1');
-                const month = formData.get('month1');
-                const day   = formData.get('day1');
-                const time  = formData.get('time1') || "12:00";
-                const prefecture = formData.get('prefecture1');
-                const lat   = formData.get('lat1');
-                const lon   = formData.get('lon1');
-                const tz    = formData.get('tz1');
-                const dst   = formData.get('dst1');
-    
-                // 不明時刻の場合は hour, minute = '12:00' などで補正
-                const [hour, minute] = time.split(':');
-    
-                // クエリパラメータを作成 (Django想定の例)
-                const params = new URLSearchParams({
-                    year, month, day,
-                    hour, minute,
-                    lat, lon,
-                    tz, dst,
-                    prefecture
-                });
-                // 例: /horoscope_app/horoscope/?year=...&month=... など
-                // 実際のURLはサーバー側に合わせて修正してください
-                const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
-    
-                // (2) fetch でサーバーからホロスコープデータを取得
-                try {
-                    const response = await fetch(horoscopeUrl, {
-                        method: 'GET',
-                    });
-                    if (!response.ok) {
-                        throw new Error("ホロスコープデータの取得に失敗しました");
-                    }
-    
-                    const horoscopeData = await response.json();
-    
-                    // (3) モーダルを表示後、実際に描画
-                    const chartContainer = document.getElementById('chart-container1');
-                    chartContainer.style.display = 'block';
-                    drawHoroscopeWheel(horoscopeData,'chart-container1','horoscope-canvas1');
-                    saveFormDataToCookies(formData);
-    
-                } catch (err) {
-                    alert(err.message);
-                }
+        }
+
+        // POST で取得 → キャンバス描画 → Cookie 保存（必要なら）
+        async function fetchHoroscopeAndDraw(prefix, containerId, canvasId, alsoSaveCookies = true) {
+            const params = buildParamsFromForm(prefix);
+            const url = "{% url 'horoscope_app:horoscope' %}";
+
+            const response = await fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: params.toString()
             });
-        </script>
-        <!-- (G-2) 「ホロスコープを作成」ボタンの処理 (本番データで描画) -->
-        <script>
-            document.getElementById('draw-button2').addEventListener('click', async function() {
-                // (1) フォームの入力からパラメータを生成
-                const form = document.getElementById('horoscope-form');
-                const formData = new FormData(form);
-                const year  = formData.get('year2');
-                const month = formData.get('month2');
-                const day   = formData.get('day2');
-                const time  = formData.get('time2') || "12:00";
-                const prefecture = formData.get('prefecture2');
-                const lat   = formData.get('lat2');
-                const lon   = formData.get('lon2');
-                const tz    = formData.get('tz2');
-                const dst   = formData.get('dst2');
-    
-                // 不明時刻の場合は hour, minute = '12:00' などで補正
-                const [hour, minute] = time.split(':');
-    
-                // クエリパラメータを作成 (Django想定の例)
-                const params = new URLSearchParams({
-                    year, month, day,
-                    hour, minute,
-                    lat, lon,
-                    tz, dst,
-                    prefecture
-                });
-                // 例: /horoscope_app/horoscope/?year=...&month=... など
-                // 実際のURLはサーバー側に合わせて修正してください
-                const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
-    
-                // (2) fetch でサーバーからホロスコープデータを取得
-                try {
-                    const response = await fetch(horoscopeUrl, {
-                        method: 'GET',
-                    });
-                    if (!response.ok) {
-                        throw new Error("ホロスコープデータの取得に失敗しました");
-                    }
-    
-                    const horoscopeData = await response.json();
-    
-                    // (3) モーダルを表示後、実際に描画
-                    const chartContainer = document.getElementById('chart-container2');
-                    chartContainer.style.display = 'block';
-                    drawHoroscopeWheel(horoscopeData,'chart-container2','horoscope-canvas2');
-                    saveFormDataToCookies(formData);
-    
-                } catch (err) {
-                    alert(err.message);
-                }
+
+            if (!response.ok) {
+            throw new Error('ホロスコープデータの取得に失敗しました');
+            }
+
+            const data = await response.json();
+
+            const chartContainer = document.getElementById(containerId);
+            chartContainer.style.display = 'block';
+            // 既存の drawHoroscopeWheel(horoscopeData, containerId, canvasId) を使用
+            drawHoroscopeWheel(data, containerId, canvasId);
+
+            if (alsoSaveCookies && typeof saveFormDataToCookies === 'function') {
+            const form = document.getElementById('horoscope-form');
+            saveFormDataToCookies(new FormData(form));
+            }
+        }
+
+        // ---------- イベント: ボタン（1人目） ----------
+        const btn1 = document.getElementById('draw-button1');
+        if (btn1) {
+            btn1.addEventListener('click', async function () {
+            try {
+                await fetchHoroscopeAndDraw('1', 'chart-container1', 'horoscope-canvas1', true);
+            } catch (e) {
+                alert(e.message);
+                console.error(e);
+            }
             });
-        </script>
-        <!-- (G2-2) 「ホロスコープを作成」の処理画面読み込み時 (本番データで描画) -->
-        <script>
-            document.addEventListener('DOMContentLoaded', async function() {
-                // (1) フォームの入力からパラメータを生成
-                const form = document.getElementById('horoscope-form');
-                const formData = new FormData(form);
-                const year  = formData.get('year2');
-                const month = formData.get('month2');
-                const day   = formData.get('day2');
-                const time  = formData.get('time2') || "12:00";
-                const prefecture = formData.get('prefecture2');
-                const lat   = formData.get('lat2');
-                const lon   = formData.get('lon2');
-                const tz    = formData.get('tz2');
-                const dst   = formData.get('dst2');
-    
-                // 不明時刻の場合は hour, minute = '12:00' などで補正
-                const [hour, minute] = time.split(':');
-    
-                // クエリパラメータを作成 (Django想定の例)
-                const params = new URLSearchParams({
-                    year, month, day,
-                    hour, minute,
-                    lat, lon,
-                    tz, dst,
-                    prefecture
-                });
-                // 例: /horoscope_app/horoscope/?year=...&month=... など
-                // 実際のURLはサーバー側に合わせて修正してください
-                const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
-    
-                // (2) fetch でサーバーからホロスコープデータを取得
-                try {
-                    const response = await fetch(horoscopeUrl, {
-                        method: 'GET',
-                    });
-                    if (!response.ok) {
-                        throw new Error("ホロスコープデータの取得に失敗しました");
-                    }
-    
-                    const horoscopeData = await response.json();
-    
-                    // (3) モーダルを表示後、実際に描画
-                    const chartContainer = document.getElementById('chart-container2');
-                    chartContainer.style.display = 'block';
-                    drawHoroscopeWheel(horoscopeData,'chart-container2','horoscope-canvas2');
-                    saveFormDataToCookies(formData);
-    
-                } catch (err) {
-                    alert(err.message);
-                }
+        }
+
+        // ---------- イベント: 画面読み込み時（1人目） ----------
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+            await fetchHoroscopeAndDraw('1', 'chart-container1', 'horoscope-canvas1', true);
+            } catch (e) {
+            // 初回は静かに
+            console.warn(e);
+            }
+        });
+
+        // ---------- イベント: ボタン（2人目） ----------
+        const btn2 = document.getElementById('draw-button2');
+        if (btn2) {
+            btn2.addEventListener('click', async function () {
+            try {
+                await fetchHoroscopeAndDraw('2', 'chart-container2', 'horoscope-canvas2', true);
+            } catch (e) {
+                alert(e.message);
+                console.error(e);
+            }
             });
+        }
+
+        // ---------- イベント: 画面読み込み時（2人目） ----------
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+            await fetchHoroscopeAndDraw('2', 'chart-container2', 'horoscope-canvas2', true);
+            } catch (e) {
+            console.warn(e);
+            }
+        });
         </script>
         <!-- 詳細画面へリンク -->
         <script>

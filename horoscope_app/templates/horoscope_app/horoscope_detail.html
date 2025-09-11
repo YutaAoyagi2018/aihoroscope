@@ -118,16 +118,41 @@
         #chart-container {
             display: block;   /* またはJavaScriptで指定された値と合わせる */
             margin: 0 auto;
+            max-width: 700px;          /* レイアウトの上限（JS側と合わせる） */
         }
         .wrapper {
             padding: 20px;
         }
-
+        /* キャンバスはレイアウトサイズはCSS、実ピクセルはJSで持たせる */
+        #horoscope-canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
         *,
         *::before,
         *::after {
             box-sizing: border-box;
         }
+        .site-footer{
+        margin-top: 40px;
+        padding: 16px 12px;
+        border-top: 1px solid #eee;
+        background: #fafafa;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #666;
+        }
+        .site-footer a{
+        text-decoration: underline;
+        }
+        .site-footer a:hover{
+        opacity: 0.8;
+        }
+        html, body { height: 100%; }
+        body { display: flex; flex-direction: column; }
+        .wrapper { flex: 1 0 auto; }
+        .site-footer { flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -294,7 +319,21 @@
 
 
     </div><!-- /.tables-wrapper -->
+    <footer class="site-footer">
+        <p>
+            © {% now "Y" %} AI占星術師アオポン —
+            <a href="https://github.com/YutaAoyagi2018/aihoroscope" target="_blank" rel="noopener noreferrer">
+                GitHubでソースを見る
+            </a>
+        </p>
+    </footer>
 </div>
+<script>
+  function getCookie(name) {
+    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? decodeURIComponent(m.pop()) : '';
+  }
+</script>
 <!-- (F) ホロスコープを生成・描画するスクリプト -->
 <script>
     // 惑星英名 => 惑星和名
@@ -751,55 +790,61 @@
 </script>
 <!-- (G) 「ホロスコープを作成」の処理 画面読み込み時(本番データで描画) -->
 <script>
-    document.addEventListener('DOMContentLoaded', async function() {
-        // 現在のページのクエリ文字列を取得
-        const queryString = window.location.search;
+    document.addEventListener('DOMContentLoaded', async function () {
+    // 1) URLクエリからパラメータを回収
+    const urlParams = new URLSearchParams(window.location.search);
 
-        // URLSearchParamsオブジェクトを作成
-        const urlParams = new URLSearchParams(queryString);
+    const year       = urlParams.get('year');
+    const month      = urlParams.get('month');
+    const day        = urlParams.get('day');
+    const hour       = urlParams.get('hour');
+    const minute     = urlParams.get('minute');
+    const lat        = urlParams.get('lat');
+    const lon        = urlParams.get('lon');
+    const tz         = urlParams.get('tz');
+    const dst        = urlParams.get('dst');
+    const prefecture = urlParams.get('prefecture');
 
-        const year  = urlParams.get('year');
-        const month = urlParams.get('month');
-        const day   = urlParams.get('day');
-        const hour  = urlParams.get('hour');
-        const minute  = urlParams.get('minute');
-        const lat   = urlParams.get('lat');
-        const lon   = urlParams.get('lon');
-        const tz    = urlParams.get('tz');
-        const dst   = urlParams.get('dst');
-        const prefecture = urlParams.get('prefecture')
-
-        // クエリパラメータを作成 (Django想定の例)
-        const params = new URLSearchParams({
-            year, month, day,
-            hour, minute,
-            lat, lon,
-            tz, dst,
-            prefecture
-        });
-        // 例: /horoscope_app/horoscope/?year=...&month=... など
-        // 実際のURLはサーバー側に合わせて修正してください
-        const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}?" + params.toString();
-
-        // (2) fetch でサーバーからホロスコープデータを取得
-        try {
-            const response = await fetch(horoscopeUrl, {
-                method: 'GET',
-            });
-            if (!response.ok) {
-                throw new Error("ホロスコープデータの取得に失敗しました");
-            }
-
-            const horoscopeData = await response.json();
-
-            // (3) モーダルを表示後、実際に描画
-            const chartContainer = document.getElementById('chart-container');
-            chartContainer.style.display = 'block';
-            drawHoroscopeWheel(horoscopeData);
-        } catch (err) {
-            alert(err.message);
-        }
+    // 2) サーバへ送るボディ（x-www-form-urlencoded）
+    const params = new URLSearchParams({
+      year, month, day,
+      hour, minute,
+      lat, lon,
+      tz, dst,
+      prefecture
     });
+
+    // 3) エンドポイント（DjangoのURL名に合わせています）
+    const horoscopeUrl = "{% url 'horoscope_app:horoscope' %}";
+
+    try {
+      // 4) POST で取得（CSRF を付ける / クッキー送信する）
+      const response = await fetch(horoscopeUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        credentials: 'same-origin',
+        body: params.toString(),
+      });
+
+      if (!response.ok) {
+        throw new Error('ホロスコープデータの取得に失敗しました');
+      }
+
+      // 5) JSON を受け取って描画
+      const horoscopeData = await response.json();
+
+      const chartContainer = document.getElementById('chart-container');
+      chartContainer.style.display = 'block';
+      drawHoroscopeWheel(horoscopeData);
+
+    } catch (err) {
+      alert(err.message);
+      console.error(err);
+    }
+  });
 </script>
 
 <!-- 保存ボタン -->
