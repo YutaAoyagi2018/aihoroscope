@@ -1,7 +1,7 @@
-# Aihoroscope Web App(Django + Swiss Ephemeris)
+# Aihoroscope Web App(Django + Swiss Ephemeris + OpenAI API)
 
 このリポジトリは、Djangoで構築した占星術サイトのソースコードです。  
-本プロジェクトは **Swiss Ephemeris** を利用して天体計算を行っています。
+本プロジェクトは **Swiss Ephemeris** を利用して天体計算を行い、さらに **OpenAI API** によって占星術解釈文を自動生成しています。
 
 ## 概要
 
@@ -47,14 +47,22 @@ Swiss Ephemeris は Astrodienst AG が著作権を有し、AGPL または有料�
 詳細は公式サイトをご覧ください:
 https://www.astro.com/swisseph/
 
-## 注意点
-このリポジトリには機密情報（APIキー、パスワード等）は含まれていません。
+## AIによる占い解釈について
 
-実運用時には settings.py の SECRET_KEY や DB接続情報 を環境変数で設定してください。
+本アプリは占星術の計算に加えて、文章生成の一部に **OpenAI API** を利用しています。
+
+- ホロスコープの解釈文や性格分析の自動生成に使用  
+- OpenAI APIキーはこのリポジトリには含まれていません  
+- 実行する場合は、ご自身で OpenAI のアカウントを作成し、APIキーを環境変数 `OPENAI_API_KEY` に設定してください  
+
+## 注意点
+
+- このリポジトリには機密情報（APIキー、パスワード等）は含まれていません。  
+- 実運用時には `settings.py` の **SECRET_KEY** や **DB接続情報** を環境変数で設定してください。  
+- OpenAI APIキーも同様に環境変数で管理してください。  
 
 ## 謝辞
-Swiss Ephemeris by Astrodienst AG
-
-Django Software Foundation
-
-占星術に関心を持ってくださるすべての方々
+- [Swiss Ephemeris](https://www.astro.com/swisseph/) by Astrodienst AG  
+- [OpenAI](https://openai.com/)  
+- [Django Software Foundation](https://www.djangoproject.com/foundation/)  
+- 占星術に関心を持ってくださるすべての方々
