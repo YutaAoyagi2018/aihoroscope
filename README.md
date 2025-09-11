@@ -8,6 +8,7 @@
 - フレームワーク: [Django](https://www.djangoproject.com/)
 - 言語: Python 3.x
 - 天体計算: [Swiss Ephemeris](https://www.astro.com/swisseph/swephinfo_e.htm)
+- 文章生成: [OpenAI API](https://platform.openai.com/)
 - 占星術のホロスコープ計算と自動解釈を提供するWebアプリケーション
 
 ## 必要環境
@@ -15,6 +16,7 @@
 - Python 3.9以上
 - Django 4.x以上
 - Swiss Ephemeris (ライブラリとデータファイル)
+- OpenAI APIキー（利用者自身で取得）
 
 ## インストール方法
 
